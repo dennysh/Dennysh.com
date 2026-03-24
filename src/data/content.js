@@ -13,8 +13,8 @@ export const content = {
   },
 
   hero: {
-    title: 'Automatizo operaciones técnicas con software real.',
-    subtitle: 'Técnico ISP con dominio en fibra óptica + Python. Construyo herramientas que resuelven problemas de campo, no solo demos.',
+    title: 'Automatizo procesos de negocio con software real.',
+    subtitle: 'Desarrollador Python con experiencia en operaciones de campo. Construyo bots y herramientas que eliminan trabajo manual — para restaurantes, comercios y empresas de servicios.',
     cta_primary: 'Ver proyecto destacado',
     cta_secondary: 'Descargar CV',
     cta_primary_href: '#proyecto',
@@ -57,16 +57,16 @@ export const content = {
     title: '¿Cómo puedo aportar?',
     items: [
       {
-        title: 'Automatización de procesos de campo',
-        description: 'Si tu operación ISP depende de Excel o WhatsApp para localizar infraestructura, puedo construir la herramienta que lo elimina.'
+        title: 'Bots para atención y pedidos',
+        description: '¿Tu negocio recibe pedidos o consultas por WhatsApp o Telegram? Construyo el bot que los gestiona automáticamente, sin que nadie tenga que responder manualmente.'
       },
       {
-        title: 'Bots operativos para equipos técnicos',
-        description: 'Interfaces simples sobre Telegram o similar para que tus técnicos accedan a datos de red sin interfaz web compleja.'
+        title: 'Automatización de procesos repetitivos',
+        description: 'Si tu equipo hace lo mismo todos los días — reportes, registros, actualizaciones — eso se puede automatizar y liberar ese tiempo para lo que realmente importa.'
       },
       {
-        title: 'Integración de datos de campo con software',
-        description: 'Tus bases de datos de infraestructura conectadas a herramientas que las hagan consultables en tiempo real.'
+        title: 'Integración de datos en tiempo real',
+        description: 'Conecta tu información dispersa en Excel o sistemas separados en una sola herramienta consultable desde el celular, sin depender de nadie para obtener un dato.'
       }
     ]
   },
@@ -97,16 +97,16 @@ export const content = {
     title: 'Colabora conmigo',
     items: [
       {
-        title: 'Quiero automatizar un proceso',
+        title: 'Quiero automatizar un proceso en mi negocio',
         href: 'mailto:dennys14_hq@hotmail.com?subject=Automatización de proceso'
       },
       {
-        title: 'Quiero un bot para mi operación',
-        href: 'mailto:dennys14_hq@hotmail.com?subject=Bot para operación'
+        title: 'Quiero un bot para atención o pedidos',
+        href: 'mailto:dennys14_hq@hotmail.com?subject=Bot para atención o pedidos'
       },
       {
-        title: 'Quiero mejorar mi flujo técnico con software',
-        href: 'mailto:dennys14_hq@hotmail.com?subject=Mejora de flujo técnico'
+        title: 'Quiero conectar mis datos y hacerlos consultables',
+        href: 'mailto:dennys14_hq@hotmail.com?subject=Integración de datos'
       }
     ]
   },
@@ -116,7 +116,7 @@ export const content = {
     email: 'dennys14_hq@hotmail.com',
     linkedin: 'https://www.linkedin.com/in/dennys-heras-27b0b520b/',
     github: 'https://github.com/dennysh',
-    description: 'Conversemos sobre automatización, bots y herramientas para operaciones ISP reales.'
+    description: 'Conversemos sobre cómo automatizar lo que hace lento tu operación.'
   },
 
   footer: {
