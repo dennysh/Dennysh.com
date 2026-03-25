@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react'
 import { content } from '../data/content'
 import './Navbar.css'
 
-export default function Navbar() {
+const THEME_META = {
+  dark:   { icon: '🌙', label: 'Dark'   },
+  light:  { icon: '☀️', label: 'Claro'  },
+  hacker: { icon: '>_', label: 'Hacker' },
+}
+
+export default function Navbar({ theme = 'dark', cycleTheme }) {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState('inicio')
@@ -43,8 +49,21 @@ export default function Navbar() {
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="navbar-container">
         <div className="navbar-logo">
-          <a href="#inicio">
-            <img src="/logo.svg" alt="Dennysh" className="navbar-logo-img" />
+          <a href="#inicio" aria-label="Dennysh — volver al inicio">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 240 60"
+              fill="none"
+              className="navbar-logo-img"
+              aria-hidden="true"
+            >
+              <text x="0" y="36" fontFamily="Inter, system-ui, sans-serif" fontWeight="700" fontSize="38">
+                <tspan style={{ fill: 'var(--logo-text)' }}>denn</tspan>
+                <tspan style={{ fill: 'var(--logo-accent-1)' }}>ysh</tspan>
+              </text>
+              <rect x="0" y="42" width="72" height="2.5" rx="1.5" style={{ fill: 'var(--logo-accent-1)' }} />
+              <text x="1" y="57" fontFamily="Inter, system-ui, sans-serif" fontWeight="700" fontSize="10" style={{ fill: 'var(--logo-sub)' }} letterSpacing="2">AUTOMATION ENGINEER</text>
+            </svg>
           </a>
         </div>
 
@@ -73,6 +92,17 @@ export default function Navbar() {
               </a>
             </li>
           ))}
+          <li>
+            <button
+              className="theme-btn"
+              onClick={cycleTheme}
+              aria-label={`Tema actual: ${theme}. Clic para cambiar tema`}
+              title="Cambiar tema"
+            >
+              <span className="theme-btn__icon">{THEME_META[theme].icon}</span>
+              <span className="theme-btn__label">{THEME_META[theme].label}</span>
+            </button>
+          </li>
         </ul>
       </div>
     </nav>

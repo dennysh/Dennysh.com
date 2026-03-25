@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import FloatingLogo from './components/FloatingLogo'
@@ -14,7 +14,25 @@ import Collaborate from './sections/Collaborate'
 import Contact from './sections/Contact'
 import './App.css'
 
+const THEMES = ['dark', 'light', 'hacker']
+
 export default function App() {
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'dark'
+  })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const cycleTheme = () => {
+    setTheme((prev) => {
+      const idx = THEMES.indexOf(prev)
+      return THEMES[(idx + 1) % THEMES.length]
+    })
+  }
+
   useEffect(() => {
     const reveals = document.querySelectorAll('.reveal')
     const observer = new IntersectionObserver(
@@ -34,7 +52,7 @@ export default function App() {
 
   return (
     <>
-      <Navbar />
+      <Navbar theme={theme} cycleTheme={cycleTheme} />
       <main>
         <Hero />
         <About />
