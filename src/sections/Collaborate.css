@@ -20,6 +20,9 @@
   background-color: var(--bg-card) !important;
   border-radius: var(--radius-lg);
   transition: all 0.2s ease;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .collaborate-card:hover {
@@ -40,6 +43,12 @@
   color: var(--text-primary);
   display: block;
   line-height: 1.5;
+  text-align: center;
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  min-width: 0;
 }
 
 /* Mobile */

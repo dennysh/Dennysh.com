@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Logo Options - Dennysh</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d0d0f; font-family: 'Inter', sans-serif; padding: 4rem 2rem; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem; max-width: 900px; margin: 0 auto; }
+    .option { background: #16161d; border: 1px solid #222230; border-radius: 16px; padding: 3rem 2rem; display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+    .label { color: #9898a8; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+    h1 { color: #f1f1f3; font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 3rem; }
+    .dark-bg { background: #0d0d0f; padding: 2rem; border-radius: 12px; }
+    .light-bg { background: #ffffff; padding: 2rem; border-radius: 12px; }
+  </style>
+</head>
+<body>
+
+  <h1>Opciones de logo · dennysh</h1>
+
+  <div class="grid">
+
+    <!-- OPCIÓN 1: Monograma DH limpio -->
+    <div class="option">
+      <span class="label">Opción 1 · Monograma</span>
+      <div class="dark-bg">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#7c3aed"/>
+              <stop offset="100%" style="stop-color:#2563eb"/>
+            </linearGradient>
+          </defs>
+          <!-- Hexágono limpio -->
+          <polygon points="60,8 104,33 104,87 60,112 16,87 16,33" fill="none" stroke="url(#g1)" stroke-width="2.5"/>
+          <!-- DH -->
+          <text x="22" y="72" font-family="Inter, sans-serif" font-weight="800" font-size="38" fill="url(#g1)">DH</text>
+        </svg>
+      </div>
+      <div class="light-bg">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g1b" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#7c3aed"/>
+              <stop offset="100%" style="stop-color:#2563eb"/>
+            </linearGradient>
+          </defs>
+          <polygon points="60,8 104,33 104,87 60,112 16,87 16,33" fill="none" stroke="url(#g1b)" stroke-width="2.5"/>
+          <text x="22" y="72" font-family="Inter, sans-serif" font-weight="800" font-size="38" fill="url(#g1b)">DH</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- OPCIÓN 2: Wordmark limpio -->
+    <div class="option">
+      <span class="label">Opción 2 · Wordmark</span>
+      <div class="dark-bg">
+        <svg width="200" height="80" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#7c3aed"/>
+              <stop offset="100%" style="stop-color:#2563eb"/>
+            </linearGradient>
+          </defs>
+          <text x="0" y="48" font-family="Inter, sans-serif" font-weight="800" font-size="44" fill="url(#g2)">dennysh</text>
+          <!-- Línea acento -->
+          <rect x="0" y="56" width="80" height="3" rx="1.5" fill="url(#g2)"/>
+          <text x="0" y="75" font-family="Inter, sans-serif" font-weight="500" font-size="13" fill="#9898a8" letter-spacing="3">AUTOMATION</text>
+        </svg>
+      </div>
+      <div class="light-bg">
+        <svg width="200" height="80" viewBox="0 0 200 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g2b" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#7c3aed"/>
+              <stop offset="100%" style="stop-color:#2563eb"/>
+            </linearGradient>
+          </defs>
+          <text x="0" y="48" font-family="Inter, sans-serif" font-weight="800" font-size="44" fill="url(#g2b)">dennysh</text>
+          <rect x="0" y="56" width="80" height="3" rx="1.5" fill="url(#g2b)"/>
+          <text x="0" y="75" font-family="Inter, sans-serif" font-weight="500" font-size="13" fill="#555" letter-spacing="3">AUTOMATION</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- OPCIÓN 3: DH + texto horizontal -->
+    <div class="option">
+      <span class="label">Opción 3 · Combinado</span>
+      <div class="dark-bg">
+        <svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#7c3aed"/>
+              <stop offset="100%" style="stop-color:#2563eb"/>
+            </linearGradient>
+          </defs>
+          <!-- Cuadrado DH -->
+          <rect x="0" y="0" width="52" height="52" rx="10" fill="url(#g3)"/>
+          <text x="6" y="38" font-family="Inter, sans-serif" font-weight="800" font-size="28" fill="white">DH</text>
+          <!-- Texto derecha -->
+          <text x="64" y="28" font-family="Inter, sans-serif" font-weight="700" font-size="20" fill="#f1f1f3">dennysh</text>
+          <text x="64" y="46" font-family="Inter, sans-serif" font-weight="500" font-size="11" fill="#9898a8" letter-spacing="2">AUTOMATION</text>
+        </svg>
+      </div>
+      <div class="light-bg">
+        <svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="g3b" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#7c3aed"/>
+              <stop offset="100%" style="stop-color:#2563eb"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="52" height="52" rx="10" fill="url(#g3b)"/>
+          <text x="6" y="38" font-family="Inter, sans-serif" font-weight="800" font-size="28" fill="white">DH</text>
+          <text x="64" y="28" font-family="Inter, sans-serif" font-weight="700" font-size="20" fill="#111">dennysh</text>
+          <text x="64" y="46" font-family="Inter, sans-serif" font-weight="500" font-size="11" fill="#555" letter-spacing="2">AUTOMATION</text>
+        </svg>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -13,8 +13,8 @@ export const content = {
   },
 
   hero: {
-    title: 'Automatizo procesos de negocio con software real.',
-    subtitle: 'Desarrollador Python con experiencia en operaciones de campo. Construyo bots y herramientas que eliminan trabajo manual — para restaurantes, comercios y empresas de servicios.',
+    title: 'Empecé en el campo. Ahora construyo el software que me hubiera gustado tener.',
+    subtitle: 'Técnico con 7 años en fibra óptica que aprendió a programar para resolver sus propios problemas. Hoy hago lo mismo para otros negocios.',
     cta_primary: 'Ver proyecto destacado',
     cta_secondary: 'Descargar CV',
     cta_primary_href: '#proyecto',
@@ -23,9 +23,9 @@ export const content = {
 
   about: {
     title: 'Sobre mí',
-    intro: 'Trabajo en telecomunicaciones desde el campo: instalación, diagnóstico y gestión de redes de fibra óptica.',
-    body1: 'Paralelamente desarrollo software orientado a operaciones reales — herramientas que ya están siendo usadas por técnicos ISP.',
-    body2: 'Mi enfoque: detectar el problema de operación, diseñar la solución mínima viable, implementarla y dejarla funcionando.',
+    intro: 'Llevo 7 años en el campo instalando y diagnosticando redes de fibra óptica. En ese tiempo vi de cerca todos los problemas que nadie había resuelto con software.',
+    body1: 'Aprendí Python para resolverlos yo mismo. El primer bot que hice indexó 1,719 cajas de fibra y hoy lo usan técnicos reales en Ecuador.',
+    body2: 'Eso es lo que hago ahora para otros negocios: entender el problema desde adentro y construir la herramienta que realmente lo resuelve.',
     stats: [
       { number: '1,719', label: 'cajas ISP indexadas' },
       { number: '1', label: 'bot en producción' },

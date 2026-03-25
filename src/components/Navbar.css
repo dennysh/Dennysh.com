@@ -26,17 +26,18 @@
 }
 
 .navbar-logo a {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--accent-purple);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: color 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .navbar-logo a:hover {
-  color: var(--accent-purple-light);
+  opacity: 0.85;
+}
+
+.navbar-logo-img {
+  height: 50px;
+  width: auto;
 }
 
 .navbar-menu {

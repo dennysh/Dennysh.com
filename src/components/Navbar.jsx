@@ -43,7 +43,9 @@ export default function Navbar() {
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="navbar-container">
         <div className="navbar-logo">
-          <a href="#inicio">{content.header.logo}</a>
+          <a href="#inicio">
+            <img src="/logo.svg" alt="Dennysh" className="navbar-logo-img" />
+          </a>
         </div>
 
         <button

@@ -85,7 +85,7 @@ export default function Metrics() {
     <section id="resultados" className="metrics reveal">
       <div className="container">
         <span className="section-label">Resultados Medibles</span>
-        <h2 className="section-title">Datos reales. Sin inflación.</h2>
+        <h2 className="section-title">Lo que llevo construido hasta hoy.</h2>
 
         <div className="metrics-grid">
           {metrics.map((metric, idx) => (

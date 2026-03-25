@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import FloatingLogo from './components/FloatingLogo'
 import Hero from './sections/Hero'
 import About from './sections/About'
 import HowICanHelp from './sections/HowICanHelp'
@@ -47,6 +48,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+      <FloatingLogo />
     </>
   )
 }
