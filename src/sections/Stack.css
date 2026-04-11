@@ -1,74 +1,67 @@
+/* ─── Stack Section ─────────────────────────────────────── */
 .stack {
-  background-color: var(--bg-primary);
+  background-color: var(--bg-secondary);
 }
 
-.stack-groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-top: 3rem;
-}
-
-.stack-group {
-  background-color: var(--bg-card);
-  border: 1px solid var(--border);
+/* El canvas necesita espacio completo dentro del container */
+.tech-orbit-wrapper {
+  width: 100%;
+  margin-top: 2.5rem;
   border-radius: var(--radius-lg);
-  padding: 2rem;
-  transition: all 0.2s ease;
+  overflow: hidden;
 }
 
-.stack-group:hover {
-  border-color: var(--border-hover);
-  background-color: var(--bg-card-hover);
-  box-shadow: var(--shadow-card);
-  transform: translateY(-4px);
+/* ─── Fallback móvil ─────────────────────────────────────── */
+.stack-fallback {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 2.5rem;
 }
 
-.stack-group-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--accent-purple);
-  margin-bottom: 1.5rem;
-  margin-top: 0;
-}
-
-.stack-items {
+.stack-fallback-card {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--tech-color, var(--border));
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 10px var(--tech-color-glow, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: default;
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-  .stack-groups {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .stack-group {
-    padding: 1.5rem;
-  }
-
-  .stack-group-title {
-    font-size: 1rem;
-  }
+.stack-fallback-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 18px var(--tech-color-glow, transparent);
 }
 
+.stack-fallback-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.stack-fallback-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* ─── Responsive ─────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .stack-groups {
-    gap: 1rem;
+  .stack-fallback {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
   }
 
-  .stack-group {
-    padding: 1.25rem;
+  .stack-fallback-card {
+    padding: 1rem 0.75rem;
   }
 
-  .stack-group-title {
-    font-size: 0.95rem;
-    margin-bottom: 1rem;
-  }
-
-  .stack-items {
-    gap: 0.5rem;
+  .stack-fallback-icon {
+    font-size: 1.75rem;
   }
 }
