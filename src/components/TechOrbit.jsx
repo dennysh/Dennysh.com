@@ -52,10 +52,10 @@ function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, 
     }
   }, [])
 
-  // Spring de entrada: yEntry va de +5 (arriba) a 0 (posición final)
-  const [{ yEntry }, entryApi] = useSpring(() => ({
-    yEntry: prefersReduced ? 0 : 5,
-    config: { mass: 1, tension: 120, friction: 14 }
+  // Spring de entrada: fade-in de opacidad con stagger
+  const [{ entryOpacity }, entryApi] = useSpring(() => ({
+    entryOpacity: prefersReduced ? 1 : 0,
+    config: { mass: 1, tension: 80, friction: 20 }
   }))
 
   // Spring de hover: escala y opacidad
@@ -65,11 +65,11 @@ function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, 
     config: { mass: 0.5, tension: 200, friction: 20 }
   }))
 
-  // Lanzar animación de entrada con stagger
+  // Lanzar fade-in con stagger
   useEffect(() => {
     if (prefersReduced) return
     const timer = setTimeout(() => {
-      entryApi.start({ yEntry: 0 })
+      entryApi.start({ entryOpacity: 1 })
     }, index * 80)
     return () => clearTimeout(timer)
   }, [prefersReduced, index, entryApi])
@@ -97,12 +97,12 @@ function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, 
 
     meshRef.current.position.set(
       basePosition[0],
-      basePosition[1] + yEntry.get() + idleY,
+      basePosition[1] + idleY,
       basePosition[2]
     )
     meshRef.current.scale.setScalar(scale.get())
     meshRef.current.rotation.z = idleRot
-    materialRef.current.opacity = meshOpacity.get()
+    materialRef.current.opacity = entryOpacity.get() * meshOpacity.get()
   })
 
   return (
