@@ -181,7 +181,7 @@ function Scene({ techs, isVisibleRef, prefersReduced }) {
 }
 
 // Componente público: canvas wrapper con IntersectionObserver
-export default function TechOrbit({ height = 500, items }) {
+export default function TechOrbit({ height = 500, items = [] }) {
   const wrapperRef = useRef()
   const isVisibleRef = useRef(true)
 
