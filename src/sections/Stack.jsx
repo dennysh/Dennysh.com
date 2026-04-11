@@ -60,7 +60,7 @@ export default function Stack() {
         <h2 className="section-title">{content.stack.title}</h2>
         {isMobile
           ? <StackFallback items={content.stack.items} />
-          : <TechOrbit height={canvasHeight} />
+          : <TechOrbit height={canvasHeight} items={content.stack.items} />
         }
       </div>
     </section>

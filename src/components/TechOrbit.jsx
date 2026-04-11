@@ -3,7 +3,6 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import { useSpring } from '@react-spring/three'
 import * as THREE from 'three'
-import { content } from '../data/content'
 
 // Genera una textura canvas con emoji + círculo de color de marca
 function createEmojiTexture(emoji, color) {
@@ -40,10 +39,18 @@ function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, 
   const isHovered = hoveredIndex === index
   const isBlurred = hoveredIndex !== null && !isHovered
 
-  const texture = useMemo(
-    () => createEmojiTexture(tech.icon, tech.color),
-    [tech.icon, tech.color]
-  )
+  const textureRef = useRef(null)
+  if (!textureRef.current) {
+    textureRef.current = createEmojiTexture(tech.icon, tech.color)
+  }
+  useEffect(() => {
+    return () => {
+      if (textureRef.current) {
+        textureRef.current.dispose()
+        textureRef.current = null
+      }
+    }
+  }, [])
 
   // Spring de entrada: yEntry va de +5 (arriba) a 0 (posición final)
   const [{ yEntry }, entryApi] = useSpring(() => ({
@@ -65,7 +72,7 @@ function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, 
       entryApi.start({ yEntry: 0 })
     }, index * 80)
     return () => clearTimeout(timer)
-  }, [])
+  }, [prefersReduced, index, entryApi])
 
   // Actualizar hover spring cuando cambia el estado
   useEffect(() => {
@@ -73,7 +80,7 @@ function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, 
       scale: isHovered ? 1.25 : 1,
       meshOpacity: isBlurred ? 0.35 : 1
     })
-  }, [isHovered, isBlurred])
+  }, [isHovered, isBlurred, hoverApi])
 
   // Frecuencia y fase únicas por sprite para movimiento independiente
   const freq = 0.28 + (index * 0.073) % 0.38
@@ -107,7 +114,7 @@ function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, 
       <planeGeometry args={[0.62, 0.62]} />
       <meshBasicMaterial
         ref={materialRef}
-        map={texture}
+        map={textureRef.current}
         transparent
         depthWrite={false}
       />
@@ -157,7 +164,6 @@ function Scene({ techs, isVisibleRef, prefersReduced }) {
 
   return (
     <>
-      <ambientLight intensity={0.8} />
       {techs.map((tech, i) => (
         <TechSprite
           key={tech.name}
@@ -175,7 +181,7 @@ function Scene({ techs, isVisibleRef, prefersReduced }) {
 }
 
 // Componente público: canvas wrapper con IntersectionObserver
-export default function TechOrbit({ height = 500 }) {
+export default function TechOrbit({ height = 500, items }) {
   const wrapperRef = useRef()
   const isVisibleRef = useRef(true)
 
@@ -204,7 +210,7 @@ export default function TechOrbit({ height = 500 }) {
         style={{ background: 'transparent' }}
       >
         <Scene
-          techs={content.stack.items}
+          techs={items}
           isVisibleRef={isVisibleRef}
           prefersReduced={prefersReduced}
         />
