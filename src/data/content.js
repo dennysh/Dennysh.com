@@ -73,23 +73,19 @@ export const content = {
 
   stack: {
     title: 'Stack & Tecnologías',
-    groups: [
-      {
-        name: 'Backend / Scripting',
-        items: ['Python', 'SQLite', 'pytest', 'Makefile']
-      },
-      {
-        name: 'APIs & Bots',
-        items: ['python-telegram-bot', 'python-dotenv', 'REST APIs']
-      },
-      {
-        name: 'Infraestructura',
-        items: ['Git', 'Linux', 'Fibra óptica (FTTH/GPON)']
-      },
-      {
-        name: 'En aprendizaje',
-        items: ['MySQL', 'React', 'FastAPI']
-      }
+    items: [
+      { name: 'Python',      color: '#3776ab', icon: '🐍' },
+      { name: 'Go',          color: '#00add8', icon: '🔵' },
+      { name: 'JavaScript',  color: '#f7df1e', icon: '⚡' },
+      { name: 'React',       color: '#61dafb', icon: '⚛️' },
+      { name: 'Three.js',    color: '#dddddd', icon: '🔺' },
+      { name: 'Node.js',     color: '#339933', icon: '🟢' },
+      { name: 'MongoDB',     color: '#47a248', icon: '🍃' },
+      { name: 'PostgreSQL',  color: '#4169e1', icon: '🐘' },
+      { name: 'SQLite',      color: '#0f7bb5', icon: '💾' },
+      { name: 'Docker',      color: '#2496ed', icon: '🐳' },
+      { name: 'Telegram',    color: '#229ed9', icon: '✈️' },
+      { name: 'AI / LLMs',  color: '#a855f7', icon: '🤖' },
     ]
   },
 
@@ -126,5 +122,58 @@ export const content = {
       { label: 'GitHub', href: 'https://github.com/dennysh' },
       { label: 'Email', href: 'mailto:dennys14_hq@hotmail.com' }
     ]
-  }
+  },
+
+  aiNews: [
+    {
+      id: 1,
+      featured: true,
+      category: 'Automatización',
+      title: 'El futuro de la automatización empresarial con IA Generativa',
+      description: 'Cómo los LLMs están redefiniendo los flujos de trabajo empresariales y qué significa para los equipos de operaciones en 2026.',
+      date: '28 Mar 2026',
+      readTime: '5 min',
+      href: '#'
+    },
+    {
+      id: 2,
+      featured: false,
+      category: 'IA',
+      title: 'Claude 3.7 y sus capacidades de razonamiento extendido',
+      description: 'Análisis profundo de las nuevas capacidades de razonamiento multi-paso que cambian el paradigma de los agentes IA.',
+      date: '27 Mar 2026',
+      readTime: '3 min',
+      href: '#'
+    },
+    {
+      id: 3,
+      featured: false,
+      category: 'Herramientas',
+      title: 'n8n vs Make: ¿Cuál elegir para automatización en 2026?',
+      description: 'Comparativa actualizada de las dos plataformas líderes en automatización no-code para equipos pequeños.',
+      date: '26 Mar 2026',
+      readTime: '4 min',
+      href: '#'
+    },
+    {
+      id: 4,
+      featured: false,
+      category: 'Automatización',
+      title: 'WhatsApp Business API: nuevas integraciones con IA',
+      description: 'Las últimas actualizaciones de la API permiten flujos conversacionales más inteligentes con integración de modelos LLM.',
+      date: '25 Mar 2026',
+      readTime: '3 min',
+      href: '#'
+    },
+    {
+      id: 5,
+      featured: false,
+      category: 'Herramientas',
+      title: 'Python + OpenAI: automatiza tu flujo de emails por completo',
+      description: 'Tutorial paso a paso para construir un sistema de respuesta automática con clasificación inteligente de correos.',
+      date: '24 Mar 2026',
+      readTime: '6 min',
+      href: '#'
+    }
+  ]
 }
