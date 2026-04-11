@@ -1,36 +1,6 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Html } from '@react-three/drei'
-import * as THREE from 'three'
-
-// Genera textura canvas: círculo de color + letra inicial grande
-function createTechTexture(name, color) {
-  const size = 128
-  const cv = document.createElement('canvas')
-  cv.width = size
-  cv.height = size
-  const ctx = cv.getContext('2d')
-
-  // Fondo circular con color de marca
-  ctx.beginPath()
-  ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2)
-  ctx.fillStyle = color + '33'
-  ctx.fill()
-  ctx.strokeStyle = color
-  ctx.lineWidth = 3
-  ctx.stroke()
-
-  // Letra inicial centrada (más legible que emoji en canvas)
-  ctx.fillStyle = color
-  ctx.font = `bold ${size * 0.42}px "Segoe UI", Arial, sans-serif`
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.fillText(name.charAt(0).toUpperCase(), size / 2, size / 2 + 2)
-
-  const texture = new THREE.CanvasTexture(cv)
-  texture.needsUpdate = true
-  return texture
-}
+import { Html, useTexture } from '@react-three/drei'
 
 // Sprite individual — animaciones 100% en useFrame sin springs
 function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, isVisibleRef, prefersReduced }) {
@@ -42,20 +12,8 @@ function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, 
   // Estado de animación en refs (no causa re-renders)
   const hoverScale = useRef(1)
   const hoverOpacity = useRef(1)
-  const entryDone = useRef(prefersReduced)
 
-  const textureRef = useRef(null)
-  if (!textureRef.current) {
-    textureRef.current = createTechTexture(tech.name, tech.color)
-  }
-  useEffect(() => {
-    return () => {
-      if (textureRef.current) {
-        textureRef.current.dispose()
-        textureRef.current = null
-      }
-    }
-  }, [])
+  const texture = useTexture(tech.image)
 
   const freq = 0.28 + (index * 0.073) % 0.38
   const phase = index * 1.13
@@ -106,7 +64,7 @@ function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, 
       <planeGeometry args={[0.65, 0.65]} />
       <meshBasicMaterial
         ref={materialRef}
-        map={textureRef.current}
+        map={texture}
         transparent
         depthWrite={false}
       />
