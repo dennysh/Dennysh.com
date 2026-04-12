@@ -7,9 +7,9 @@ import './Stack.css'
 function useCanvasHeight() {
   const getHeight = () => {
     const w = window.innerWidth
-    if (w >= 1280) return 500
-    if (w >= 1024) return 460
-    return 390 // tablet 768–1023px
+    if (w >= 1280) return 600
+    if (w >= 1024) return 540
+    return 480 // tablet 768–1023px
   }
 
   const [height, setHeight] = useState(getHeight)
@@ -36,7 +36,12 @@ function StackFallback({ items }) {
             '--tech-color-glow': tech.color + '44'
           }}
         >
-          <span className="stack-fallback-icon">{tech.icon}</span>
+          <img
+            src={tech.image}
+            alt={tech.name}
+            className="stack-fallback-icon"
+            onError={(e) => { e.target.style.display = 'none' }}
+          />
           <span className="stack-fallback-name">{tech.name}</span>
         </div>
       ))}

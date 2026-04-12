@@ -39,8 +39,9 @@
 }
 
 .stack-fallback-icon {
-  font-size: 2rem;
-  line-height: 1;
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
 }
 
 .stack-fallback-name {
@@ -62,6 +63,7 @@
   }
 
   .stack-fallback-icon {
-    font-size: 1.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 }
