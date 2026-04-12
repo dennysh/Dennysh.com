@@ -1,165 +1,232 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react'
+import React, { useRef, useState, useMemo, useEffect, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Html, useTexture } from '@react-three/drei'
+import { Html, Billboard, useTexture, OrbitControls } from '@react-three/drei'
+import * as THREE from 'three'
 
-// Sprite individual — animaciones 100% en useFrame sin springs
-function TechSprite({ tech, basePosition, index, hoveredIndex, setHoveredIndex, isVisibleRef, prefersReduced }) {
+// ── Fibonacci sphere: distribución uniforme sobre la esfera ───────────────────
+function fibonacciSphere(count, radius) {
+  const phi = Math.PI * (3 - Math.sqrt(5)) // golden angle ≈ 2.399 rad
+  return Array.from({ length: count }, (_, i) => {
+    const y = 1 - (i / (count - 1)) * 2    // rango -1 a 1
+    const r = Math.sqrt(1 - y * y)          // radio en esa altura
+    const theta = phi * i                   // ángulo acumulado
+    return [
+      Math.cos(theta) * r * radius,
+      y * radius,
+      Math.sin(theta) * r * radius
+    ]
+  })
+}
+
+// ── Fallback: círculo gris con inicial cuando SVG falla ───────────────────────
+function FallbackSprite({ name }) {
+  const texture = useMemo(() => {
+    const size = 128
+    const cv = document.createElement('canvas')
+    cv.width = size
+    cv.height = size
+    const ctx = cv.getContext('2d')
+    ctx.beginPath()
+    ctx.arc(size / 2, size / 2, size / 2 - 2, 0, Math.PI * 2)
+    ctx.fillStyle = '#44444488'
+    ctx.fill()
+    ctx.strokeStyle = '#666666'
+    ctx.lineWidth = 2
+    ctx.stroke()
+    ctx.fillStyle = '#999999'
+    ctx.font = `bold ${size * 0.4}px "Segoe UI", Arial, sans-serif`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(name.charAt(0).toUpperCase(), size / 2, size / 2 + 2)
+    const tex = new THREE.CanvasTexture(cv)
+    tex.needsUpdate = true
+    return tex
+  }, [name])
+
+  useEffect(() => () => texture.dispose(), [texture])
+
+  return (
+    <Billboard>
+      <mesh>
+        <planeGeometry args={[0.45, 0.45]} />
+        <meshBasicMaterial map={texture} transparent depthWrite={false} />
+      </mesh>
+    </Billboard>
+  )
+}
+
+// ── Sprite individual: logo + hover/click ─────────────────────────────────────
+function TechSprite({ tech, position, isHovered, isSelected, onHover, onBlur, onClick }) {
   const meshRef = useRef()
-  const materialRef = useRef()
-  const isHovered = hoveredIndex === index
-  const isBlurred = hoveredIndex !== null && !isHovered
-
-  // Estado de animación en refs (no causa re-renders)
-  const hoverScale = useRef(1)
-  const hoverOpacity = useRef(1)
-
+  const currentScale = useRef(1)
   const texture = useTexture(tech.image)
 
-  const freq = 0.28 + (index * 0.073) % 0.38
-  const phase = index * 1.13
-  const entryDelay = index * 0.08  // segundos de stagger
-  const entryDuration = 0.5
-
-  useFrame(({ clock }) => {
-    if (!meshRef.current || !materialRef.current) return
-    const t = clock.getElapsedTime()
-    const canAnimate = !prefersReduced && isVisibleRef.current
-
-    // Entry fade-in: basado en clock, sin useEffect ni spring
-    let entryAlpha = 1
-    if (!prefersReduced) {
-      const entryT = Math.max(0, t - entryDelay)
-      const raw = Math.min(entryT / entryDuration, 1)
-      // Ease-out cúbico
-      entryAlpha = 1 - Math.pow(1 - raw, 3)
-    }
-
-    // Idle float
-    const idleY = canAnimate ? Math.sin(t * freq + phase) * 0.08 : 0
-    const idleRot = canAnimate ? Math.sin(t * freq * 0.5 + phase) * 0.05 : 0
-
-    // Hover: lerp suave hacia target
-    const targetScale = isHovered ? 1.25 : 1
-    const targetOpacity = isBlurred ? 0.35 : 1
-    hoverScale.current += (targetScale - hoverScale.current) * 0.12
-    hoverOpacity.current += (targetOpacity - hoverOpacity.current) * 0.12
-
-    // Aplicar todo
-    meshRef.current.position.set(
-      basePosition[0],
-      basePosition[1] + idleY,
-      basePosition[2]
-    )
-    meshRef.current.scale.setScalar(hoverScale.current)
-    meshRef.current.rotation.z = idleRot
-    materialRef.current.opacity = entryAlpha * hoverOpacity.current
+  useFrame(() => {
+    if (!meshRef.current) return
+    const target = (isHovered || isSelected) ? 1.2 : 1.0
+    currentScale.current += (target - currentScale.current) * 0.12
+    meshRef.current.scale.setScalar(currentScale.current)
   })
 
   return (
-    <mesh
-      ref={meshRef}
-      onPointerOver={() => setHoveredIndex(index)}
-      onPointerOut={() => setHoveredIndex(null)}
-    >
-      <planeGeometry args={[0.65, 0.65]} />
-      <meshBasicMaterial
-        ref={materialRef}
-        map={texture}
-        transparent
-        depthWrite={false}
-      />
-      {isHovered && (
-        <Html center distanceFactor={8}>
-          <div
-            style={{
-              color: tech.color,
-              fontSize: '13px',
-              fontWeight: 600,
-              fontFamily: 'Inter, -apple-system, sans-serif',
-              marginTop: '52px',
-              whiteSpace: 'nowrap',
-              textShadow: `0 0 12px ${tech.color}99`,
-              pointerEvents: 'none',
-              userSelect: 'none'
-            }}
-          >
+    <Billboard position={position}>
+      <mesh
+        ref={meshRef}
+        onPointerOver={(e) => { e.stopPropagation(); onHover() }}
+        onPointerOut={() => onBlur()}
+        onClick={(e) => { e.stopPropagation(); onClick() }}
+      >
+        <planeGeometry args={[0.45, 0.45]} />
+        <meshBasicMaterial map={texture} transparent depthWrite={false} />
+      </mesh>
+      {(isHovered || isSelected) && (
+        <Html center distanceFactor={10}>
+          <div style={{
+            color: tech.color,
+            fontSize: '11px',
+            fontWeight: 600,
+            fontFamily: 'Inter, -apple-system, sans-serif',
+            marginTop: '28px',
+            whiteSpace: 'nowrap',
+            textShadow: `0 0 8px ${tech.color}99`,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            background: 'rgba(0,0,0,0.55)',
+            padding: '2px 6px',
+            borderRadius: '4px'
+          }}>
             {tech.name}
           </div>
         </Html>
       )}
-    </mesh>
+    </Billboard>
   )
 }
 
-// Escena: posiciones 4x3 determinísticas
-function Scene({ techs, isVisibleRef, prefersReduced }) {
-  const [hoveredIndex, setHoveredIndex] = useState(null)
+// ── Sprite con Suspense + FallbackSprite ──────────────────────────────────────
+function TechSpriteWithFallback({ tech, ...props }) {
+  return (
+    <Suspense fallback={<FallbackSprite name={tech.name} />}>
+      <TechSprite tech={tech} {...props} />
+    </Suspense>
+  )
+}
 
-  const positions = useMemo(() => {
-    return techs.map((_, i) => {
-      const col = i % 4
-      const row = Math.floor(i / 4)
-      const seed = i * 13.37
-      const offsetX = Math.sin(seed) * 0.28
-      const offsetY = Math.cos(seed * 1.7) * 0.14
-      const offsetZ = Math.sin(seed * 2.3) * 0.4
-      return [
-        -2.25 + col * 1.5 + offsetX,
-        1.0 - row * 0.82 + offsetY,
-        offsetZ
-      ]
-    })
-  }, [techs])
+// ── Escena: posiciones Fibonacci + OrbitControls + estado hover/selected ──────
+function TechSphere({ items, isVisibleRef, prefersReduced, controlsRef }) {
+  const [hoveredIndex, setHoveredIndex] = useState(null)
+  const [selectedIndex, setSelectedIndex] = useState(null)
+
+  const positions = useMemo(
+    () => fibonacciSphere(items.length, 2.5),
+    [items.length]
+  )
 
   return (
     <>
-      {techs.map((tech, i) => (
-        <TechSprite
+      <OrbitControls
+        ref={controlsRef}
+        enableZoom={false}
+        enablePan={false}
+        enableDamping
+        dampingFactor={0.08}
+        rotateSpeed={0.6}
+        minPolarAngle={Math.PI * 0.15}
+        maxPolarAngle={Math.PI * 0.85}
+        autoRotate={!prefersReduced}
+        autoRotateSpeed={0.4}
+      />
+      {items.map((tech, i) => (
+        <TechSpriteWithFallback
           key={tech.name}
           tech={tech}
-          basePosition={positions[i]}
-          index={i}
-          hoveredIndex={hoveredIndex}
-          setHoveredIndex={setHoveredIndex}
-          isVisibleRef={isVisibleRef}
-          prefersReduced={prefersReduced}
+          position={positions[i]}
+          isHovered={hoveredIndex === i}
+          isSelected={selectedIndex === i}
+          onHover={() => setHoveredIndex(i)}
+          onBlur={() => setHoveredIndex(null)}
+          onClick={() => setSelectedIndex(prev => prev === i ? null : i)}
         />
       ))}
     </>
   )
 }
 
-export default function TechOrbit({ height = 500, items = [] }) {
+// ── Export principal: Canvas wrapper ──────────────────────────────────────────
+export default function TechOrbit({ height = 600, items = [] }) {
   const wrapperRef = useRef()
   const isVisibleRef = useRef(true)
+  const controlsRef = useRef()
+  const resumeTimerRef = useRef(null)
+  const [prefersReduced, setPrefersReduced] = useState(false)
 
-  const prefersReduced = useMemo(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    []
-  )
+  // prefers-reduced-motion — reactivo a cambios del sistema
+  useEffect(() => {
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setPrefersReduced(mql.matches)
+    const handler = (e) => setPrefersReduced(e.matches)
+    mql.addEventListener('change', handler)
+    return () => mql.removeEventListener('change', handler)
+  }, [])
 
+  // IntersectionObserver — pausa idle cuando sección fuera de vista
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => { isVisibleRef.current = entry.isIntersecting },
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting
+        if (controlsRef.current) {
+          controlsRef.current.autoRotate = entry.isIntersecting && !prefersReduced
+        }
+      },
       { threshold: 0.1 }
     )
     if (wrapperRef.current) observer.observe(wrapperRef.current)
     return () => observer.disconnect()
+  }, [prefersReduced])
+
+  // Idle rotation: pausa en drag, reanuda 2s después de soltar
+  const handlePointerDown = () => {
+    if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current)
+    if (controlsRef.current) controlsRef.current.autoRotate = false
+  }
+
+  const handlePointerUp = () => {
+    if (prefersReduced) return
+    resumeTimerRef.current = setTimeout(() => {
+      if (controlsRef.current && isVisibleRef.current) {
+        controlsRef.current.autoRotate = true
+      }
+    }, 2000)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current)
+    }
   }, [])
 
   return (
-    <div ref={wrapperRef} className="tech-orbit-wrapper" style={{ height: `${height}px` }}>
+    <div
+      ref={wrapperRef}
+      className="tech-orbit-wrapper"
+      style={{ height: `${height}px`, cursor: 'grab' }}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+    >
       <Canvas
-        camera={{ position: [0, 0, 4.2], fov: 50 }}
+        camera={{ position: [0, 0, 6], fov: 50 }}
         dpr={[1, 1.5]}
         frameloop="always"
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent' }}
+        onPointerDown={(e) => { e.currentTarget.style.cursor = 'grabbing' }}
+        onPointerUp={(e) => { e.currentTarget.style.cursor = 'grab' }}
       >
-        <Scene
-          techs={items}
+        <TechSphere
+          items={items}
           isVisibleRef={isVisibleRef}
           prefersReduced={prefersReduced}
+          controlsRef={controlsRef}
         />
       </Canvas>
     </div>
