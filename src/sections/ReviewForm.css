@@ -1,0 +1,210 @@
+/* ── Review Form Section ──────────────────────────────────────────── */
+.review-form {
+  background-color: var(--bg-primary);
+  position: relative;
+}
+
+.review-form__title {
+  margin-bottom: 0.5rem;
+}
+
+.review-form__subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+}
+
+/* Form */
+.review-form__form {
+  max-width: 640px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Honeypot — completamente invisible */
+.review-form__honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  tab-index: -1;
+}
+
+/* Field wrapper */
+.review-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  position: relative;
+}
+
+.review-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Label */
+.review-form__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.review-form__required {
+  color: var(--accent-purple);
+  margin-left: 0.1rem;
+}
+
+/* Inputs */
+.review-form__input,
+.review-form__textarea {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.7rem 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  outline: none;
+}
+
+.review-form__input::placeholder,
+.review-form__textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.review-form__input:focus,
+.review-form__textarea:focus {
+  border-color: var(--accent-purple);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+.review-form__input--error {
+  border-color: #ef4444;
+}
+
+.review-form__textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+/* Char count */
+.review-form__char-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 0.15rem;
+}
+
+/* Error messages */
+.review-form__error {
+  font-size: 0.78rem;
+  color: #ef4444;
+}
+
+.review-form__error-msg {
+  font-size: 0.85rem;
+  color: #ef4444;
+  margin: 0;
+}
+
+/* Stars selector */
+.review-form__stars {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.review-form__star {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.75rem;
+  color: var(--text-muted);
+  padding: 0;
+  line-height: 1;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.review-form__star:hover,
+.review-form__star--active {
+  color: var(--accent-purple);
+}
+
+.review-form__star:hover {
+  transform: scale(1.15);
+}
+
+/* Submit button */
+.review-form__submit {
+  align-self: flex-start;
+}
+
+.review-form__submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Success state */
+.review-form__success {
+  max-width: 480px;
+  background-color: var(--bg-card);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.review-form__success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.review-form__success h3 {
+  color: var(--text-primary);
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.review-form__success p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .review-form__row {
+    grid-template-columns: 1fr;
+  }
+
+  .review-form__form {
+    gap: 1.25rem;
+  }
+
+  .review-form__submit {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+  }
+}

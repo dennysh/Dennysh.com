@@ -131,35 +131,24 @@
   width: 100%;
   aspect-ratio: 4 / 5;
   background-color: var(--bg-card);
-  border: 2px dashed var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.placeholder-content {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
+.project-screenshot-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.25s ease;
 }
 
-.placeholder-content svg {
-  color: var(--text-muted);
-  opacity: 0.5;
-}
-
-.placeholder-content p {
-  color: var(--text-primary);
-  font-weight: 600;
-  margin: 0;
-}
-
-.placeholder-content span {
-  color: var(--text-muted);
-  font-size: 0.85rem;
+.project-screenshot-image:hover {
+  transform: scale(1.01);
 }
 
 .featured-project-stack {

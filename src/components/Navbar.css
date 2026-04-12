@@ -128,15 +128,19 @@
     gap: 0;
     background-color: var(--navbar-menu-bg);
     backdrop-filter: blur(10px);
-    padding: 1rem 0;
+    padding: 0;
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.3s ease;
-    border-bottom: 1px solid var(--border);
+    transition: max-height 0.3s ease, padding 0.2s ease;
+    border-bottom: 0;
+    pointer-events: none;
   }
 
   .navbar-menu.active {
     max-height: 400px;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    pointer-events: auto;
   }
 
   .navbar-link {
