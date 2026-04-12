@@ -1,16 +1,7 @@
-import { useRef, useEffect, Suspense } from 'react'
+import { useRef, useEffect, useMemo, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
-
-// ── Toon gradient (4 tonos) ───────────────────────────────────────────────────
-const toonGradient = (() => {
-  const data = new Uint8Array([90, 148, 200, 238])
-  const tex = new THREE.DataTexture(data, 4, 1, THREE.RedFormat)
-  tex.magFilter = THREE.NearestFilter
-  tex.needsUpdate = true
-  return tex
-})()
 
 // ── Plataforma glow (geometría inline — separada del GLB) ─────────────────────
 function Platform() {
@@ -32,27 +23,52 @@ function Platform() {
 
 // ── Modelo del avatar (cargado desde GLB) ─────────────────────────────────────
 function AvatarModel({ mouseRef }) {
-  const { scene } = useGLTF('/models/avatar.glb')
+  const { scene: rawScene } = useGLTF('/models/avatar.glb')
   const rootRef = useRef()
   const headGroupRef = useRef(null)
   const curRot = useRef({ x: 0, y: 0 })
 
+  // Create toon gradient per component instance — safe for multi-canvas
+  const toonGradient = useMemo(() => {
+    const data = new Uint8Array([90, 148, 200, 238])
+    const tex = new THREE.DataTexture(data, 4, 1, THREE.RedFormat)
+    tex.magFilter = THREE.NearestFilter
+    tex.needsUpdate = true
+    return tex
+  }, [])
+
+  // Clone scene to avoid mutating the globally cached GLTF scene
+  const scene = useMemo(() => rawScene.clone(true), [rawScene])
+
   // Reemplazar materiales GLB (PBR) con MeshToonMaterial
   useEffect(() => {
+    const replaced = []
     scene.traverse((child) => {
       if (child.isMesh && child.material) {
-        const color = child.material.color?.clone() ?? new THREE.Color(0xffffff)
-        child.material = new THREE.MeshToonMaterial({
-          color,
-          gradientMap: toonGradient,
-        })
+        const old = child.material
+        const color = old.color?.clone() ?? new THREE.Color(0xffffff)
+        const next = new THREE.MeshToonMaterial({ color, gradientMap: toonGradient })
+        child.material = next
+        replaced.push({ mesh: child, old, next })
       }
     })
 
     // Buscar el empty 'head_group' para head tracking
     const hg = scene.getObjectByName('head_group')
     if (hg) headGroupRef.current = hg
-  }, [scene])
+    else console.warn('Avatar3D: head_group not found in GLB — head tracking disabled')
+
+    return () => {
+      replaced.forEach(({ mesh, old, next }) => {
+        next.dispose()
+        mesh.material = old
+      })
+    }
+  }, [scene, toonGradient])
+
+  useEffect(() => {
+    return () => toonGradient.dispose()
+  }, [toonGradient])
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime()
