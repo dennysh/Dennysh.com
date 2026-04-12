@@ -60,11 +60,14 @@ function TechSprite({ tech, position, isHovered, isSelected, onHover, onBlur, on
   const meshRef = useRef()
   const currentScale = useRef(1)
   const texture = useTexture(tech.image)
+  useEffect(() => () => texture.dispose(), [texture])
 
   useFrame(() => {
     if (!meshRef.current) return
     const target = (isHovered || isSelected) ? 1.2 : 1.0
-    currentScale.current += (target - currentScale.current) * 0.12
+    const delta = target - currentScale.current
+    if (Math.abs(delta) < 0.001) return
+    currentScale.current += delta * 0.12
     meshRef.current.scale.setScalar(currentScale.current)
   })
 
@@ -104,16 +107,16 @@ function TechSprite({ tech, position, isHovered, isSelected, onHover, onBlur, on
 }
 
 // ── Sprite con Suspense + FallbackSprite ──────────────────────────────────────
-function TechSpriteWithFallback({ tech, ...props }) {
+const TechSpriteWithFallback = React.memo(function TechSpriteWithFallback({ tech, ...props }) {
   return (
     <Suspense fallback={<FallbackSprite name={tech.name} />}>
       <TechSprite tech={tech} {...props} />
     </Suspense>
   )
-}
+})
 
 // ── Escena: posiciones Fibonacci + OrbitControls + estado hover/selected ──────
-function TechSphere({ items, isVisibleRef, prefersReduced, controlsRef }) {
+function TechSphere({ items, prefersReduced, controlsRef }) {
   const [hoveredIndex, setHoveredIndex] = useState(null)
   const [selectedIndex, setSelectedIndex] = useState(null)
 
@@ -224,7 +227,6 @@ export default function TechOrbit({ height = 600, items = [] }) {
       >
         <TechSphere
           items={items}
-          isVisibleRef={isVisibleRef}
           prefersReduced={prefersReduced}
           controlsRef={controlsRef}
         />
