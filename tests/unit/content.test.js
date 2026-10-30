@@ -95,8 +95,9 @@ describe('marcadores pending (T080, K2)', () => {
   })
   it('el sitio muestra "por confirmar" (no pistas internas) en los marcadores autorizados', () => {
     const html = readFileSync('dist/en/index.html', 'utf8')
-    expect(html).toContain('to be confirmed')
-    expect(html).not.toMatch(/P-0\d|P-22|Public evidence of the factory/)
+    const visible = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ') // solo el texto visible, sin atributos ni JSON-LD
+    expect(visible).toContain('to be confirmed')
+    expect(visible).not.toMatch(/\bP-\d+\b|Public evidence of the factory|Location, time zone and availability/)
   })
   it('Dennys autorizó publicar con P-04, P-06, P-09 y P-22 (2026-10-30)', () => {
     expect([...AUTHORIZED_PENDING].sort()).toEqual(['P-04', 'P-06', 'P-09', 'P-22'])

@@ -123,7 +123,7 @@ describe('compuerta de build explain-review (AC-23)', () => {
   it('en producción pasa si las sin revisar llevan autorización explícita y trazable (primera publicación)', () => {
     const r = gate('production', tmp(bare.map(authorize)))
     expect(r.status).toBe(0)
-    expect(r.stdout).toMatch(/autorizad/i)
+    expect(r.stdout).toMatch(/autorizaci/i)
   })
 
   it('una autorización incompleta (sin quién, fecha o razón) no vale', () => {
