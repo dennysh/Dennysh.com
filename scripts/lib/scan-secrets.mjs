@@ -8,9 +8,16 @@ const RULES = [
   },
 ]
 
+// Valores de PRUEBA públicos o inventados, usados solo en e2e. Lista exacta: cualquier otro valor con forma de secreto sigue fallando.
+export const KNOWN_TEST_VALUES = [
+  '1x0000000000000000000000000000000AA', // clave secreta de prueba de Cloudflare Turnstile (siempre pasa; documentada por Cloudflare)
+  '000000000:e2e-token-invalido-no-existe-000000000', // token de bot inventado para e2e: Telegram lo rechaza
+]
+
 export function scanText(file, text) {
   const hits = []
   text.split('\n').forEach((line, i) => {
+    if (KNOWN_TEST_VALUES.some((v) => line.includes(v))) return
     for (const { rule, re } of RULES) {
       if (re.test(line)) hits.push({ file, line: i + 1, rule })
     }
