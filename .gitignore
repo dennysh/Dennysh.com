@@ -55,3 +55,6 @@ dist
 .claude/commands/react-review.md
 .claude/commands/resume-session.md
 .claude/commands/save-session.md
+
+# secretos locales de Pages Functions
+.dev.vars

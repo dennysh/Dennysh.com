@@ -3,6 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 echo "== test =="; npm test --silent
+echo "== static =="; npm run test:static --silent
 echo "== build =="; npm run build --silent
 echo "== audit =="; npm audit --audit-level=high
 echo "verify OK"

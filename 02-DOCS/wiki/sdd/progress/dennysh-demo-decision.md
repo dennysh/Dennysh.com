@@ -35,3 +35,9 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - status: complete
 - evidence: `npm ls @supabase/supabase-js` → vacío; grep `supabase|VITE_SUPABASE` en src e index.html → vacío; 0 coincidencias en `dist/assets/*.js`
 - files: borrados src/lib/supabase.js, src/sections/Reviews.*, src/sections/ReviewForm.* (supuesto P-08 por confirmar)
+
+## T005 — 2026-10-30
+- status: complete
+- red: `npm test` falló: no existía `scripts/lib/scan-secrets.mjs`; luego una prueba de falso positivo (`${VAR:?msg}`) falló por aserción
+- green: 6 pruebas en verde; `npm run test:static` → "92 archivos sin secretos"; `git check-ignore .env .dev.vars` imprime ambos
+- files: scripts/lib/scan-secrets.mjs, scripts/test-static.mjs, tests/unit/secret-scan.test.js, vitest.config.js, .env.example, .gitignore, carpetas core/ functions/api/ migrations/ content/ tests/
