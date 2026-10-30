@@ -8,6 +8,8 @@ const RULES = [
   ['Set-Cookie prohibido: la demo no usa cookies (S9)', /\.(set|append)\(\s*['"]set-cookie|['"]?set-cookie['"]?\s*:/i],
   ['document.cookie prohibido (S9)', /document\.cookie/],
   ['eval / new Function prohibidos (S15)', /\beval\s*\(|new Function\s*\(/],
+  // El constructor de Cloudflare Pages usa wrangler 3 (esbuild antiguo): `import … with {…}` rompe las Functions.
+  ['import attributes (with/assert) prohibidos: wrangler 3 no los entiende; importa el JSON sin atributos', /^\s*(?:import|export)\b[^;\n]*\b(?:with|assert)\s*\{/m],
 ]
 
 export function checkSourceRules(file, text) {

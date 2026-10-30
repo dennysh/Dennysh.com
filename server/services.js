@@ -3,8 +3,8 @@ import { createStore } from './store-d1.js'
 import { createVerifier } from './verifier.js'
 import { createTelegramNotifier } from './notifier.js'
 import { loadRuleset } from '../core/ruleset.js'
-import rulesetJson from '../content/ruleset.v1.json' with { type: 'json' }
-import explanations from '../content/explanations/v1.json' with { type: 'json' }
+import rulesetJson from '../content/ruleset.v1.json'
+import explanations from '../content/explanations/v1.json'
 
 let rulesetPromise
 const getRuleset = () => (rulesetPromise ??= loadRuleset(rulesetJson).then((r) => {

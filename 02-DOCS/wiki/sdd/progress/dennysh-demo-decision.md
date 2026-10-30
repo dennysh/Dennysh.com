@@ -224,3 +224,8 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - status: complete
 - Contacto: ubicación remota (sin país), español nativo, inglés B1, UTC-5; disponibilidad sigue `pending` (P-09). Datos de máquina coherentes (JSON-LD, `dennys.json`, `llms.txt`). P-08 registrada: reseñas de Supabase fuera, tabla de Supabase sin tocar
 - `wrangler.jsonc`: `name = dennysh-com`, `database_id` real; runbook `cloudflare-setup.md` y `telegram-bot.md` con `--project-name dennysh-com`; pasos 2 y 3 marcados como hechos por Dennys
+
+## Fallo de despliegue por wrangler 3 — 2026-10-30 (D-IMPL-13)
+- causa: `import … with { type: 'json' }` en `server/services.js` (líneas 6-7); wrangler 3.114.17 (esbuild antiguo) lo rechaza: `Expected ";" but found "with"`. Reproducido con `npx wrangler@3.114.17 pages functions build`
+- red→green: la regla estática nueva falló primero sobre el ejemplo con `with {…}`/`assert {…}`; arreglo = JSON sin atributos
+- evidence: `npm run test:wrangler3` → "Compiled Worker successfully"; `wrangler@3.114.17 pages dev dist` responde 200 en `/api/simulate`; `verify` 0 (466 pruebas); e2e 32/32; `NODE_ENV=production npm run build` pasa

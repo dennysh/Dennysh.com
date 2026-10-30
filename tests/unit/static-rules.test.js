@@ -76,10 +76,15 @@ describe('reglas de código (T062, S9, S13, S15, D-01)', () => {
     'document.cookie': 'document.cookie = "a=1"',
     'eval': 'eval(code)',
     'new Function': 'new Function("return 1")',
+    'import attributes (wrangler 3 no los entiende)': "import data from '../content/x.json' with { type: 'json' }",
+    'import attributes con assert': "import data from './x.json' assert { type: 'json' }",
   }
   for (const [name, code] of Object.entries(bad)) {
     it(`detecta ${name}`, () => expect(checkSourceRules('src/x.jsx', code).length).toBeGreaterThan(0))
   }
+  it('un JSON importado sin atributos sí pasa (lo resuelven esbuild y Vite)', () => {
+    expect(checkSourceRules('server/x.js', "import data from '../content/x.json'")).toEqual([])
+  })
   it('el código correcto pasa', () => {
     const good = "db.prepare('SELECT * FROM events WHERE id = ?').bind(id)\nconst x = <p>{text}</p>\nheaders.delete('Set-Cookie')"
     expect(checkSourceRules('server/x.js', good)).toEqual([])

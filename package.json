@@ -11,7 +11,8 @@
     "test:static": "node scripts/test-static.mjs",
     "verify": "bash scripts/verify.sh",
     "build:e2e": "VITE_TURNSTILE_SITEKEY=1x00000000000000000000AA OUT_DIR=dist-e2e vite build --outDir dist-e2e && OUT_DIR=dist-e2e node scripts/prerender.mjs",
-    "test:lighthouse": "node scripts/lighthouse.mjs"
+    "test:lighthouse": "node scripts/lighthouse.mjs",
+    "test:wrangler3": "npx --yes wrangler@3.114.17 pages functions build --outdir .wrangler/fn3-check"
   },
   "dependencies": {
     "react": "^18.2.0",
