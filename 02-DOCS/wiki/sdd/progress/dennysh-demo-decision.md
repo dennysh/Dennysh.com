@@ -62,3 +62,14 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - red: la prueba pasó de entrada (el motor ya no lee atributos protegidos); se demostró que puede fallar con 3 mutantes (leen país, idioma, dispositivo) que sí la rompen
 - green: 3 pruebas; 500 casos × 5 variaciones con generador sembrado (sin dependencias nuevas)
 - files: tests/unit/fairness.test.js
+
+## T015 + T016 — 2026-10-30
+- status: complete
+- red: `npm test -- scenarios` → "Cannot find module core/scenario.js"
+- green: 7 pruebas; A/B/C evaluan a Limit/Block/Alert con el motor real; IP en rangos RFC 5737; determinista con rng sembrado
+- deviation: el contrato del plan §3 decía `scenario(id, rng, now)`; `now` no se usa (los escenarios no dependen de la hora), así que la firma es `scenario(id, rng)`. Un id desconocido devuelve `{ok:false, reason}`
+- files: core/scenario.js, tests/unit/scenarios.test.js
+
+## Checkpoint — 2026-10-30
+- `bash scripts/verify.sh` → verify OK; 35 pruebas unitarias en verde
+- commits por tarea autorizados (D-IMPL-04); sin push

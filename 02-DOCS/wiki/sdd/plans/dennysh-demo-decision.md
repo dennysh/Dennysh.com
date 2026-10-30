@@ -333,8 +333,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T012 | ✅ | (prueba) `core.evaluate`: A→Limitar, B→Bloquear, C→Alertar; precedencia; ninguna regla → Permitir | `npm test -- evaluate` falla | T011 | AC-04, AC-20 |
 | T013 | ✅ | Implementar `core.evaluate` | T012 en verde | T012 | AC-04, AC-20 |
 | T014 | ✅ | (prueba de propiedad) Equidad: cambiar nombre, país, idioma, dispositivo y género sintéticos no cambia `Outcome` | `npm test -- fairness` falla o, si ya pasa, se demuestra con un mutante que lee `country` y hace fallar la prueba | T013 | AC-14 |
-| T015 | | (prueba) Generador de escenarios: tres escenarios, IP de rangos de documentación, determinista con rng sembrado | `npm test -- scenarios` falla | T011 | spec §5.3 |
-| T016 | | Implementar `core.scenario` | T015 en verde | T015 | spec §5.3 |
+| T015 | ✅ | (prueba) Generador de escenarios: tres escenarios, IP de rangos de documentación, determinista con rng sembrado | `npm test -- scenarios` falla | T011 | spec §5.3 |
+| T016 | ✅ | Implementar `core.scenario` | T015 en verde | T015 | spec §5.3 |
 | T017 | | (prueba) Resolución de explicaciones: `reviewState` solo es Reviewed con `revisadaPor` y `revisadaEn`; build de producción falla con plantillas sin revisar | `npm test -- explain` falla | T011 | AC-23 |
 | T018 | | Implementar `core.explain`, las plantillas ES/EN v1 en `content/explanations/` (todas `PendingReview`) y el script de compuerta de build que falla en modo producción si alguna plantilla no tiene `revisadaPor` y `revisadaEn` | T017 en verde; `npm run test:static -- explain-review` falla en modo producción y pasa en modo desarrollo | T017 | AC-23, P-16 |
 | T019 | | (prueba) `core.buildAudit` y `core.effectiveState`: 12 campos de spec §5.6, UTC, hash del registro, cadena de hashes, estado efectivo | `npm test -- audit` falla | T013, T016 | AC-05, AC-19, AC-26 |
