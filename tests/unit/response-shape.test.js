@@ -111,16 +111,26 @@ describe('lista blanca de respuestas (S17, AC-11, AC-13)', () => {
     expect(await res.json()).toEqual({ code: 'E_INTERNAL' })
   })
 
-  it('un campo inesperado en un registro almacenado no llega a la respuesta (defensa en profundidad)', async () => {
+  it('un campo extra NO sellado en el registro almacenado no llega a la respuesta (defensa en profundidad)', async () => {
     const e = env()
     const sb = await (await call(simulate, post('/api/simulate', { lang: 'es', scenario: 'B', turnstileToken: 't' }), e)).json()
     const row = e.DB.raw.prepare('SELECT auditJson FROM events').get()
-    const polluted = { ...JSON.parse(row.auditJson), internalNote: 'secreto', input: { ...JSON.parse(row.auditJson).input, visitorHash: 'abc' } }
-    e.DB.raw.prepare('UPDATE events SET auditJson = ?').run(JSON.stringify(polluted))
+    e.DB.raw.prepare('UPDATE events SET auditJson = ?').run(JSON.stringify({ ...JSON.parse(row.auditJson), internalNote: 'secreto', visitorHash: 'abc' }))
     const g = await call(eventRoute, new Request('https://x/api/event/' + sb.eventId), e, { id: sb.eventId })
     const text = await g.text()
     expect(text).not.toContain('secreto')
     expect(text).not.toContain('visitorHash')
     assertAudit(JSON.parse(text).audit)
+  })
+
+  it('un campo SELLADO alterado en la base se detecta y la API responde 503 (sello de integridad)', async () => {
+    const e = env()
+    const sb = await (await call(simulate, post('/api/simulate', { lang: 'es', scenario: 'B', turnstileToken: 't' }), e)).json()
+    const row = e.DB.raw.prepare('SELECT auditJson FROM events').get()
+    const polluted = { ...JSON.parse(row.auditJson), input: { ...JSON.parse(row.auditJson).input, visitorHash: 'abc' } }
+    e.DB.raw.prepare('UPDATE events SET auditJson = ?').run(JSON.stringify(polluted))
+    const g = await call(eventRoute, new Request('https://x/api/event/' + sb.eventId), e, { id: sb.eventId })
+    expect(g.status).toBe(503)
+    expect(await g.json()).toEqual({ code: 'E_INTERNAL' })
   })
 })

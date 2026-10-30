@@ -85,3 +85,36 @@ test('inglés: el botón y los avisos salen en inglés', async ({ page }) => {
   await page.getByTestId('run').click()
   await expect(page.getByTestId('error')).toContainText('unavailable right now')
 })
+
+test('el enlace del mensaje (?evento=…) abre la auditoría en solo lectura, sin sessionStorage (spec §5.8)', async ({ page }) => {
+  const audit = await fixtureAudit()
+  await stubTurnstile(page)
+  const calls = await mockApi(page, { 'GET /api/event/:id': () => ({ body: { audit } }) })
+  await page.goto(`/es/?evento=${audit.eventId}`)
+  await expect(page.getByTestId('stage-audit')).toBeVisible()
+  await expect(page.getByTestId('readonly')).toContainText('solo lectura')
+  await expect(page.getByTestId('stage-oversight')).toHaveCount(0)
+  expect(calls.some((c) => c.path === `/api/event/${audit.eventId}`)).toBe(true)
+  expect(await page.evaluate((k) => sessionStorage.getItem(k), KEY)).toBeNull()
+  await expect(page.getByTestId('run')).toBeEnabled()
+})
+
+test('un enlace de un evento caducado muestra "El registro expiró"', async ({ page }) => {
+  await stubTurnstile(page)
+  await mockApi(page, { 'GET /api/event/:id': () => ({ status: 404, body: { code: 'E_NOT_FOUND' } }) })
+  await page.goto('/es/?evento=ab.cd')
+  await expect(page.getByTestId('error')).toContainText('El registro expiró')
+})
+
+test('"Empezar de nuevo" olvida el evento guardado: una recarga no lo restaura', async ({ page }) => {
+  const audit = await fixtureAudit()
+  await stubTurnstile(page)
+  await mockApi(page, { 'POST /api/simulate': () => ({ body: { eventId: audit.eventId, audit } }), 'GET /api/event/:id': () => ({ body: { audit } }) })
+  await page.goto('/es/')
+  await page.getByTestId('run').click()
+  await page.getByTestId('show-all').click()
+  await page.getByTestId('reset').click()
+  expect(await page.evaluate((k) => sessionStorage.getItem(k), KEY)).toBeNull()
+  await page.reload()
+  await expect(page.getByTestId('stage-audit')).toHaveCount(0)
+})

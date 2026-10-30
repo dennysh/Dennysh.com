@@ -7,7 +7,7 @@ export function createGetEvent({ store, clock, config }) {
     const notFound = { status: 404, body: { code: 'E_NOT_FOUND' } }
     if (!(await verifyEventId(eventId, config.eventKey)).ok) return notFound
     const found = await store.getEvent(eventId, clock.now())
-    if (found.kind === 'StoreDown') return { status: 503, body: { code: 'E_INTERNAL' } }
+    if (found.kind === 'StoreDown' || found.kind === 'Corrupt') return { status: 503, body: { code: 'E_INTERNAL' } }
     if (found.kind !== 'Found') return notFound
     return { status: 200, body: { audit: found.audit } }
   }

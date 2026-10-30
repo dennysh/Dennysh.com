@@ -56,6 +56,8 @@ export function createSimulate({ verifier, store, notifier, fallback, clock, rng
     // Cupo antes de nada caro (D-02/D-03). Se consume aunque el envío falle.
     let alert = { status: 'TestMode', channel: 'none' }
     let mayNotify = false
+    let slotId = null
+    const release = async () => { if (slotId) await store.releaseSlot(slotId) } // sin evento no se pierde el cupo
     if (realAlerts) {
       const slot = await store.reserveSlot(vHash, now)
       if (slot.kind === 'StoreDown') return INTERNAL
@@ -63,8 +65,9 @@ export function createSimulate({ verifier, store, notifier, fallback, clock, rng
         alert = { status: 'Grouped', channel: 'none' }
         if (slot.lastAlertAt != null) alert.groupedWithAtUtc = toUtcIso(slot.lastAlertAt)
       } else {
+        slotId = slot.slotId
         const breaker = await store.getBreaker(now)
-        if (breaker.kind === 'StoreDown') return INTERNAL
+        if (breaker.kind === 'StoreDown') { await release(); return INTERNAL }
         if (breaker.kind === 'Open') alert = { status: 'Paused', channel: 'none' }
         else mayNotify = true
       }
@@ -74,12 +77,12 @@ export function createSimulate({ verifier, store, notifier, fallback, clock, rng
     const s = buildScenario(id, rng.next)
     const outcome = evaluate(config.ruleset, s.signals)
     const explanation = explain(outcome, config.templates, lang, { ruleset: config.ruleset, signals: s.signals })
-    if (explanation.ok === false) return INTERNAL
+    if (explanation.ok === false) { await release(); return INTERNAL }
     const eventId = await signEventId(newRawId(), config.eventKey)
     const audit = await buildAudit({ eventId, nowMs: now, scenario: id, input: s.input, ruleset: config.ruleset, outcome, explanation, alert })
 
     const put = await store.putEvent({ audit, visitorHash: vHash, lang }, now)
-    if (put.kind !== 'Ok') return INTERNAL
+    if (put.kind !== 'Ok') { await release(); return INTERNAL }
     await store.purgeExpired(now) // oportunista: sin cron en Pages
 
     let messageId = null
@@ -87,8 +90,11 @@ export function createSimulate({ verifier, store, notifier, fallback, clock, rng
       const out = await deliver(renderAlert(audit), now)
       audit.alert = out.alert
       messageId = out.messageId ?? null
+      // El cupo solo cuenta como "última alerta" si se entregó de verdad (por Telegram o por el respaldo).
+      if (audit.alert.status === 'Delivered' || audit.alert.fallback?.status === 'Delivered') await store.confirmSlot(slotId)
     }
-    await store.updateAlert(eventId, audit.alert, messageId) // si falla, la respuesta igual dice la verdad
+    // Un reintento: si D1 falla dos veces la respuesta igual dice la verdad, pero el registro guardado quedaría atrás.
+    if ((await store.updateAlert(eventId, audit.alert, messageId)).kind === 'StoreDown') await store.updateAlert(eventId, audit.alert, messageId)
 
     return { status: 200, body: { eventId, audit } }
   }

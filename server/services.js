@@ -20,7 +20,9 @@ export async function buildServices(env) {
   }
   const alertsEnabled = env.ALERTS_ENABLED === 'true'
   // La clave de prueba de Turnstile acepta cualquier token: con alertas reales activas dejaría el cupo abierto a bots.
-  if (alertsEnabled && DUMMY_TURNSTILE.test(env.TURNSTILE_SECRET)) throw new Error('configuración insegura')
+  // Solo se tolera si TODOS los hosts permitidos son locales (e2e); en producción el host por defecto es dennysh.com.
+  const hosts = (env.TURNSTILE_HOSTS ?? 'dennysh.com,www.dennysh.com').split(',').map((h) => h.trim())
+  if (alertsEnabled && DUMMY_TURNSTILE.test(env.TURNSTILE_SECRET) && !hosts.every((h) => h === 'localhost' || h === '127.0.0.1')) throw new Error('configuración insegura')
   const config = {
     eventKey: env.EVENT_HMAC_KEY,
     visitorKey: env.VISITOR_HMAC_KEY,
@@ -37,7 +39,7 @@ export async function buildServices(env) {
     rng: { next: Math.random },
     verifier: createVerifier({
       secret: env.TURNSTILE_SECRET,
-      expectedHost: (env.TURNSTILE_HOSTS ?? 'dennysh.com,www.dennysh.com').split(',').map((h) => h.trim()),
+      expectedHost: hosts,
       testMode: DUMMY_TURNSTILE.test(env.TURNSTILE_SECRET),
     }),
     notifier: createTelegramNotifier({ token: env.TELEGRAM_BOT_TOKEN, chatId: env.TELEGRAM_CHAT_ID, dryRun: !alertsEnabled }),

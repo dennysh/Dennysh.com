@@ -41,12 +41,14 @@ export default function Demo({ lang = 'es', client, sitekey = import.meta.env?.V
   const api = useMemo(() => client ?? createClient({ getToken: createTokenGetter(sitekey, () => slot.current) }), [client, sitekey])
   const startedAt = useRef(0)
 
-  // Recarga dentro de 24 h: restaura la auditoría guardada por eventId (sin cookies).
+  // Enlace compartido (?evento=…): vista de solo lectura. Si no, recarga dentro de 24 h: restaura por eventId (sin cookies).
   useEffect(() => {
     let alive = true
-    api.restore().then((r) => {
+    const shared = typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('evento')
+    const load = shared ? api.view(shared).then((r) => ({ ...r, readOnly: true })) : api.restore()
+    load.then((r) => {
       if (!alive || !r) return
-      dispatch(r.ok ? { type: 'RESTORE', audit: r.audit } : { type: 'FAIL', kind: r.kind })
+      dispatch(r.ok ? { type: 'RESTORE', audit: r.audit, readOnly: r.readOnly === true } : { type: 'RESTORE_FAIL', kind: r.kind })
     })
     return () => { alive = false }
   }, [api])
@@ -72,7 +74,7 @@ export default function Demo({ lang = 'es', client, sitekey = import.meta.env?.V
     dispatch(r.ok ? { type: 'INTERVENE_OK', audit: r.audit } : { type: 'INTERVENE_FAIL', kind: r.kind })
   }
 
-  const busy = state.phase === 'running' || state.phase === 'revealing'
+  const busy = state.phase === 'running' || state.phase === 'revealing' || state.busy
   const audit = state.audit
   const live = (() => {
     if (!audit || !state.announce) return ''
@@ -96,9 +98,10 @@ export default function Demo({ lang = 'es', client, sitekey = import.meta.env?.V
           <button type="button" className="btn btn-link" onClick={() => dispatch({ type: 'SHOW_ALL' })} data-testid="show-all">{t.showAll}</button>
         )}
         {audit && state.phase !== 'revealing' && (
-          <button type="button" className="btn btn-link" onClick={() => dispatch({ type: 'RESET' })} data-testid="reset">{t.reset}</button>
+          <button type="button" className="btn btn-link" onClick={() => { api.forget(); dispatch({ type: 'RESET' }) }} disabled={state.busy} data-testid="reset">{t.reset}</button>
         )}
       </div>
+      {state.readOnly && <p className="muted" role="note" data-testid="readonly">{t.readOnly}</p>}
       {audit && (
         <div className="chips" role="group" aria-label={t.chips.label} data-testid="chips">
           {chip('random', t.chips.random)}{chip('A', t.chips.A)}{chip('B', t.chips.B)}{chip('C', t.chips.C)}
@@ -122,7 +125,7 @@ export default function Demo({ lang = 'es', client, sitekey = import.meta.env?.V
               {STAGE[step](audit, lang)}
             </section>
           ))}
-          {state.revealed > 5 && (
+          {state.revealed > 5 && !state.readOnly && (
             <section className="stage stage-oversight" data-testid="stage-oversight" aria-labelledby="h-oversight">
               <h3 id="h-oversight">{t.stages.oversight}</h3>
               <OversightBar audit={audit} lang={lang} disabled={!canIntervene(state)} notice={state.notice} onAct={act} />

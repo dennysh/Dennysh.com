@@ -26,6 +26,11 @@ export async function loadRuleset(json) {
     if (!ACTIONS.includes(r.action)) return bad('action')
     const c = r.condition
     if (!isObj(c) || !Object.hasOwn(CONDITIONS, c.type) || !onlyKeys(c, CONDITIONS[c.type])) return bad('condition')
+    const num = (v) => typeof v === 'number' && Number.isFinite(v)
+    if (c.type === 'speed-above' && !(num(c.gt) && c.gt >= 0 && c.signal === 'impliedSpeedKmh')) return bad('condition-values')
+    if (c.type === 'burst' && !(Number.isInteger(c.min) && c.min >= 1 && Number.isInteger(c.maxWindowSeconds) && c.maxWindowSeconds >= 1)) return bad('condition-values')
+    if (c.type === 'off-hours-export' && !(Number.isInteger(c.from) && Number.isInteger(c.to) && c.from >= 0 && c.to <= 1440 && c.from < c.to)) return bad('condition-values')
+    if (r.action === 'Limit' && !(Number.isInteger(r.limitMinutes) && r.limitMinutes >= 1)) return bad('limit-minutes')
   }
   const hash = await sha256Hex(canonicalJson(json))
   return { ok: true, ruleset: { version: json.version, rules: json.rules, hash } }

@@ -5,7 +5,7 @@ const valid = (iso) => typeof iso === 'string' && !Number.isNaN(Date.parse(iso))
 const hms = (iso, timeZone) =>
   new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }).format(new Date(iso))
 
-export const utcLabel = (iso) => (valid(iso) ? `${iso.slice(11, 23)} UTC` : '—')
+export const utcLabel = (iso) => (valid(iso) ? `${new Date(iso).toISOString().slice(11, 23)} UTC` : '—')
 
 export function offsetLabel(iso, timeZone) {
   if (!valid(iso)) return 'UTC'

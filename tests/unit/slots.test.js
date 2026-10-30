@@ -15,6 +15,7 @@ describe('reserveSlot: tope por visitante (AC-07)', () => {
     const a = await store.reserveSlot(v(1), T0)
     expect(a.kind).toBe('Reserved')
     expect(typeof a.slotId).toBe('string')
+    await store.confirmSlot(a.slotId)
     expect(await store.reserveSlot(v(1), T0 + 5 * 60_000)).toEqual({ kind: 'VisitorCap', lastAlertAt: T0 })
   })
 
@@ -35,7 +36,11 @@ describe('reserveSlot: tope por visitante (AC-07)', () => {
 describe('reserveSlot: tope global en ventana móvil de 24 h (AC-08, AC-32)', () => {
   it('20 visitantes distintos pasan; el 21.º recibe GlobalCap con la última alerta', async () => {
     const { store } = fresh()
-    for (let i = 0; i < GLOBAL_MAX; i++) expect((await store.reserveSlot(v(i), T0 + i)).kind).toBe('Reserved')
+    for (let i = 0; i < GLOBAL_MAX; i++) {
+      const r = await store.reserveSlot(v(i), T0 + i)
+      expect(r.kind).toBe('Reserved')
+      await store.confirmSlot(r.slotId)
+    }
     expect(await store.reserveSlot(v(99), T0 + 100)).toEqual({ kind: 'GlobalCap', lastAlertAt: T0 + GLOBAL_MAX - 1 })
   })
 
@@ -92,5 +97,33 @@ describe('reserveSlot: fallo del almacén', () => {
     const { db, store } = fresh()
     db.state.down = true
     expect(await store.reserveSlot(v(1), T0)).toEqual({ kind: 'StoreDown' })
+  })
+})
+
+describe('lastAlertAt solo cuenta alertas ENTREGADAS (spec §5.8)', () => {
+  it('un cupo no confirmado (envío fallido, pausa) no aparece como "la última alerta"', async () => {
+    const { store } = fresh()
+    await store.reserveSlot(v(1), T0) // nunca confirmado
+    expect(await store.reserveSlot(v(1), T0 + 1000)).toEqual({ kind: 'VisitorCap', lastAlertAt: null })
+  })
+  it('el tope global informa la última entregada, no la última reservada', async () => {
+    const { store } = fresh()
+    for (let i = 0; i < GLOBAL_MAX; i++) {
+      const r = await store.reserveSlot(v(i), T0 + i)
+      if (i === 5) await store.confirmSlot(r.slotId)
+    }
+    expect(await store.reserveSlot(v(99), T0 + 100)).toEqual({ kind: 'GlobalCap', lastAlertAt: T0 + 5 })
+  })
+  it('releaseSlot devuelve el cupo (no se pierde si no hubo evento)', async () => {
+    const { store } = fresh()
+    const r = await store.reserveSlot(v(1), T0)
+    expect(await store.releaseSlot(r.slotId)).toEqual({ kind: 'Ok' })
+    expect((await store.reserveSlot(v(1), T0 + 1)).kind).toBe('Reserved')
+  })
+  it('confirmSlot y releaseSlot con el almacén caído devuelven StoreDown', async () => {
+    const { db, store } = fresh()
+    db.state.down = true
+    expect(await store.confirmSlot('x')).toEqual({ kind: 'StoreDown' })
+    expect(await store.releaseSlot('x')).toEqual({ kind: 'StoreDown' })
   })
 })

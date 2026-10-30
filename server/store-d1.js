@@ -1,6 +1,6 @@
 // Almacén sobre D1 (puerto Store, plan §3). Resultados etiquetados con `kind`; D1 caído → StoreDown.
 import { newRawId } from './event-id.js'
-import { effectiveState, chainInterventions } from '../core/audit.js'
+import { effectiveState, chainInterventions, verifyRecordHash } from '../core/audit.js'
 
 export const VISITOR_WINDOW_MS = 10 * 60 * 1000
 export const GLOBAL_WINDOW_MS = 24 * 60 * 60 * 1000
@@ -20,6 +20,8 @@ export function createStore(db) {
     const { results } = await db.prepare('SELECT seq, action, at FROM interventions WHERE eventId = ? ORDER BY seq').bind(eventId).all()
     const interventions = results.map((r) => ({ seq: r.seq, action: r.action, atUtc: new Date(r.at).toISOString(), actor: 'visitor-demo' }))
     const audit = { ...JSON.parse(row.auditJson), alert: JSON.parse(row.alertJson), interventions, ...effectiveState(interventions) }
+    // El sello debe coincidir con el registro guardado: si alguien tocó la base, no se sirve (BAJO-1 de la revisión).
+    if (!(await verifyRecordHash(audit))) return { corrupt: true }
     return { audit, messageId: row.alertMessageId, expiresAt: row.expiresAt }
   }
 
@@ -38,13 +40,34 @@ export function createStore(db) {
           .bind(id, visitorHash, now, visitorHash, now - VISITOR_WINDOW_MS, now - GLOBAL_WINDOW_MS, GLOBAL_MAX)
           .run()
         if (r.meta.changes === 1) return { kind: 'Reserved', slotId: id }
-        const mine = await db
-          .prepare('SELECT MAX(at) AS at FROM alert_slots WHERE visitorHash = ? AND at > ?')
-          .bind(visitorHash, now - VISITOR_WINDOW_MS)
-          .first()
-        if (mine?.at != null) return { kind: 'VisitorCap', lastAlertAt: mine.at }
-        const last = await db.prepare('SELECT MAX(at) AS at FROM alert_slots WHERE at > ?').bind(now - GLOBAL_WINDOW_MS).first()
+        // Qué tope fue: el del visitante si tiene un cupo en su ventana (entregado o no).
+        const mineAny = await db.prepare('SELECT 1 AS x FROM alert_slots WHERE visitorHash = ? AND at > ? LIMIT 1').bind(visitorHash, now - VISITOR_WINDOW_MS).first()
+        // La hora que se muestra es la de la última alerta ENTREGADA (spec §5.8), o null si no hubo ninguna.
+        if (mineAny) {
+          const mine = await db.prepare("SELECT MAX(at) AS at FROM alert_slots WHERE visitorHash = ? AND at > ? AND status = 'Delivered'").bind(visitorHash, now - VISITOR_WINDOW_MS).first()
+          return { kind: 'VisitorCap', lastAlertAt: mine?.at ?? null }
+        }
+        const last = await db.prepare("SELECT MAX(at) AS at FROM alert_slots WHERE at > ? AND status = 'Delivered'").bind(now - GLOBAL_WINDOW_MS).first()
         return { kind: 'GlobalCap', lastAlertAt: last?.at ?? null }
+      } catch {
+        return down
+      }
+    },
+
+    async confirmSlot(slotId) {
+      try {
+        await db.prepare("UPDATE alert_slots SET status = 'Delivered' WHERE id = ?").bind(slotId).run()
+        return { kind: 'Ok' }
+      } catch {
+        return down
+      }
+    },
+
+    // Devuelve el cupo si la petición terminó sin evento (el visitante no debe perder su turno).
+    async releaseSlot(slotId) {
+      try {
+        await db.prepare('DELETE FROM alert_slots WHERE id = ?').bind(slotId).run()
+        return { kind: 'Ok' }
       } catch {
         return down
       }
@@ -67,6 +90,7 @@ export function createStore(db) {
     async getEvent(eventId, now) {
       try {
         const found = await load(eventId)
+        if (found?.corrupt) return { kind: 'Corrupt' }
         if (!found || found.expiresAt <= now) return { kind: 'NotFoundOrExpired' }
         return { kind: 'Found', audit: found.audit, messageId: found.messageId }
       } catch {
@@ -105,6 +129,7 @@ export function createStore(db) {
       try {
         for (let attempt = 0; attempt < 10; attempt++) {
           const found = await load(eventId)
+          if (found?.corrupt) return { kind: 'Corrupt' }
           if (!found || found.expiresAt <= now) return { kind: 'NotFound' }
           const current = found.audit.interventions
           if (current.length >= MAX_INTERVENTIONS) return { kind: 'LimitReached' }

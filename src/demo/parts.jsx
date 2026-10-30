@@ -74,7 +74,8 @@ export function ExplanationPanel({ audit, lang }) {
 
 export function alertLine(alert, lang, tz) {
   const A = UI[lang].alert
-  let line = fmt(A.status[alert.status] ?? alert.status, { hhmm: alert.groupedWithAtUtc ? hhmmLocal(alert.groupedWithAtUtc, tz) : '—' })
+  const key = alert.status === 'Grouped' && !alert.groupedWithAtUtc ? 'GroupedNoTime' : alert.status
+  let line = fmt(A.status[key] ?? alert.status, { hhmm: alert.groupedWithAtUtc ? hhmmLocal(alert.groupedWithAtUtc, tz) : '' })
   if (alert.status === 'Failed' || alert.status === 'Unconfirmed') {
     const why = A.code[alert.code]
     if (why) line += ` (${why})`
@@ -91,7 +92,7 @@ export function AlertPanel({ audit, lang, tz = tzOf() }) {
       <dl className="kv">
         <div><dt>{UI[lang].audit.to}</dt><dd className="mono">{a.channel === 'telegram' && a.maskedChat ? `Telegram ${a.maskedChat}` : A.channel[a.channel]}</dd></div>
         {a.atUtc && <div><dt>{UI[lang].audit.when}</dt><dd><Times iso={a.atUtc} lang={lang} tz={tz} /></dd></div>}
-        {a.fallback && <div><dt>{A.fallback}</dt><dd>{A.status[a.fallback.status] ?? a.fallback.status}</dd></div>}
+        {a.fallback && <div><dt>{A.fallback}</dt><dd>{A.fallbackStatus[a.fallback.status] ?? a.fallback.status}</dd></div>}
         {a.escalation && <div><dt>{UI[lang].oversight.escalate}</dt><dd>{A.escalation[a.escalation]}</dd></div>}
       </dl>
     </div>

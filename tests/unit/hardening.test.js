@@ -27,6 +27,11 @@ describe('guardia de la clave de prueba de Turnstile (BAJO-2)', () => {
   it('clave de prueba + alertas activas es un error de configuración', async () => {
     await expect(buildServices(env({ TURNSTILE_SECRET: '1x0000000000000000000000000000000AA', ALERTS_ENABLED: 'true' }))).rejects.toThrow()
   })
+  it('clave de prueba + alertas solo se tolera si todos los hosts permitidos son locales (e2e)', async () => {
+    const base = { TURNSTILE_SECRET: '1x0000000000000000000000000000000AA', ALERTS_ENABLED: 'true', TELEGRAM_BOT_TOKEN: 't', TELEGRAM_CHAT_ID: '1' }
+    await expect(buildServices(env({ ...base, TURNSTILE_HOSTS: 'localhost' }))).resolves.toBeTruthy()
+    await expect(buildServices(env({ ...base, TURNSTILE_HOSTS: 'localhost,dennysh.com' }))).rejects.toThrow()
+  })
   it('clave de prueba sin alertas (local/e2e) está permitida; clave real con alertas también', async () => {
     await expect(buildServices(env({ TURNSTILE_SECRET: '1x0000000000000000000000000000000AA' }))).resolves.toBeTruthy()
     await expect(buildServices(env({ ALERTS_ENABLED: 'true', TELEGRAM_BOT_TOKEN: 't', TELEGRAM_CHAT_ID: '1' }))).resolves.toBeTruthy()

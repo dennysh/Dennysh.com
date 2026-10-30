@@ -16,7 +16,7 @@ export function createIntervene({ store, notifier, clock, config }) {
     if (!(await verifyEventId(eventId, config.eventKey)).ok) return NOT_FOUND
     const now = clock.now()
     const found = await store.getEvent(eventId, now)
-    if (found.kind === 'StoreDown') return INTERNAL
+    if (found.kind === 'StoreDown' || found.kind === 'Corrupt') return INTERNAL
     if (found.kind !== 'Found') return NOT_FOUND
 
     const added = await store.appendIntervention(eventId, action, now)

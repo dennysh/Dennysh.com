@@ -36,8 +36,19 @@ export function createClient({ fetch: fetchFn = globalThis.fetch.bind(globalThis
       const payload = { lang, ...(scenario ? { scenario } : {}), turnstileToken: token }
       const r = await post('/api/simulate', payload)
       if (r.status !== 200 || !r.body?.audit) return { ok: false, kind: kindFor(r.status) }
-      store.set(r.body.eventId)
+      if (typeof r.body.eventId === 'string') store.set(r.body.eventId)
       return { ok: true, audit: r.body.audit }
+    },
+
+    // Enlace de solo lectura (?evento=): no lo guarda como propio.
+    async view(id) {
+      const r = await json(`/api/event/${encodeURIComponent(id)}`, { method: 'GET' })
+      if (r.status === 200 && r.body?.audit) return { ok: true, audit: r.body.audit }
+      return { ok: false, kind: r.status === 404 ? 'expired' : 'unavailable' }
+    },
+
+    forget() {
+      store.clear()
     },
 
     async restore() {

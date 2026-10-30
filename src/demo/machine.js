@@ -6,7 +6,7 @@ export const STEP_AT_MS = { event: 1000, decision: 6000, explanation: 9000, audi
 export const MAX_RUN_MS = 30_000
 export const MAX_INTERVENTIONS = 3
 
-export const initialState = { phase: 'idle', scenario: null, audit: null, revealed: 0, error: null, busy: false, notice: null, announce: null }
+export const initialState = { phase: 'idle', scenario: null, audit: null, revealed: 0, error: null, busy: false, notice: null, announce: null, readOnly: false }
 
 const ERRORS = ['turnstile', 'bot', 'unavailable', 'input', 'expired']
 // Solo cuatro cambios se anuncian a lectores de pantalla: evento, decisión, estado de alerta, intervención.
@@ -30,9 +30,15 @@ export function reduce(state, event) {
       const next = { ...state, phase: 'revealing', audit: event.audit, revealed: 0, announce: null }
       return event.reducedMotion ? reveal(next, STEPS.length) : next
     }
+    // La restauración (recarga o enlace) solo vale desde reposo: una respuesta tardía no pisa una ejecución nueva.
     case 'RESTORE':
-      return reveal({ ...initialState, phase: 'revealing', audit: event.audit }, STEPS.length)
+      if (state.phase !== 'idle') return state
+      return reveal({ ...initialState, phase: 'revealing', audit: event.audit, readOnly: event.readOnly === true }, STEPS.length)
+    case 'RESTORE_FAIL':
+      if (state.phase !== 'idle') return state
+      return { ...initialState, phase: 'error', error: ERRORS.includes(event.kind) ? event.kind : 'unavailable' }
     case 'FAIL':
+      if (state.phase !== 'running') return state
       return { ...initialState, phase: 'error', error: ERRORS.includes(event.kind) ? event.kind : 'unavailable' }
     case 'TICK': {
       if (state.phase !== 'revealing') return state
@@ -41,10 +47,14 @@ export function reduce(state, event) {
     case 'SHOW_ALL':
       return state.audit ? reveal(state, STEPS.length) : state
     case 'INTERVENE_START':
+      if (state.phase !== 'decided' || state.readOnly) return state
       return { ...state, busy: true, notice: null }
+    // Las respuestas de una intervención solo valen para el mismo evento y mientras siga decidido (si no, son de una ejecución vieja).
     case 'INTERVENE_OK':
+      if (state.phase !== 'decided' || event.audit?.eventId !== state.audit?.eventId) return state
       return { ...state, audit: event.audit, busy: false, notice: null, announce: 'intervention' }
     case 'INTERVENE_FAIL':
+      if (state.phase !== 'decided') return state
       if (event.kind === 'expired') return { ...initialState, phase: 'error', error: 'expired' }
       return { ...state, busy: false, notice: event.kind }
     case 'RESET':
@@ -55,4 +65,4 @@ export function reduce(state, event) {
 }
 
 export const canIntervene = (s) =>
-  s.phase === 'decided' && !s.busy && s.audit !== null && s.audit.interventions.length < MAX_INTERVENTIONS
+  s.phase === 'decided' && !s.busy && !s.readOnly && s.audit !== null && s.audit.interventions.length < MAX_INTERVENTIONS

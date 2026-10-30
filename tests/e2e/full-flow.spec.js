@@ -32,8 +32,8 @@ test('flujo completo: tres escenarios, tope, Anular, Escalar y fallo de Telegram
     await expect(page.getByTestId('explanation')).toContainText(rule)
     await expect(page.getByTestId('explanation')).toContainText('sha256:')
     seen[chip] = await page.getByTestId('decision').innerText()
-    // Tope por visitante (AC-07): ya se usó el cupo, así que se agrupa y la simulación sigue completa.
-    await expect(page.getByTestId('alert')).toContainText(/Grouped with the \d\d:\d\d alert/)
+    // Tope por visitante (AC-07): ya se usó el cupo, así que se agrupa y la simulación sigue completa. Como el envío falló, no hay hora de «última alerta entregada».
+    await expect(page.getByTestId('alert')).toContainText('Grouped to avoid noise (no recent delivered alert)')
   }
   expect(new Set(Object.values(seen)).size).toBe(3)
 

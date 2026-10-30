@@ -11,7 +11,7 @@ describe('POST /api/simulate: orden D-03', () => {
     const h = await makeHarness()
     const r = await h.post(h.ok)
     expect(r.status).toBe(200)
-    expect(order(h.calls)).toEqual(['verify', 'reserveSlot', 'getBreaker', 'putEvent', 'send', 'updateAlert'])
+    expect(order(h.calls)).toEqual(['verify', 'reserveSlot', 'getBreaker', 'putEvent', 'send', 'confirmSlot', 'updateAlert'])
   })
 
   it('entrada inválida: 400 sin verificar, sin cupo y sin enviar', async () => {
