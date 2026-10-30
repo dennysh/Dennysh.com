@@ -13,8 +13,8 @@ Origen: diseño `docs/superpowers/specs/2026-10-29-dennysh-demo-decision-design.
 | P-05 | ¿Es cierto y demostrable "1,719 cajas" y "lo usan técnicos reales en Ecuador"? La copia de la PC quitó esa frase de "Sobre mí" | No usarla hasta que lo confirmes. Mostrar solo "en producción" | Sección 3 |
 | P-06 | ¿Cuál es la URL correcta del repo del bot: `Bot_cajacercana` o `Bot_Telegram_Caja_Cercana`? | Usar `Bot_cajacercana` (la copia más reciente) tras tu confirmación | Sección 3 |
 | P-07 | ¿Quieres reutilizar como reglas propias las ideas de `aiNews` (flujo manual primero, permisos y trazabilidad, no subir secretos)? | Sí, como 4–5 reglas de "Cómo trabajo con IA", con tus palabras | Sección 4.4 |
-| P-08 | ¿Se mantiene Supabase y las reseñas abiertas del público? | Retirar de v1 (menos superficie; una prueba funcionando pesa más). Si se mantiene, RLS obligatorio | Secciones 10 (S4), 13 |
-| P-09 | ¿Qué rol y qué tipo de empresa buscas (remoto/zona horaria/idiomas/disponibilidad) y qué datos personales publicar (foto, ciudad)? | Solo lo que ya está público (nombre, correo, LinkedIn, GitHub). Resto como marcador | Secciones 4.1, 4.9, 8 |
+| P-08 | **Resuelta 2026-10-30: las reseñas de Supabase quedan fuera por ahora; la tabla de Supabase no se tocó (D-IMPL-12).** ¿Se mantiene Supabase y las reseñas abiertas del público? | Retirar de v1 (menos superficie; una prueba funcionando pesa más). Si se mantiene, RLS obligatorio | Secciones 10 (S4), 13 |
+| P-09 | **Respondida en parte el 2026-10-30** (rol): no busca un puesto concreto; quiere trabajar con IA, y a largo plazo le interesa la relación IA-cerebro como visión (publicado como interés). **Siguen pendientes** ubicación, zona horaria, idiomas y disponibilidad (se publican como "por confirmar"). ¿Qué rol y qué tipo de empresa buscas (remoto/zona horaria/idiomas/disponibilidad) y qué datos personales publicar (foto, ciudad)? | Solo lo que ya está público (nombre, correo, LinkedIn, GitHub). Resto como marcador | Secciones 4.1, 4.9, 8 |
 | P-10 | ¿Correo de respaldo: qué dirección y qué servicio gratuito? ¿Crearás tú el bot en BotFather y guardarás el token en Cloudflare? | Telegram + correo a tu dirección pública; el token lo cargas tú, yo nunca lo veo | Sección 5.8 |
 | P-11 | ¿Retención de 24 h para los registros de la demo y hash de IP con sal son aceptables? | Sí, y declararlo en `privacidad` | Secciones 8, 10 |
 | P-12 | ¿"Skills usados" en la explicación significa los módulos del sistema de decisión (detector, clasificador, notificador)? ¿O quieres mencionar skills de Claude Code? | Módulos del sistema, con nombre y versión | Sección 5.6 |
@@ -29,3 +29,6 @@ Origen: diseño `docs/superpowers/specs/2026-10-29-dennysh-demo-decision-design.
 | P-21 | ¿`/` sirve inglés con canónico a `/en/`, y el sitemap lista solo `/en/` y `/es/`? | Sí | Secciones 8, 11 |
 | P-22 | ¿Cuál es la dirección pública de Criden (el producto para negocios y páginas web) y qué una línea quieres decir de él? | Sin enlace hasta que lo confirmes; el bloque queda como marcador | Sección 4.8 |
 
+**Publicación 2026-10-30:** Dennys autorizó publicar con P-04, P-06, P-09 (parte pendiente) y P-22 como "por confirmar" y con las 4 plantillas sin revisar (D-IMPL-11). No están resueltas: siguen abiertas hasta que las respondas.
+
+**P-22 (Criden):** sigue pendiente; su sitio aún no está en producción (quizá este fin de semana). Se publica "Enlace próximamente".

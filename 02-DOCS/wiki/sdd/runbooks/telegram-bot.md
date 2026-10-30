@@ -23,7 +23,7 @@ El token es un secreto: **solo** vive en las variables cifradas de Cloudflare. Y
 Cuándo: sospecha de fuga, o antes de publicar por primera vez (T091).
 
 - [ ] 1. BotFather → `/revoke` → elegir el bot. Entrega un token nuevo y el viejo deja de funcionar al instante.
-- [ ] 2. `npx wrangler pages secret put TELEGRAM_BOT_TOKEN --project-name dennysh` (pegar el nuevo).
+- [ ] 2. `npx wrangler pages secret put TELEGRAM_BOT_TOKEN --project-name dennysh-com` (pegar el nuevo).
 - [ ] 3. Reintentar el despliegue de Producción (Pages → Deployments → Retry) para que lea la variable.
 - [ ] 4. Probar con la lista de `preflight.md` (alerta real).
 - [ ] 5. Anotar la fecha del ensayo: ____

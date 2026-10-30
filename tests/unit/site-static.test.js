@@ -36,6 +36,16 @@ describe('capa de máquinas (AC-15, AC-33)', () => {
   })
 })
 
+describe('perfil en datos de máquina (idiomas)', () => {
+  it('JSON-LD y dennys.json declaran español nativo e inglés B1', async () => {
+    const { jsonLd, resumeJson } = await import('../../scripts/lib/machine.mjs')
+    const person = jsonLd('en')['@graph'].find((n) => n['@type'] === 'Person')
+    expect(person.knowsLanguage).toEqual(['es', 'en'])
+    const langs = resumeJson().languages
+    expect(langs).toEqual([{ language: 'Spanish', fluency: 'Native speaker' }, { language: 'English', fluency: 'B1' }])
+  })
+})
+
 describe('legales (AC-31)', () => {
   const files = {
     'en/privacy/index.html': 'HMAC Turnstile Telegram 24 hours', 'es/privacidad/index.html': 'HMAC Turnstile Telegram 24 horas',

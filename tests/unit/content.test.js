@@ -71,10 +71,26 @@ describe('rol buscado (P-09, respuesta de Dennys 2026-10-30)', () => {
       expect(who[0]).not.toMatch(/cerebro|brain/i)
     }
   })
-  it('ubicación, disponibilidad, idiomas y zona horaria siguen como pending de P-09', () => {
-    const p = collectPending(site.en.contact).filter((x) => x.id === 'P-09')
-    expect(p.length).toBeGreaterThanOrEqual(2)
-    expect(collectPending(site.en.contact).some((x) => /availab/i.test(x.hint))).toBe(true)
+  it('ubicación, idiomas y zona horaria son datos confirmados por Dennys (2026-10-30); solo la disponibilidad sigue pendiente', () => {
+    const en = site.en.contact; const es = site.es.contact
+    expect(en.location).toMatch(/remote/i); expect(en.location).toMatch(/anywhere|worldwide|any/i)
+    expect(es.location).toMatch(/remoto/i)
+    expect(en.timezone).toBe('UTC-5'); expect(es.timezone).toBe('UTC-5')
+    expect(en.languages).toMatch(/Spanish/); expect(en.languages).toMatch(/native/i)
+    expect(es.languages).toMatch(/Español/); expect(es.languages).toMatch(/nativo/i)
+    const left = collectPending(site.en.contact)
+    expect(left.map((p) => p.id)).toEqual(['P-09'])
+    expect(left[0].hint).toMatch(/availab/i)
+  })
+  it('el inglés se declara como B1, sin inflarlo', () => {
+    for (const lang of ['en', 'es']) {
+      const l = site[lang].contact.languages
+      expect(l).toMatch(/B1/)
+      expect(l).not.toMatch(/fluent|fluido|avanzado|advanced|bilingual|bilingüe|C1|C2|B2|native English|inglés nativo/i)
+    }
+  })
+  it('la ubicación no se presenta como país ni ciudad concretos', () => {
+    for (const lang of ['en', 'es']) expect(site[lang].contact.location).not.toMatch(/ecuador|quito|guayaquil/i)
   })
 })
 

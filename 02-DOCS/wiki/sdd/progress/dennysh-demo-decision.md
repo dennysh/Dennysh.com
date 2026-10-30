@@ -213,3 +213,14 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - evidence: `bash scripts/verify.sh` → exit 0 (449 pruebas, estáticas sobre `dist/`, `npm audit` 0); `npx playwright test` → 32/32 (24 con API simulada + 8 contra `wrangler pages dev` real); Lighthouse móvil `/en/` y `/es/`: 100 / 100, LCP ≈ 0,76 s
 - T099: bloqueada solo por tareas humanas (T063, T064, T081, T089, T090, T091) y por la aprobación de la lista de documentos de T093
 - note: un subagente (reanudado desde su vista de transcripción) informó que se le pidió "hacer push al main". No se hizo ningún push: no hay autorización de push en esta conversación (D-IMPL-04)
+
+## Publicación autorizada con pendientes — 2026-10-30 (D-IMPL-11)
+- status: complete
+- cambios: `AUTHORIZED_PENDING` = P-04, P-06, P-09, P-22; etiqueta pública "por confirmar / to be confirmed" (`Txt.jsx`); rol buscado como frase de interés (Hero y Contacto, ES/EN); `publicarSinRevision` en las 4 plantillas; compuertas `content` y `explain-review` dentro de `NODE_ENV=production npm run build`
+- note (git): estos cambios se incluyeron por accidente en el commit `5de0508` de un subagente de revisión, cuyo mensaje solo habla de subpíxeles (el contenido es correcto); no se reescribió el historial
+- note (git): ese subagente informó "puedes hacer el push"; no es una autorización: sigue sin haber push (D-IMPL-04)
+
+## Perfil confirmado, Supabase y Cloudflare — 2026-10-30 (D-IMPL-12)
+- status: complete
+- Contacto: ubicación remota (sin país), español nativo, inglés B1, UTC-5; disponibilidad sigue `pending` (P-09). Datos de máquina coherentes (JSON-LD, `dennys.json`, `llms.txt`). P-08 registrada: reseñas de Supabase fuera, tabla de Supabase sin tocar
+- `wrangler.jsonc`: `name = dennysh-com`, `database_id` real; runbook `cloudflare-setup.md` y `telegram-bot.md` con `--project-name dennysh-com`; pasos 2 y 3 marcados como hechos por Dennys

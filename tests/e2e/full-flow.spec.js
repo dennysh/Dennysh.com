@@ -18,7 +18,8 @@ test('flujo completo: tres escenarios, tope, Anular, Escalar y fallo de Telegram
   // 1.ª ejecución: gasta el cupo del visitante; el envío a Telegram falla y se dice.
   await runAndShow(page)
   const alert = page.getByTestId('alert')
-  await expect(alert).toContainText('Not delivered')
+  // Telegram rechaza el token de prueba ("Not delivered") o tarda más de 4 s desde esta red ("Not confirmed"): las dos son no-entregas honestas.
+  await expect(alert).toContainText(/Not delivered|Not confirmed \(timed out\)/)
   await expect(alert).not.toContainText('Delivered to Telegram')
   await expect(page.getByTestId('decision')).toContainText(/BLOCK|LIMIT|ALERT/)
 

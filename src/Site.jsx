@@ -171,8 +171,10 @@ export default function Site({ lang = 'en', demoClient }) {
               <li>{c.contact.email}: <a href={links.email}>{links.emailAddress}</a></li>
               <li><a href={links.linkedin} rel="noopener noreferrer">{c.contact.linkedin}</a> · <a href={links.github} rel="noopener noreferrer">{c.contact.github}</a></li>
               <li><a href={links.cv}>{c.contact.cv}</a></li>
-              <li><Txt lang={lang} v={c.contact.role} /></li>
-              <li><Txt lang={lang} v={c.contact.languages} /> · <Txt lang={lang} v={c.contact.timezone} /></li>
+              <li>{c.contact.role}</li>
+              <li>{c.contact.location} · {c.contact.timezone}</li>
+              <li>{c.contact.languages}</li>
+              <li><Txt lang={lang} v={c.contact.availability} /></li>
             </ul>
           </div>
         </section>

@@ -1,6 +1,6 @@
 // Capa de máquinas (AC-15, AC-33): JSON-LD, llms.txt, dennys.json, robots.txt, sitemap.xml y <head> por página.
 // Solo usa datos de src/content/site.js (reales o confirmados); nada inventado.
-import { site, links, isPending } from '../../src/content/site.js'
+import { site, links, isPending, profile } from '../../src/content/site.js'
 
 export const SITE_URL = 'https://dennysh.com'
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -19,6 +19,7 @@ export function jsonLd(lang) {
     sameAs: [links.linkedin, links.github],
     description: c.hero.summary[0],
     knowsAbout: shownSkills(lang),
+    knowsLanguage: profile.languages.map((l) => l.code),
   }
   const page = {
     '@type': 'ProfilePage',
@@ -70,6 +71,10 @@ export function llmsTxt() {
     '## Summary',
     ...en.hero.summary.map((s) => `- ${s}`),
     '',
+    '## Profile',
+    `- Works remotely, from anywhere in the world; time zone ${profile.timezone}.`,
+    ...profile.languages.map((l) => `- ${l.name}: ${l.fluency}`),
+    '',
     '## Best links',
     `- [Site (English)](${SITE_URL}/en/)`,
     `- [Sitio (Español)](${SITE_URL}/es/)`,
@@ -102,6 +107,7 @@ export function resumeJson() {
       summary: en.hero.summary.slice(0, 4).join(' '),
       profiles: [{ network: 'LinkedIn', url: links.linkedin }, { network: 'GitHub', url: links.github }],
     },
+    languages: profile.languages.map((l) => ({ language: l.name, fluency: l.fluency })),
     projects: repos('en').map((r) => ({ name: r.title, description: r.text, url: r.repo, status: r.status })),
     skills: en.skills.groups.map((g) => ({ name: g.title, keywords: [...g.shown, ...g.declared], shown: g.shown })),
   }

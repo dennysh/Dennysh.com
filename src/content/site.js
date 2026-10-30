@@ -4,6 +4,16 @@
 export const pending = (id, hint, label) => ({ pending: true, id, hint, ...(label ? { label } : {}) })
 export const isPending = (v) => v !== null && typeof v === 'object' && v.pending === true
 
+// Datos de perfil estructurados (no localizados) para los datos de máquina. Confirmados por Dennys el 2026-10-30.
+export const profile = {
+  remote: true,
+  timezone: 'UTC-5',
+  languages: [
+    { code: 'es', name: 'Spanish', fluency: 'Native speaker' },
+    { code: 'en', name: 'English', fluency: 'B1' },
+  ],
+}
+
 // Marcadores que Dennys autoriza a publicar como "por confirmar". Autorizados el 2026-10-30 para la primera publicación
 // (razón y alcance en 02-DOCS/wiki/sdd/decisions.md, D-IMPL-11). Cualquier marcador nuevo debe autorizarse aquí a propósito.
 export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-09', 'P-22']
@@ -26,7 +36,7 @@ export const site = {
     nav: { demo: 'Demo', factory: 'Agent factory', governance: 'AI governance', work: 'Work', skills: 'Skills', journey: 'Journey', contact: 'Contact', menu: 'Sections', skip: 'Skip to content', lang: 'Español' },
     hero: {
       thesis: 'Automation that decides, explains itself and stays under human control.',
-      who: ['I look for work with artificial intelligence: designing and building systems under human control.', 'Seven years in the field before writing software'],
+      who: ['I look for work with artificial intelligence: designing and building systems under human control.'],
       tryDemo: 'Try the demo',
       contact: 'Get in touch',
       summaryTitle: 'Summary in 5 lines',
@@ -111,8 +121,10 @@ export const site = {
     contact: {
       title: 'Contact',
       email: 'Email', linkedin: 'LinkedIn', github: 'GitHub', cv: 'Download CV (PDF)',
+      location: 'Remote, from anywhere in the world.',
+      availability: pending('P-09', 'Availability'),
       role: 'I look for work with artificial intelligence: designing and building systems under human control. In the long term I am interested in the direct relationship between AI and the human brain. This is an interest and a vision, not a demonstrated capability and not something immediate.',
-      languages: pending('P-09', 'Languages'), timezone: pending('P-09', 'Location, time zone and availability'),
+      languages: 'Spanish: native. English: B1.', timezone: 'UTC-5',
     },
     footer: { privacy: 'Privacy', terms: 'Terms', copyright: 'Dennys Heras © 2026' },
   },
@@ -126,7 +138,7 @@ export const site = {
     nav: { demo: 'Demo', factory: 'Fábrica de agentes', governance: 'Gobernanza de IA', work: 'Trabajo', skills: 'Capacidades', journey: 'Trayectoria', contact: 'Contacto', menu: 'Secciones', skip: 'Saltar al contenido', lang: 'English' },
     hero: {
       thesis: 'Automatización que decide, se explica y se deja gobernar.',
-      who: ['Busco trabajar con inteligencia artificial: diseñar y construir sistemas con control humano.', 'Siete años en el campo antes de escribir software'],
+      who: ['Busco trabajar con inteligencia artificial: diseñar y construir sistemas con control humano.'],
       tryDemo: 'Probar la demo',
       contact: 'Contactar',
       summaryTitle: 'Resumen en 5 líneas',
@@ -211,8 +223,10 @@ export const site = {
     contact: {
       title: 'Contacto',
       email: 'Correo', linkedin: 'LinkedIn', github: 'GitHub', cv: 'Descargar CV (PDF)',
+      location: 'Remoto, desde cualquier parte del mundo.',
+      availability: pending('P-09', 'Disponibilidad'),
       role: 'Busco trabajar con inteligencia artificial: diseñar y construir sistemas con control humano. A largo plazo me interesa la relación directa entre la IA y el cerebro humano. Es un interés y una visión, no una capacidad demostrada ni algo inmediato.',
-      languages: pending('P-09', 'Idiomas'), timezone: pending('P-09', 'Ubicación, zona horaria y disponibilidad'),
+      languages: 'Español: nativo. Inglés: B1.', timezone: 'UTC-5',
     },
     footer: { privacy: 'Privacidad', terms: 'Términos', copyright: 'Dennys Heras © 2026' },
   },
