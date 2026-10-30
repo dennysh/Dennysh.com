@@ -12,8 +12,6 @@ import InteractiveIdentity from './sections/InteractiveIdentity'
 import NextProjects from './sections/NextProjects'
 import Collaborate from './sections/Collaborate'
 import AINews from './sections/AINews'
-import Reviews from './sections/Reviews'
-import ReviewForm from './sections/ReviewForm'
 import Contact from './sections/Contact'
 import { content } from './data/content'
 import './App.css'
@@ -68,8 +66,6 @@ export default function App() {
         <NextProjects />
         <Collaborate />
         <AINews newsItems={content.aiNews} />
-        <ReviewForm />
-        <Reviews />
         <Contact />
       </main>
       <Footer />

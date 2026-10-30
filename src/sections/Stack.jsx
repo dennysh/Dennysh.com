@@ -1,29 +1,8 @@
-import React, { useState, useEffect } from 'react'
-import TechOrbit from '../components/TechOrbit'
+import React from 'react'
 import { content } from '../data/content'
 import './Stack.css'
 
-// Hook para calcular la altura del canvas según breakpoint
-function useCanvasHeight() {
-  const getHeight = () => {
-    const w = window.innerWidth
-    if (w >= 1280) return 600
-    if (w >= 1024) return 540
-    return 480 // tablet 768–1023px
-  }
-
-  const [height, setHeight] = useState(getHeight)
-
-  useEffect(() => {
-    const update = () => setHeight(getHeight())
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [])
-
-  return height
-}
-
-// Fallback para móvil: grid CSS con cards simples
+// Grid CSS con tarjetas simples (sustituye a la órbita 3D, T006)
 function StackFallback({ items }) {
   return (
     <div className="stack-fallback">
@@ -50,23 +29,11 @@ function StackFallback({ items }) {
 }
 
 export default function Stack() {
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
-  const canvasHeight = useCanvasHeight()
-
-  useEffect(() => {
-    const update = () => setIsMobile(window.innerWidth < 768)
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [])
-
   return (
     <section id="stack" className="stack reveal">
       <div className="container">
         <h2 className="section-title">{content.stack.title}</h2>
-        {isMobile
-          ? <StackFallback items={content.stack.items} />
-          : <TechOrbit height={canvasHeight} items={content.stack.items} />
-        }
+        <StackFallback items={content.stack.items} />
       </div>
     </section>
   )
