@@ -19,6 +19,8 @@ export async function buildServices(env) {
     if (!env[k]) throw new Error('configuración incompleta')
   }
   const alertsEnabled = env.ALERTS_ENABLED === 'true'
+  // La clave de prueba de Turnstile acepta cualquier token: con alertas reales activas dejaría el cupo abierto a bots.
+  if (alertsEnabled && DUMMY_TURNSTILE.test(env.TURNSTILE_SECRET)) throw new Error('configuración insegura')
   const config = {
     eventKey: env.EVENT_HMAC_KEY,
     visitorKey: env.VISITOR_HMAC_KEY,

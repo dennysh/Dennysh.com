@@ -9,10 +9,29 @@ import { toBody } from './views.js'
 
 const respond = (r) => json(toBody(r.body), r.status)
 
+// Lee el cuerpo con tope: sin Content-Length (streaming) se corta al pasar el máximo, sin cargar todo en memoria.
+const OVERSIZE = 'x'.repeat(MAX_BODY_BYTES + 1)
 async function readBody(request) {
   if (request.method !== 'POST') return ''
-  if (Number(request.headers.get('content-length')) > MAX_BODY_BYTES) return 'x'.repeat(MAX_BODY_BYTES + 1)
-  return request.text()
+  if (Number(request.headers.get('content-length')) > MAX_BODY_BYTES) return OVERSIZE
+  if (!request.body) return ''
+  const reader = request.body.getReader()
+  const chunks = []
+  let total = 0
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    total += value.byteLength
+    if (total > MAX_BODY_BYTES) {
+      await reader.cancel()
+      return OVERSIZE
+    }
+    chunks.push(value)
+  }
+  const all = new Uint8Array(total)
+  let at = 0
+  for (const c of chunks) { all.set(c, at); at += c.byteLength }
+  return new TextDecoder().decode(all)
 }
 const input = async (request) => ({
   method: request.method,

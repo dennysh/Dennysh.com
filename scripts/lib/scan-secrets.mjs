@@ -17,9 +17,10 @@ export const KNOWN_TEST_VALUES = [
 export function scanText(file, text) {
   const hits = []
   text.split('\n').forEach((line, i) => {
-    if (KNOWN_TEST_VALUES.some((v) => line.includes(v))) return
+    // Se enmascara cada valor de prueba conocido y se escanea el resto de la línea: no tapa un secreto real vecino.
+    const masked = KNOWN_TEST_VALUES.reduce((l, v) => l.split(v).join('<prueba>'), line)
     for (const { rule, re } of RULES) {
-      if (re.test(line)) hits.push({ file, line: i + 1, rule })
+      if (re.test(masked)) hits.push({ file, line: i + 1, rule })
     }
   })
   return hits

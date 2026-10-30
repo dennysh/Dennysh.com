@@ -74,15 +74,13 @@ export function createStore(db) {
       }
     },
 
+    // Sentencias únicas (no una por evento): la purga corre dentro de la petición, así que su costo no crece con N.
     async purgeExpired(now) {
       try {
-        const old = await db.prepare('SELECT id FROM events WHERE expiresAt <= ?').bind(now).all()
-        let count = 0
-        for (const { id } of old.results) {
-          count += (await db.prepare('DELETE FROM interventions WHERE eventId = ?').bind(id).run()).meta.changes
-          count += (await db.prepare('DELETE FROM events WHERE id = ?').bind(id).run()).meta.changes
-        }
-        count += (await db.prepare('DELETE FROM alert_slots WHERE at <= ?').bind(now - SLOT_TTL_MS).run()).meta.changes
+        const run = async (sql, ...args) => (await db.prepare(sql).bind(...args).run()).meta.changes
+        let count = await run('DELETE FROM interventions WHERE eventId IN (SELECT id FROM events WHERE expiresAt <= ?)', now)
+        count += await run('DELETE FROM events WHERE expiresAt <= ?', now)
+        count += await run('DELETE FROM alert_slots WHERE at <= ?', now - SLOT_TTL_MS)
         return { kind: 'Ok', count }
       } catch {
         return down
