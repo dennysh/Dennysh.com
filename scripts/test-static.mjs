@@ -4,6 +4,10 @@ import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { scanText } from './lib/scan-secrets.mjs'
 import { isReviewed } from '../core/explain.js'
+import { renderHeadersFile, checkHeadersFile } from './static/headers.mjs'
+import { checkViteEnv, scanPatchAdditions } from './static/secrets.mjs'
+import { checkSourceRules } from './static/rules.mjs'
+import { checkSurface } from './static/no-ai-routes.mjs'
 
 const SKIP = /\.(png|jpe?g|gif|webp|ico|svg|woff2?|glb|lock)$|package-lock\.json$|(^|\/)tests\/|scan-secrets/
 
@@ -22,8 +26,54 @@ function secrets() {
   const files = [...new Set([...tracked, ...walk('dist')])].filter((f) => !SKIP.test(f) && existsSync(f))
   const hits = files.flatMap((f) => scanText(f, readFileSync(f, 'utf8')))
   for (const h of hits) console.error(`SECRETO? ${h.file}:${h.line} (${h.rule})`)
-  if (!hits.length) console.log(`secrets OK — ${files.length} archivos sin secretos`)
-  return hits.length === 0
+  const envFiles = files.filter((f) => /^(src|dist|index\.html|\.env)/.test(f) || f === 'index.html')
+  const vite = envFiles.flatMap((f) => checkViteEnv(f, readFileSync(f, 'utf8')))
+  for (const v of vite) console.error(v)
+  // Historial: solo líneas añadidas por cualquier commit (git log -p).
+  const patch = execFileSync('git', ['log', '-p', '--all', '--no-color'], { encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 })
+  const hist = scanPatchAdditions(patch)
+  for (const h of hist) console.error(`SECRETO? en el historial: ${h.file} (${h.rule})`)
+  const ok = !hits.length && !vite.length && !hist.length
+  if (ok) console.log(`secrets OK — ${files.length} archivos, variables VITE_* y historial sin secretos`)
+  return ok
+}
+
+function sourceFiles() {
+  const tracked = execFileSync('git', ['ls-files', '-co', '--exclude-standard'], { encoding: 'utf8' }).split('\n').filter(Boolean)
+  return tracked.filter((f) => /^(src|server|functions|core)\/.*\.(m?js|jsx)$/.test(f) && existsSync(f))
+}
+
+function headers() {
+  let ok = true
+  const expected = renderHeadersFile()
+  for (const f of ['public/_headers', 'dist/_headers']) {
+    if (!existsSync(f)) {
+      if (f.startsWith('public')) { console.error(`falta ${f}`); ok = false }
+      continue
+    }
+    const text = readFileSync(f, 'utf8')
+    const problems = checkHeadersFile(text)
+    if (text !== expected) problems.push('difiere de la fuente única (ejecuta node scripts/gen-headers.mjs)')
+    for (const p of problems) console.error(`${f}: ${p}`)
+    if (problems.length) ok = false
+  }
+  if (ok) console.log('headers OK — _headers coincide con la política y cumple S18')
+  return ok
+}
+
+function rules() {
+  const problems = sourceFiles().flatMap((f) => checkSourceRules(f, readFileSync(f, 'utf8')))
+  for (const p of problems) console.error(p)
+  if (!problems.length) console.log('rules OK — sin innerHTML, SQL concatenado, cookies ni eval')
+  return problems.length === 0
+}
+
+function noAiRoutes() {
+  const files = sourceFiles().map((path) => ({ path, text: readFileSync(path, 'utf8') }))
+  const problems = checkSurface({ files })
+  for (const p of problems) console.error(p)
+  if (!problems.length) console.log('no-ai-routes OK — sin proveedores de modelos, fetch cerrado y tres rutas')
+  return problems.length === 0
 }
 
 // AC-23: en producción ninguna plantilla de explicación puede estar sin revisar.
@@ -43,7 +93,7 @@ function explainReview() {
   return true
 }
 
-const CHECKS = { secrets, 'explain-review': explainReview }
+const CHECKS = { secrets, headers, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
 const wanted = process.argv.slice(2).filter((a) => a in CHECKS)
 const ok = (wanted.length ? wanted : Object.keys(CHECKS)).map((k) => CHECKS[k]()).every(Boolean)
 process.exit(ok ? 0 : 1)

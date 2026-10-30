@@ -165,3 +165,10 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - red: `Cannot find module functions/api/simulate.js`; green: 235 pruebas. Los tres endpoints reales (`functions/api/simulate.js`, `intervene.js`, `event/[id].js`) pasan por la lista blanca `server/views.js` (un campo contaminado en el registro almacenado no llega a la respuesta) y por las cabeceras; errores solo `{code}`; ni token, chat completo, claves, IP ni hash de visitante aparecen
 - evidence: `wrangler pages functions build` compila el Worker (imports JSON incluidos). No se ejecutó `wrangler pages dev` ni D1 local: queda para el e2e
 - files: server/views.js, server/services.js, server/handlers.js, functions/api/*.js, functions/api/_middleware.js, tests/unit/response-shape.test.js
+
+## T060 + T061 + T062 + T069 — 2026-10-30
+- status: complete
+- red: `Cannot find module scripts/static/headers.mjs`; green: 33 pruebas con ejemplos malos y buenos de cada regla
+- evidence: ejecutor `npm run test:static` con 4 comprobaciones nuevas (`secrets` ampliado con variables `VITE_*` e historial de git, `headers`, `rules`, `no-ai-routes`). Con un archivo de ejemplo malo (`innerHTML`, `fetch(url)`) el ejecutor sale con 1 y lo nombra; sin él, pasa. `public/_headers` se genera desde la fuente única `server/security-headers.js`; `dist/_headers` coincide tras `npm run build`
+- note: variable pública permitida `VITE_TURNSTILE_SITEKEY` (nombre del plan §4; `.env.example` corregido)
+- files: scripts/static/{headers,secrets,rules,no-ai-routes}.mjs, scripts/gen-headers.mjs, scripts/test-static.mjs, public/_headers, tests/unit/static-rules.test.js
