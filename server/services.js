@@ -18,11 +18,13 @@ export async function buildServices(env) {
   for (const k of ['DB', 'TURNSTILE_SECRET', 'VISITOR_HMAC_KEY', 'EVENT_HMAC_KEY']) {
     if (!env[k]) throw new Error('configuración incompleta')
   }
-  const alertsEnabled = env.ALERTS_ENABLED === 'true'
+  const alertsRequested = env.ALERTS_ENABLED === 'true'
+  // Sin el token o el chat de Telegram no hay envío posible: se degrada a modo prueba (sin gastar cupo ni decir "Entregada").
+  const alertsEnabled = alertsRequested && Boolean(env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID)
   // La clave de prueba de Turnstile acepta cualquier token: con alertas reales activas dejaría el cupo abierto a bots.
   // Solo se tolera si TODOS los hosts permitidos son locales (e2e); en producción el host por defecto es dennysh.com.
   const hosts = (env.TURNSTILE_HOSTS ?? 'dennysh.com,www.dennysh.com').split(',').map((h) => h.trim())
-  if (alertsEnabled && DUMMY_TURNSTILE.test(env.TURNSTILE_SECRET) && !hosts.every((h) => h === 'localhost' || h === '127.0.0.1')) throw new Error('configuración insegura')
+  if (alertsRequested && DUMMY_TURNSTILE.test(env.TURNSTILE_SECRET) && !hosts.every((h) => h === 'localhost' || h === '127.0.0.1')) throw new Error('configuración insegura')
   const config = {
     eventKey: env.EVENT_HMAC_KEY,
     visitorKey: env.VISITOR_HMAC_KEY,

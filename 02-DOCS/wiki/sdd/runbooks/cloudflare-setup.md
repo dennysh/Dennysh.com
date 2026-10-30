@@ -21,7 +21,7 @@ Nombres de contrato (código en `server/services.js`):
 | `TELEGRAM_CHAT_ID` | idem | secreto |
 | `VISITOR_HMAC_KEY` | idem (≥ 32 caracteres aleatorios) | secreto |
 | `EVENT_HMAC_KEY` | idem (≥ 32 caracteres aleatorios, distinta de la anterior) | secreto |
-| `ALERTS_ENABLED` | solo en **Producción**, valor `true` (en Vista previa déjala vacía: modo prueba) | texto |
+| `ALERTS_ENABLED` | **ya está en `wrangler.jsonc`** (`env.production.vars`, valor `true`); no la pongas en el panel, que solo admite Secrets. Vista previa no la define: modo prueba | texto (archivo) |
 | `TURNSTILE_HOSTS` | opcional; por defecto `dennysh.com,www.dennysh.com` | texto |
 | `VITE_TURNSTILE_SITEKEY` | variable de **build** (clave pública del widget) | pública |
 

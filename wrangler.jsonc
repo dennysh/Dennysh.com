@@ -11,5 +11,20 @@
       "database_id": "f5c40cfb-1031-46cc-8dbb-0b7b535f6210",
       "migrations_dir": "migrations"
     }
-  ]
+  ],
+  // Pages no hereda vars ni d1_databases por entorno: Producción los repite. Solo Producción envía alertas reales (sin secretos aquí);
+  // Vista previa y local no definen ALERTS_ENABLED, así que siguen en modo prueba. Los secretos van en el panel como "Secrets".
+  "env": {
+    "production": {
+      "vars": { "ALERTS_ENABLED": "true" },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "dennysh-demo",
+          "database_id": "f5c40cfb-1031-46cc-8dbb-0b7b535f6210",
+          "migrations_dir": "migrations"
+        }
+      ]
+    }
+  }
 }
