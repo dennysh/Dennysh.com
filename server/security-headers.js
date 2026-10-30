@@ -33,12 +33,21 @@ function seal(res) {
   return out
 }
 
+// Descripción segura para el registro: el tipo y, solo si el mensaje es texto llano (sin dígitos, rutas, ":" ni claves), el mensaje.
+const SAFE_MESSAGE = /^[\p{L} .,'()_-]{1,80}$/u
+export function describeError(e) {
+  const name = e instanceof Error ? e.name : 'NoError'
+  const message = e instanceof Error && SAFE_MESSAGE.test(e.message) ? e.message : '(mensaje omitido)'
+  return `${name}: ${message}`
+}
+
 // Envuelve un manejador: toda respuesta (incluidos errores y excepciones) sale con las cabeceras.
 export function withSecurityHeaders(handler) {
   return async (...args) => {
     try {
       return seal(await handler(...args))
-    } catch {
+    } catch (e) {
+      console.error(`api_error ${describeError(e)}`) // solo a los registros de Cloudflare; la respuesta sigue sin detalle (S17)
       return seal(json({ code: 'E_INTERNAL' }, 503))
     }
   }

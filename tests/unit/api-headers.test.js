@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { withSecurityHeaders, json, API_HEADERS } from '../../server/security-headers.js'
+import { describe, it, expect, vi } from 'vitest'
+import { withSecurityHeaders, describeError, json, API_HEADERS } from '../../server/security-headers.js'
 
 const req = new Request('https://dennysh.com/api/simulate', { method: 'POST' })
 const handlers = {
@@ -36,6 +36,25 @@ describe('cabeceras de /api/* (AC-13, AC-17, S9, S18)', () => {
     const text = await res.text()
     expect(JSON.parse(text)).toEqual({ code: 'E_INTERNAL' })
     expect(text).not.toMatch(/boom|ruta|token|AAA/)
+  })
+
+  it('registra la causa de una excepción sin claves ni rutas (solo en el registro, no en la respuesta)', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      await withSecurityHeaders(async () => { throw new Error('configuración incompleta') })(req)
+      await withSecurityHeaders(handlers.lanza)(req)
+      const lines = spy.mock.calls.map((c) => String(c[0]))
+      expect(lines[0]).toBe('api_error Error: configuración incompleta')
+      expect(lines[1]).toBe('api_error Error: (mensaje omitido)')
+      expect(lines.join('\n')).not.toMatch(/boom|ruta|token|AAA|123/)
+    } finally {
+      spy.mockRestore()
+    }
+  })
+
+  it('describeError no confía en valores que no son Error', () => {
+    expect(describeError('token 123:AAA')).toBe('NoError: (mensaje omitido)')
+    expect(describeError(undefined)).toBe('NoError: (mensaje omitido)')
   })
 
   it('conserva estado y cuerpo del manejador', async () => {
