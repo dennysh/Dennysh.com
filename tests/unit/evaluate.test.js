@@ -57,6 +57,16 @@ describe('evaluate: precedencia y vacío (AC-20)', () => {
   })
 })
 
+describe('evaluate: la severidad manda, no el orden de las reglas', () => {
+  it('con las reglas en orden inverso sigue ganando Block, luego Limit', () => {
+    const reversed = { ...rules, rules: [...rules.rules].reverse() }
+    const all = evaluate(reversed, sig({ failedAttempts: 12, impliedSpeedKmh: 2000, bulkExport: true, localMinutes: 60 }))
+    expect(all.decision).toBe('Block')
+    expect(all.effectiveRule).toBe('R-01')
+    expect(evaluate(reversed, sig({ failedAttempts: 10, bulkExport: true, localMinutes: 60 })).decision).toBe('Limit')
+  })
+})
+
 describe('evaluate: fronteras', () => {
   it('900 km/h exactos no bloquean; 901 sí', () => {
     expect(evaluate(rules, sig({ impliedSpeedKmh: 900 })).decision).toBe('Allow')

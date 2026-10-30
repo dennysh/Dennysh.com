@@ -100,3 +100,7 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 
 ## Checkpoint — 2026-10-30 (T017-T022)
 - `bash scripts/verify.sh` en 0; 80 pruebas unitarias en verde
+
+## T023 — 2026-10-30
+- status: complete
+- evidence (3 mutantes manuales sobre `core/evaluate.js`, restaurado después): M1 ignora severidad → **sobrevivió** a las 80 pruebas (el orden natural de reglas ya daba la precedencia); añadí una prueba con reglas en orden inverso y ahora M1 falla; M2 lee `country` → falla; M3 `>=` en 900 km/h → falla. Original: 81 pruebas en verde
