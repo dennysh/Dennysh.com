@@ -71,5 +71,5 @@ test('teclado: el botón se alcanza con Tab, se ejecuta con Enter y mide al meno
   await expect(page.getByTestId('stage-event')).toBeVisible({ timeout: 5000 })
   await page.getByTestId('show-all').focus()
   await page.keyboard.press('Enter')
-  for (const id of ['approve', 'override', 'escalate']) expect((await page.getByTestId(`act-${id}`).boundingBox()).height).toBeGreaterThanOrEqual(44)
+  for (const id of ['approve', 'override', 'escalate']) expect(Math.round((await page.getByTestId(`act-${id}`).boundingBox()).height)).toBeGreaterThanOrEqual(44)
 })

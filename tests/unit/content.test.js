@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { spawnSync } from 'node:child_process'
-import { site, collectPending, isPending, pending, AUTHORIZED_PENDING, links } from '../../src/content/site.js'
+import { readFileSync } from 'node:fs'
+import { site, collectPending, isPending, pending, AUTHORIZED_PENDING, unauthorized, links } from '../../src/content/site.js'
 
 const walk = (n, out = []) => {
   if (typeof n === 'string') out.push(n)
@@ -46,6 +47,37 @@ describe('contenido bilingüe (spec §3, §9)', () => {
   })
 })
 
+describe('rol buscado (P-09, respuesta de Dennys 2026-10-30)', () => {
+  it('es una frase honesta de interés, en los dos idiomas, sin marcador', () => {
+    for (const lang of ['es', 'en']) {
+      const r = site[lang].contact.role
+      expect(typeof r).toBe('string')
+      expect(r).toMatch(lang === 'es' ? /inteligencia artificial/i : /artificial intelligence/i)
+      expect(r).toMatch(lang === 'es' ? /control humano/i : /human control/i)
+      expect(r).toMatch(lang === 'es' ? /largo plazo/i : /long term|long-term/i)
+      expect(r).toMatch(/cerebro|brain/i)
+    }
+  })
+  it('la visión de IA y cerebro se presenta como interés, nunca como capacidad demostrada', () => {
+    for (const lang of ['es', 'en']) {
+      const all = walk(site[lang]).join(' ')
+      expect(all).not.toMatch(/(constru[ií]|desarroll[eé]|logr[eé]|demostr|built|developed|achieved|proved|demonstrated)[^.]*(cerebro|brain|neuro)/i)
+    }
+  })
+  it('el Hero lleva la primera frase (sin la visión de largo plazo, para que quepa en móvil)', () => {
+    for (const lang of ['es', 'en']) {
+      const who = site[lang].hero.who
+      expect(typeof who[0]).toBe('string')
+      expect(who[0]).not.toMatch(/cerebro|brain/i)
+    }
+  })
+  it('ubicación, disponibilidad, idiomas y zona horaria siguen como pending de P-09', () => {
+    const p = collectPending(site.en.contact).filter((x) => x.id === 'P-09')
+    expect(p.length).toBeGreaterThanOrEqual(2)
+    expect(collectPending(site.en.contact).some((x) => /availab/i.test(x.hint))).toBe(true)
+  })
+})
+
 describe('marcadores pending (T080, K2)', () => {
   it('collectPending encuentra los marcadores con su ruta', () => {
     expect(collectPending({ a: { b: [pending('P-1', 'x')] } })).toEqual([{ pending: true, id: 'P-1', hint: 'x', path: 'a.b[0]' }])
@@ -61,11 +93,22 @@ describe('marcadores pending (T080, K2)', () => {
     expect(r.status).toBe(0)
     expect(r.stdout).toContain('P-09')
   })
-  it('en producción falla mientras haya pending no autorizados y los nombra', () => {
-    expect(AUTHORIZED_PENDING).toEqual([])
+  it('el sitio muestra "por confirmar" (no pistas internas) en los marcadores autorizados', () => {
+    const html = readFileSync('dist/en/index.html', 'utf8')
+    expect(html).toContain('to be confirmed')
+    expect(html).not.toMatch(/P-0\d|P-22|Public evidence of the factory/)
+  })
+  it('Dennys autorizó publicar con P-04, P-06, P-09 y P-22 (2026-10-30)', () => {
+    expect([...AUTHORIZED_PENDING].sort()).toEqual(['P-04', 'P-06', 'P-09', 'P-22'])
+  })
+  it('en producción pasa con todos los pending autorizados', () => {
     const r = gate('production')
-    expect(r.status).toBe(1)
-    expect(r.stderr).toContain('P-04')
-    expect(r.stderr).toContain('P-06')
+    expect(r.status).toBe(0)
+    expect(r.stdout).toContain('autorizados')
+  })
+  it('un marcador nuevo sin autorizar se detecta (rompería el build de producción)', () => {
+    const list = [{ id: 'P-04' }, { id: 'P-99' }]
+    expect(unauthorized(list).map((p) => p.id)).toEqual(['P-99'])
+    expect(unauthorized(collectPending())).toEqual([])
   })
 })

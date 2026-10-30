@@ -2,9 +2,20 @@
 // Uso: después de `vite build`. Escribe /, /en/, /es/, páginas legales, 404 y la capa de máquinas en dist/.
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
+import { execFileSync } from 'node:child_process'
 import { createServer } from 'vite'
 import { site } from '../src/content/site.js'
 import { headHtml, llmsTxt, resumeJson, robotsTxt, sitemapXml } from './lib/machine.mjs'
+
+// En producción el build se niega a continuar si fallan las compuertas de publicación (marcadores pending y plantillas sin revisar).
+if (process.env.NODE_ENV === 'production') {
+  try {
+    execFileSync(process.execPath, ['scripts/test-static.mjs', 'content', 'explain-review'], { stdio: 'inherit' })
+  } catch {
+    console.error('Build de producción detenido: las compuertas de publicación fallaron.')
+    process.exit(1)
+  }
+}
 
 const DIST = process.env.OUT_DIR ?? 'dist'
 const template = readFileSync(join(DIST, 'index.html'), 'utf8')

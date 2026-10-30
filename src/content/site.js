@@ -1,10 +1,14 @@
 // Contenido bilingüe del sitio (spec §3, §4, §9). Solo datos reales de src/data/ o del prompt de Dennys.
 // Todo lo no confirmado es un marcador pending(id, pista): el build de producción los lista y falla si no están autorizados.
-export const pending = (id, hint) => ({ pending: true, id, hint })
+// `label` (opcional) es el texto público cuando el marcador está autorizado a publicarse; por defecto, "por confirmar".
+export const pending = (id, hint, label) => ({ pending: true, id, hint, ...(label ? { label } : {}) })
 export const isPending = (v) => v !== null && typeof v === 'object' && v.pending === true
 
-// Marcadores que Dennys autoriza a publicar como "por definir" (vacío hasta que él responda).
-export const AUTHORIZED_PENDING = []
+// Marcadores que Dennys autoriza a publicar como "por confirmar". Autorizados el 2026-10-30 para la primera publicación
+// (razón y alcance en 02-DOCS/wiki/sdd/decisions.md, D-IMPL-11). Cualquier marcador nuevo debe autorizarse aquí a propósito.
+export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-09', 'P-22']
+
+export const unauthorized = (list, authorized = AUTHORIZED_PENDING) => list.filter((p) => !authorized.includes(p.id))
 
 const EMAIL = 'dennys14_hq@hotmail.com'
 const LINKEDIN = 'https://www.linkedin.com/in/dennys-heras-27b0b520b/'
@@ -22,7 +26,7 @@ export const site = {
     nav: { demo: 'Demo', factory: 'Agent factory', governance: 'AI governance', work: 'Work', skills: 'Skills', journey: 'Journey', contact: 'Contact', menu: 'Sections', skip: 'Skip to content', lang: 'Español' },
     hero: {
       thesis: 'Automation that decides, explains itself and stays under human control.',
-      who: [pending('P-09', 'Role sought, location, availability'), 'Seven years in the field before writing software'],
+      who: ['I look for work with artificial intelligence: designing and building systems under human control.', 'Seven years in the field before writing software'],
       tryDemo: 'Try the demo',
       contact: 'Get in touch',
       summaryTitle: 'Summary in 5 lines',
@@ -51,7 +55,7 @@ export const site = {
         { id: 'access', label: 'Tunnel and access', text: 'Remote access goes through a Cloudflare tunnel with access control.' },
         { id: 'human', label: 'Human verification', text: 'A person verifies what the agents report. Reports are not taken as proof.' },
       ],
-      evidence: pending('P-04', 'Public evidence of the factory: repository, captures or task logs that Dennys confirms'),
+      evidence: pending('P-04', 'Public evidence of the factory: repository, captures or task logs that Dennys confirms', 'Public evidence (repository, captures) is being prepared.'),
     },
     governance: {
       title: 'How I work with AI',
@@ -103,11 +107,12 @@ export const site = {
         'Today I build systems with AI that stay reliable, explainable and under control.',
       ],
     },
-    criden: { title: 'Criden', text: 'For businesses and websites: Criden. A separate product from this site.', link: pending('P-22', 'Criden address') },
+    criden: { title: 'Criden', text: 'For businesses and websites: Criden. A separate product from this site.', link: pending('P-22', 'Criden address', 'Link coming soon.') },
     contact: {
       title: 'Contact',
       email: 'Email', linkedin: 'LinkedIn', github: 'GitHub', cv: 'Download CV (PDF)',
-      languages: pending('P-09', 'Languages'), timezone: pending('P-09', 'Time zone'), role: pending('P-09', 'Role sought'),
+      role: 'I look for work with artificial intelligence: designing and building systems under human control. In the long term I am interested in the direct relationship between AI and the human brain. This is an interest and a vision, not a demonstrated capability and not something immediate.',
+      languages: pending('P-09', 'Languages'), timezone: pending('P-09', 'Location, time zone and availability'),
     },
     footer: { privacy: 'Privacy', terms: 'Terms', copyright: 'Dennys Heras © 2026' },
   },
@@ -121,7 +126,7 @@ export const site = {
     nav: { demo: 'Demo', factory: 'Fábrica de agentes', governance: 'Gobernanza de IA', work: 'Trabajo', skills: 'Capacidades', journey: 'Trayectoria', contact: 'Contacto', menu: 'Secciones', skip: 'Saltar al contenido', lang: 'English' },
     hero: {
       thesis: 'Automatización que decide, se explica y se deja gobernar.',
-      who: [pending('P-09', 'Rol buscado, ubicación, disponibilidad'), 'Siete años en el campo antes de escribir software'],
+      who: ['Busco trabajar con inteligencia artificial: diseñar y construir sistemas con control humano.', 'Siete años en el campo antes de escribir software'],
       tryDemo: 'Probar la demo',
       contact: 'Contactar',
       summaryTitle: 'Resumen en 5 líneas',
@@ -150,7 +155,7 @@ export const site = {
         { id: 'access', label: 'Túnel y acceso', text: 'El acceso remoto pasa por un túnel de Cloudflare con control de acceso.' },
         { id: 'human', label: 'Verificación humana', text: 'Una persona verifica lo que reportan los agentes. Un informe no se toma como prueba.' },
       ],
-      evidence: pending('P-04', 'Evidencia pública de la fábrica: repositorio, capturas o registros de tareas que Dennys confirme'),
+      evidence: pending('P-04', 'Evidencia pública de la fábrica: repositorio, capturas o registros de tareas que Dennys confirme', 'La evidencia pública (repositorio, capturas) está en preparación.'),
     },
     governance: {
       title: 'Cómo trabajo con IA',
@@ -202,11 +207,12 @@ export const site = {
         'Hoy construyo sistemas con IA que siguen siendo fiables, explicables y controlados.',
       ],
     },
-    criden: { title: 'Criden', text: 'Para negocios y páginas web: Criden. Es un producto aparte de este sitio.', link: pending('P-22', 'Dirección de Criden') },
+    criden: { title: 'Criden', text: 'Para negocios y páginas web: Criden. Es un producto aparte de este sitio.', link: pending('P-22', 'Dirección de Criden', 'Enlace próximamente.') },
     contact: {
       title: 'Contacto',
       email: 'Correo', linkedin: 'LinkedIn', github: 'GitHub', cv: 'Descargar CV (PDF)',
-      languages: pending('P-09', 'Idiomas'), timezone: pending('P-09', 'Zona horaria'), role: pending('P-09', 'Rol buscado'),
+      role: 'Busco trabajar con inteligencia artificial: diseñar y construir sistemas con control humano. A largo plazo me interesa la relación directa entre la IA y el cerebro humano. Es un interés y una visión, no una capacidad demostrada ni algo inmediato.',
+      languages: pending('P-09', 'Idiomas'), timezone: pending('P-09', 'Ubicación, zona horaria y disponibilidad'),
     },
     footer: { privacy: 'Privacidad', terms: 'Términos', copyright: 'Dennys Heras © 2026' },
   },

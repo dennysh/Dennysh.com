@@ -78,7 +78,7 @@ export default function Site({ lang = 'en', demoClient }) {
         <section id="inicio" className="hero" aria-labelledby="hero-h">
           <div className="wrap">
             <h1 id="hero-h">{c.hero.thesis}</h1>
-            <p className="who">{c.hero.who.map((w, i) => <span key={i}><Txt v={w} /></span>)}</p>
+            <p className="who">{c.hero.who.map((w, i) => <span key={i}><Txt lang={lang} v={w} /></span>)}</p>
             <div className="cta">
               <a className="btn btn-primary" href="#demo">{c.hero.tryDemo}</a>
               <a className="btn btn-secondary" href="#contact">{c.hero.contact}</a>
@@ -104,7 +104,7 @@ export default function Site({ lang = 'en', demoClient }) {
             <p className="lead">{c.factory.lead}</p>
             <FactoryDiagram c={c.factory} />
             <ol className="steps">{c.factory.steps.map((s) => <li key={s.id}><strong>{s.label}</strong>{s.text}</li>)}</ol>
-            <p className="method"><Txt v={c.factory.evidence} /></p>
+            <p className="method"><Txt lang={lang} v={c.factory.evidence} /></p>
           </div>
         </section>
 
@@ -127,7 +127,7 @@ export default function Site({ lang = 'en', demoClient }) {
                   <span className={`badge badge-${it.status}`}>{c.work.status[it.status]}</span>
                   <h3>{it.title}</h3>
                   <p>{it.text}</p>
-                  <p>{typeof it.repo === 'string' ? <a href={it.repo} rel="noopener noreferrer">{c.work.repo}</a> : <><span>{c.work.repo}: </span><Txt v={it.repo} /></>}</p>
+                  <p>{typeof it.repo === 'string' ? <a href={it.repo} rel="noopener noreferrer">{c.work.repo}</a> : <><span>{c.work.repo}: </span><Txt lang={lang} v={it.repo} /></>}</p>
                 </article>
               ))}
             </div>
@@ -160,7 +160,7 @@ export default function Site({ lang = 'en', demoClient }) {
         <section id="criden" className="block" aria-labelledby="criden-h">
           <div className="wrap">
             <h2 id="criden-h">{c.criden.title}</h2>
-            <p className="lead">{c.criden.text} <Txt v={c.criden.link} /></p>
+            <p className="lead">{c.criden.text} <Txt lang={lang} v={c.criden.link} /></p>
           </div>
         </section>
 
@@ -171,8 +171,8 @@ export default function Site({ lang = 'en', demoClient }) {
               <li>{c.contact.email}: <a href={links.email}>{links.emailAddress}</a></li>
               <li><a href={links.linkedin} rel="noopener noreferrer">{c.contact.linkedin}</a> · <a href={links.github} rel="noopener noreferrer">{c.contact.github}</a></li>
               <li><a href={links.cv}>{c.contact.cv}</a></li>
-              <li><Txt v={c.contact.role} /></li>
-              <li><Txt v={c.contact.languages} /> · <Txt v={c.contact.timezone} /></li>
+              <li><Txt lang={lang} v={c.contact.role} /></li>
+              <li><Txt lang={lang} v={c.contact.languages} /> · <Txt lang={lang} v={c.contact.timezone} /></li>
             </ul>
           </div>
         </section>

@@ -9,6 +9,11 @@
       "text": {
         "es": "Dos inicios de sesión correctos de la misma cuenta implican una velocidad de {observed.impliedSpeedKmh} km/h. El umbral es {thresholds.gt} km/h, igual para todas las cuentas. Se bloquea la sesión hasta verificar. Solo cuenta la velocidad entre ambos puntos, no el país.",
         "en": "Two successful sign-ins to the same account imply a speed of {observed.impliedSpeedKmh} km/h. The threshold is {thresholds.gt} km/h, the same for every account. The session is blocked until verified. Only the speed between both points counts, not the country."
+      },
+      "publicarSinRevision": {
+        "autorizadaPor": "Dennys Heras",
+        "fecha": "2026-10-30",
+        "razon": "Primera publicación del sitio: se publican como borrador, marcadas en pantalla como pendientes de revisión humana, hasta que Dennys las revise (T090)."
       }
     },
     {
@@ -19,6 +24,11 @@
       "text": {
         "es": "Hubo {observed.failedAttempts} intentos fallidos en {observed.windowSeconds} s contra la misma cuenta. La regla actúa desde {thresholds.min} intentos en {thresholds.maxWindowSeconds} s. Se limita la cuenta de forma temporal; no se bloquea de forma definitiva.",
         "en": "There were {observed.failedAttempts} failed attempts in {observed.windowSeconds} s against the same account. The rule applies from {thresholds.min} attempts within {thresholds.maxWindowSeconds} s. The account is limited temporarily, not blocked for good."
+      },
+      "publicarSinRevision": {
+        "autorizadaPor": "Dennys Heras",
+        "fecha": "2026-10-30",
+        "razon": "Primera publicación del sitio: se publican como borrador, marcadas en pantalla como pendientes de revisión humana, hasta que Dennys las revise (T090)."
       }
     },
     {
@@ -29,6 +39,11 @@
       "text": {
         "es": "Se pidió una exportación masiva de datos fuera del horario laboral. Solo se genera una alerta, no se bloquea nada, porque un horario puede perjudicar a quien trabaja por turnos. Una persona puede anular la decisión.",
         "en": "A bulk data export was requested outside working hours. Only an alert is raised and nothing is blocked, because a schedule rule can penalise people who work in shifts. A person can override the decision."
+      },
+      "publicarSinRevision": {
+        "autorizadaPor": "Dennys Heras",
+        "fecha": "2026-10-30",
+        "razon": "Primera publicación del sitio: se publican como borrador, marcadas en pantalla como pendientes de revisión humana, hasta que Dennys las revise (T090)."
       }
     },
     {
@@ -39,6 +54,11 @@
       "text": {
         "es": "Ninguna regla coincidió con las señales de este evento. Se permite el acceso y se registra.",
         "en": "No rule matched the signals of this event. Access is allowed and the event is logged."
+      },
+      "publicarSinRevision": {
+        "autorizadaPor": "Dennys Heras",
+        "fecha": "2026-10-30",
+        "razon": "Primera publicación del sitio: se publican como borrador, marcadas en pantalla como pendientes de revisión humana, hasta que Dennys las revise (T090)."
       }
     }
   ]

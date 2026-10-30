@@ -83,7 +83,12 @@ function noAiRoutes() {
   return problems.length === 0
 }
 
-// AC-23: en producción ninguna plantilla de explicación puede estar sin revisar.
+// AC-23: en producción ninguna plantilla puede estar sin revisar, salvo autorización explícita y trazable (quién, cuándo y por qué)
+// de Dennys para una publicación concreta. Autorizar publicar NO las vuelve "revisadas": la pantalla sigue diciendo "pendiente de revisión".
+const hasAuthorization = (t) => {
+  const a = t.publicarSinRevision
+  return Boolean(a) && ['autorizadaPor', 'fecha', 'razon'].every((k) => typeof a[k] === 'string' && a[k].trim() !== '')
+}
 function explainReview() {
   const file = process.env.EXPLAIN_TEMPLATES || 'content/explanations/v1.json'
   const pending = JSON.parse(readFileSync(file, 'utf8')).templates.filter((t) => !isReviewed(t))
@@ -91,12 +96,16 @@ function explainReview() {
     console.log('explain-review OK — todas las plantillas están revisadas')
     return true
   }
-  const ids = pending.map((t) => t.id).join(', ')
+  const unauthorized = pending.filter((t) => !hasAuthorization(t))
   if (process.env.NODE_ENV === 'production') {
-    console.error(`explain-review FALLA — plantillas sin revisadaPor/revisadaEn: ${ids}`)
-    return false
+    if (unauthorized.length) {
+      console.error(`explain-review FALLA — sin revisadaPor/revisadaEn ni autorización explícita: ${unauthorized.map((t) => t.id).join(', ')}`)
+      return false
+    }
+    console.log(`explain-review OK (producción) — ${pending.length} plantillas publicadas como borrador por autorización explícita de ${pending[0].publicarSinRevision.autorizadaPor} (${pending[0].publicarSinRevision.fecha}); la pantalla las marca como pendientes de revisión humana`)
+    return true
   }
-  console.log(`explain-review aviso (desarrollo) — pendientes de revisión: ${ids}`)
+  console.log(`explain-review aviso (desarrollo) — pendientes de revisión: ${pending.map((t) => t.id).join(', ')}`)
   return true
 }
 
@@ -151,15 +160,16 @@ const unused = () => {
 
 // T080: lista los marcadores pending; en producción falla si alguno no está autorizado por Dennys.
 async function content() {
-  const { collectPending, AUTHORIZED_PENDING } = await import('../src/content/site.js')
+  const { collectPending, unauthorized } = await import('../src/content/site.js')
   const all = collectPending()
   const ids = [...new Set(all.map((p) => p.id))]
-  const bad = all.filter((p) => !AUTHORIZED_PENDING.includes(p.id))
-  console.log(`content: ${all.length} marcadores pending (${ids.join(', ')})`)
+  const bad = unauthorized(all)
+  console.log(`content: ${all.length} marcadores pending (${ids.join(', ')}); ${all.length - bad.length} autorizados a publicarse`)
   if (process.env.NODE_ENV === 'production' && bad.length) {
     for (const p of bad) console.error(`pending sin autorizar ${p.id} en ${p.path}: ${p.hint}`)
     return false
   }
+  if (process.env.NODE_ENV === 'production') console.log('content OK (producción) — todos los marcadores pending están autorizados')
   return true
 }
 

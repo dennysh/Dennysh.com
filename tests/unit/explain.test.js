@@ -111,10 +111,42 @@ describe('compuerta de build explain-review (AC-23)', () => {
     return f
   }
 
-  it('en producción falla si hay plantillas sin revisar y las nombra', () => {
-    const r = gate('production')
+  const bare = shipped.map(({ publicarSinRevision, ...t }) => t) // plantillas sin la autorización explícita
+  const authorize = (t) => ({ ...t, publicarSinRevision: { autorizadaPor: 'Dennys Heras', fecha: '2026-10-30', razon: 'primera publicación' } })
+
+  it('en producción falla si hay plantillas sin revisar y SIN autorización explícita, y las nombra', () => {
+    const r = gate('production', tmp(bare))
     expect(r.status).toBe(1)
     expect(r.stderr).toContain('expl-R-01')
+  })
+
+  it('en producción pasa si las sin revisar llevan autorización explícita y trazable (primera publicación)', () => {
+    const r = gate('production', tmp(bare.map(authorize)))
+    expect(r.status).toBe(0)
+    expect(r.stdout).toMatch(/autorizad/i)
+  })
+
+  it('una autorización incompleta (sin quién, fecha o razón) no vale', () => {
+    for (const drop of ['autorizadaPor', 'fecha', 'razon']) {
+      const a = authorize(bare[0]); delete a.publicarSinRevision[drop]
+      expect(gate('production', tmp([a, ...bare.slice(1).map(authorize)])).status, drop).toBe(1)
+    }
+    const empty = authorize(bare[0]); empty.publicarSinRevision.razon = '  '
+    expect(gate('production', tmp([empty, ...bare.slice(1).map(authorize)])).status).toBe(1)
+  })
+
+  it('las plantillas entregadas están autorizadas y siguen siendo PendingReview (el sitio lo muestra)', () => {
+    expect(gate('production').status).toBe(0)
+    for (const t of shipped) {
+      expect(t.publicarSinRevision).toMatchObject({ autorizadaPor: 'Dennys Heras', fecha: '2026-10-30' })
+      expect(t.publicarSinRevision.razon.length).toBeGreaterThan(10)
+      expect(isReviewed(t)).toBe(false)
+    }
+  })
+
+  it('autorizar la publicación no convierte la plantilla en "revisada por humano"', () => {
+    const { outcome, ctx } = run('A')
+    expect(explain(outcome, shipped, 'es', ctx).reviewState).toBe('PendingReview')
   })
 
   it('en desarrollo pasa aunque estén sin revisar', () => {
@@ -127,6 +159,6 @@ describe('compuerta de build explain-review (AC-23)', () => {
 
   it('en producción falla si solo una carece de revisión', () => {
     const mixed = shipped.map((t, i) => (i === 0 ? t : reviewed(t)))
-    expect(gate('production', tmp(mixed)).status).toBe(1)
+    expect(gate('production', tmp(mixed.map((t, i) => (i === 0 ? bare[0] : t)))).status).toBe(1)
   })
 })
