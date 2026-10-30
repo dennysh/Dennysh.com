@@ -172,3 +172,9 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - evidence: ejecutor `npm run test:static` con 4 comprobaciones nuevas (`secrets` ampliado con variables `VITE_*` e historial de git, `headers`, `rules`, `no-ai-routes`). Con un archivo de ejemplo malo (`innerHTML`, `fetch(url)`) el ejecutor sale con 1 y lo nombra; sin él, pasa. `public/_headers` se genera desde la fuente única `server/security-headers.js`; `dist/_headers` coincide tras `npm run build`
 - note: variable pública permitida `VITE_TURNSTILE_SITEKEY` (nombre del plan §4; `.env.example` corregido)
 - files: scripts/static/{headers,secrets,rules,no-ai-routes}.mjs, scripts/gen-headers.mjs, scripts/test-static.mjs, public/_headers, tests/unit/static-rules.test.js
+
+## T080 — 2026-10-30
+- status: complete (con una salvedad: escribí el contenido y la prueba en la misma tanda, así que esta prueba no se vio roja antes; la compuerta `test:static -- content` sí se probó en ambos modos)
+- evidence: EN y ES con la misma estructura; sin cifras inventadas ni "1,719" ni "técnicos reales" (P-05); solo "siete años" como dato personal numérico; 8 marcadores `pending` (P-04, P-06, P-09, P-22). `NODE_ENV=production npm run test:static -- content` sale 1 y los nombra mientras `AUTHORIZED_PENDING` esté vacío
+- decision: proyectos en desarrollo y exploración tomados del archivo de la copia de la PC (la spec §4.5 los lista); el repo del bot de producción queda `pending(P-06)`. Nueva pregunta P-22 (Criden)
+- files: src/content/site.js, tests/unit/content.test.js, scripts/test-static.mjs

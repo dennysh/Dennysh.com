@@ -93,7 +93,23 @@ function explainReview() {
   return true
 }
 
-const CHECKS = { secrets, headers, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
+// T080: lista los marcadores pending; en producción falla si alguno no está autorizado por Dennys.
+async function content() {
+  const { collectPending, AUTHORIZED_PENDING } = await import('../src/content/site.js')
+  const all = collectPending()
+  const ids = [...new Set(all.map((p) => p.id))]
+  const bad = all.filter((p) => !AUTHORIZED_PENDING.includes(p.id))
+  console.log(`content: ${all.length} marcadores pending (${ids.join(', ')})`)
+  if (process.env.NODE_ENV === 'production' && bad.length) {
+    for (const p of bad) console.error(`pending sin autorizar ${p.id} en ${p.path}: ${p.hint}`)
+    return false
+  }
+  return true
+}
+
+const CHECKS = { secrets, headers, content, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
 const wanted = process.argv.slice(2).filter((a) => a in CHECKS)
-const ok = (wanted.length ? wanted : Object.keys(CHECKS)).map((k) => CHECKS[k]()).every(Boolean)
+const results = []
+for (const k of wanted.length ? wanted : Object.keys(CHECKS)) results.push(await CHECKS[k]())
+const ok = results.every(Boolean)
 process.exit(ok ? 0 : 1)

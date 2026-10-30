@@ -27,4 +27,5 @@ Origen: diseño `docs/superpowers/specs/2026-10-29-dennysh-demo-decision-design.
 | P-19 | ¿Aceptas que el hash de visitante no lleve fecha, para que el tope de 10 min no se reinicie a medianoche UTC? (la privacidad la sostiene la purga a 24 h) | Sí, sin fecha | Secciones 5.8, 10 |
 | P-20 | ¿Quitamos el campo trampa y el tiempo mínimo del anti-bot (Turnstile de un solo uso basta)? | Sí, quitarlos | Sección 10 (S12) |
 | P-21 | ¿`/` sirve inglés con canónico a `/en/`, y el sitemap lista solo `/en/` y `/es/`? | Sí | Secciones 8, 11 |
+| P-22 | ¿Cuál es la dirección pública de Criden (el producto para negocios y páginas web) y qué una línea quieres decir de él? | Sin enlace hasta que lo confirmes; el bloque queda como marcador | Sección 4.8 |
 
