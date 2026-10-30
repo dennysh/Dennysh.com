@@ -11,6 +11,7 @@ import { checkSurface } from './static/no-ai-routes.mjs'
 import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget } from './static/site.mjs'
 import { buildStaticExample } from './gen-static-example.mjs'
 import { loadRuleset } from '../core/ruleset.js'
+import { checkUnused } from './static/unused.mjs'
 
 const SKIP = /\.(png|jpe?g|gif|webp|ico|svg|woff2?|glb|lock)$|package-lock\.json$|(^|\/)tests\/|scan-secrets/
 
@@ -137,6 +138,14 @@ const rulesetPublic = async () => {
   return problems.length === 0
 }
 
+// T093: sin archivos huérfanos. src/data/ se conserva: es la fuente de los datos reales (constitución, regla 11).
+const unused = () => {
+  const problems = checkUnused({ keep: ['src/data/'] })
+  for (const p of problems) console.error(`unused: ${p}`)
+  if (!problems.length) console.log('unused OK — sin archivos sin importar ni imágenes sin referencia')
+  return problems.length === 0
+}
+
 // T080: lista los marcadores pending; en producción falla si alguno no está autorizado por Dennys.
 async function content() {
   const { collectPending, AUTHORIZED_PENDING } = await import('../src/content/site.js')
@@ -151,7 +160,7 @@ async function content() {
   return true
 }
 
-const CHECKS = { secrets, headers, content, prerender, machine, legal, svg, fonts, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
+const CHECKS = { secrets, unused, headers, content, prerender, machine, legal, svg, fonts, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
 const wanted = process.argv.slice(2).filter((a) => a in CHECKS)
 const results = []
 for (const k of wanted.length ? wanted : Object.keys(CHECKS)) results.push(await CHECKS[k]())

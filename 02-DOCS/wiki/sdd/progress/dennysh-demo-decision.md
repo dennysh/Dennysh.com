@@ -200,3 +200,10 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - note (entorno): Chromium necesitaba librerías del sistema que faltaban y no hay `sudo`; las descargué con `apt-get download` y las extraje FUERA del repo (carpeta temporal de la sesión) usando `LD_LIBRARY_PATH`. En otra máquina basta `npx playwright install-deps`. La carpeta temporal no persiste
 - decision: `npm run test:e2e` construye `dist-e2e` con la clave pública de prueba de Turnstile (`1x00000000000000000000AA`) y arranca vista previa estática + `wrangler pages dev` con enlaces de prueba; nada de eso es un secreto. `wrangler.jsonc` trae `database_id` marcador: lo rellena Dennys en T063
 - files: playwright.config.js, tests/e2e/*.spec.js, tests/e2e/helpers.js, wrangler.jsonc, scripts/prerender.mjs (OUT_DIR), src/styles/*, src/content/site.js
+
+## T088, T093, T094 — 2026-10-30
+- T088 complete. evidence: `npm run test:lighthouse` (Lighthouse móvil sobre el build de producción, Chromium de Playwright): `/en/` y `/es/` rendimiento 100, accesibilidad 100, LCP 756–761 ms (presupuesto: ≥ 90 / 100 / ≤ 2000); JS inicial 62,7 KB gzip (≤ 150) con `test:static -- budgets`. note: es un perfil móvil simulado de laboratorio, no medición en dispositivo real
+- T093 parcial: 43 archivos huérfanos del layout anterior borrados (secciones, componentes, estilos, imágenes sin referencia), detectados por `test:static -- unused` (grafo de imports + referencias a `public/`; 5 pruebas). `src/data/` se conserva a propósito (fuente de datos reales, regla 11). **Falta la aprobación de Dennys de la lista de documentos sueltos**: `02-DOCS/propuesta-limpieza-documentos.md`
+- T094 no aplica: P-17 por defecto = sin analítica en v1
+- fix: `vite.config.js` traía `server.open: true` (abría un navegador y rompía `vite preview` en scripts); se limpió y se quitaron las cabeceras duplicadas (viven en `server/security-headers.js`)
+- note: `lighthouse` con `chrome-launcher` se colgaba con el headless shell; el script conecta Lighthouse al Chromium de Playwright por depuración remota (puerto 9333)
