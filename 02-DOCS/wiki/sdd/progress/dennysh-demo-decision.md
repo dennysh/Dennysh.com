@@ -178,3 +178,10 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - evidence: EN y ES con la misma estructura; sin cifras inventadas ni "1,719" ni "técnicos reales" (P-05); solo "siete años" como dato personal numérico; 8 marcadores `pending` (P-04, P-06, P-09, P-22). `NODE_ENV=production npm run test:static -- content` sale 1 y los nombra mientras `AUTHORIZED_PENDING` esté vacío
 - decision: proyectos en desarrollo y exploración tomados del archivo de la copia de la PC (la spec §4.5 los lista); el repo del bot de producción queda `pending(P-06)`. Nueva pregunta P-22 (Criden)
 - files: src/content/site.js, tests/unit/content.test.js, scripts/test-static.mjs
+
+## T075, T083–T087 y base de T072/T073/T082 — 2026-10-30
+- status: T075, T083, T084, T085, T086, T087 complete; T072, T073, T074, T082 en curso (faltan los e2e)
+- evidence: `npm run build` = `vite build` + `scripts/prerender.mjs` (react-dom/server vía Vite SSR, sin cambiar de framework): `/`, `/en/`, `/es/`, legales (`/en/privacy/`, `/en/terms/`, `/es/privacidad/`, `/es/terminos/`), `404.html`, `llms.txt`, `dennys.json`, `robots.txt`, `sitemap.xml` (solo `/en/` y `/es/`), `/demo/ruleset.v1.json` y plantillas. 16 pruebas de las comprobaciones con ejemplos buenos y malos; `npm run test:static` pasa sobre `dist/` (prerender, machine, legal, svg, fonts, budgets, static-example, ruleset-public). JS inicial 62,7 KB gzip (límite 150)
+- decision: tipografía = pila del sistema (`system-ui`, `ui-monospace`), sin archivos de fuente: cumple "fuentes propias" con 0 bytes y sin dominios externos (T079 parcial; falta la dirección visual de T081). Estilos en variables (`src/styles/tokens.css`): dirección visual PROVISIONAL, oscuro por defecto y acento ámbar, hasta que Dennys elija
+- decision: `scripts/verify.sh` ahora construye antes de las comprobaciones estáticas (necesitan `dist/`)
+- note: los marcadores `pending` visibles en el sitio construido son 14 (P-04, P-06, P-09, P-22); el build de producción real exige que Dennys los autorice o los resuelva

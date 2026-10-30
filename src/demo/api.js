@@ -11,7 +11,7 @@ function safeStorage() {
 
 const kindFor = (status) => (status === 403 ? 'bot' : status === 400 || status === 413 || status === 415 ? 'input' : 'unavailable')
 
-export function createClient({ fetch: fetchFn = (...a) => globalThis.fetch(...a), getToken, storage = safeStorage() }) {
+export function createClient({ fetch: fetchFn = globalThis.fetch.bind(globalThis), getToken, storage = safeStorage() }) {
   const store = {
     get: () => { try { return storage?.getItem(STORAGE_KEY) ?? null } catch { return null } },
     set: (v) => { try { storage?.setItem(STORAGE_KEY, v) } catch { /* sin almacenamiento: la demo sigue */ } },

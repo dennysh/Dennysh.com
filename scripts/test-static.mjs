@@ -8,6 +8,9 @@ import { renderHeadersFile, checkHeadersFile } from './static/headers.mjs'
 import { checkViteEnv, scanPatchAdditions } from './static/secrets.mjs'
 import { checkSourceRules } from './static/rules.mjs'
 import { checkSurface } from './static/no-ai-routes.mjs'
+import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget } from './static/site.mjs'
+import { buildStaticExample } from './gen-static-example.mjs'
+import { loadRuleset } from '../core/ruleset.js'
 
 const SKIP = /\.(png|jpe?g|gif|webp|ico|svg|woff2?|glb|lock)$|package-lock\.json$|(^|\/)tests\/|scan-secrets/
 
@@ -93,6 +96,47 @@ function explainReview() {
   return true
 }
 
+// Comprobaciones sobre dist/ (hay que construir antes: npm run build).
+const distRead = (rel) => (existsSync(join('dist', rel)) ? readFileSync(join('dist', rel), 'utf8') : null)
+const distBuf = (rel) => (existsSync(join('dist', rel)) ? readFileSync(join('dist', rel)) : null)
+function onDist(name, fn) {
+  return () => {
+    if (!existsSync('dist/index.html')) { console.error(`${name}: no hay dist/; ejecuta npm run build`); return false }
+    const problems = fn()
+    for (const p of problems) console.error(`${name}: ${p}`)
+    if (!problems.length) console.log(`${name} OK`)
+    return problems.length === 0
+  }
+}
+const prerender = onDist('prerender', () => checkPrerender(distRead))
+const machine = onDist('machine', () => checkMachine(distRead))
+const legal = onDist('legal', () => checkLegal(distRead))
+const svg = onDist('svg', () => checkSvg(distRead))
+const fonts = onDist('fonts', () => checkFonts(walk('dist').filter((f) => /\.(html|css|js)$/.test(f)).map((path) => ({ path, text: readFileSync(path, 'utf8') }))))
+const budgets = onDist('budgets', () => checkBudget(distRead, distBuf))
+const staticExample = async () => {
+  const problems = onDistProblems(checkStaticExample(distRead))
+  const fresh = JSON.stringify(await buildStaticExample(), null, 2) + '\n'
+  if (readFileSync('src/demo/static-example.json', 'utf8') !== fresh) problems.push('src/demo/static-example.json no coincide con el núcleo (node scripts/gen-static-example.mjs)')
+  for (const p of problems) console.error(`static-example: ${p}`)
+  if (!problems.length) console.log('static-example OK — etiquetado como no real, sin entrega, en sincronía con el núcleo')
+  return problems.length === 0
+}
+const onDistProblems = (p) => (existsSync('dist/index.html') ? p : ['no hay dist/; ejecuta npm run build'])
+// AC-24: el ruleset público es el que firma la auditoría.
+const rulesetPublic = async () => {
+  const problems = onDistProblems([])
+  if (!problems.length) {
+    const pub = (await loadRuleset(JSON.parse(distRead('demo/ruleset.v1.json')))).ruleset
+    const example = JSON.parse(readFileSync('src/demo/static-example.json', 'utf8'))
+    if (pub.hash !== example.ruleset.hash) problems.push('el hash del ruleset público no coincide con el de la auditoría')
+    if (distRead('demo/explanations.v1.json') !== readFileSync('content/explanations/v1.json', 'utf8')) problems.push('las plantillas públicas difieren de las del código')
+  }
+  for (const p of problems) console.error(`ruleset-public: ${p}`)
+  if (!problems.length) console.log('ruleset-public OK — el hash público coincide con la auditoría')
+  return problems.length === 0
+}
+
 // T080: lista los marcadores pending; en producción falla si alguno no está autorizado por Dennys.
 async function content() {
   const { collectPending, AUTHORIZED_PENDING } = await import('../src/content/site.js')
@@ -107,7 +151,7 @@ async function content() {
   return true
 }
 
-const CHECKS = { secrets, headers, content, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
+const CHECKS = { secrets, headers, content, prerender, machine, legal, svg, fonts, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
 const wanted = process.argv.slice(2).filter((a) => a in CHECKS)
 const results = []
 for (const k of wanted.length ? wanted : Object.keys(CHECKS)) results.push(await CHECKS[k]())

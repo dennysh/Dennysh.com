@@ -1,11 +1,8 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
-import './App.css'
+import { createRoot, hydrateRoot } from 'react-dom/client'
+import Site from './Site.jsx'
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-)
+const lang = location.pathname.startsWith('/es') ? 'es' : 'en'
+const root = document.getElementById('root')
+if (root.hasChildNodes()) hydrateRoot(root, <Site lang={lang} />)
+else createRoot(root).render(<Site lang={lang} />)

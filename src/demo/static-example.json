@@ -1,0 +1,82 @@
+{
+  "eventId": "ejemplo-estatico",
+  "createdAtUtc": "2026-01-15T12:00:00.000Z",
+  "scenario": "A",
+  "input": {
+    "accountLabel": "demo-account-50",
+    "sourceIp": "198.51.100.128",
+    "kind": "A",
+    "params": {
+      "failedAttempts": 14,
+      "windowSeconds": 40
+    }
+  },
+  "engine": {
+    "name": "rules-engine",
+    "version": "1.0.0",
+    "kind": "deterministic"
+  },
+  "ruleset": {
+    "version": "1.0.0",
+    "hash": "095856b783ac6face84c9f40d4073cea35da0168f3768e1e002eeb0e5064ec01"
+  },
+  "matched": [
+    {
+      "ruleId": "R-02",
+      "ruleVersion": "1.0.0"
+    }
+  ],
+  "decision": "Limit",
+  "explanation": {
+    "templateId": "expl-R-02",
+    "version": "1",
+    "params": {
+      "ruleId": "R-02",
+      "thresholds": {
+        "min": 10,
+        "maxWindowSeconds": 60
+      },
+      "observed": {
+        "failedAttempts": 14,
+        "windowSeconds": 40
+      },
+      "durationLabel": "15min"
+    },
+    "reviewState": "PendingReview"
+  },
+  "modules": [
+    {
+      "id": "burst-detector",
+      "version": "1"
+    },
+    {
+      "id": "severity-classifier",
+      "version": "1"
+    },
+    {
+      "id": "telegram-notifier",
+      "version": "1"
+    }
+  ],
+  "usedData": [
+    "account",
+    "failed-attempts",
+    "time-window"
+  ],
+  "unusedData": [
+    "name",
+    "nationality",
+    "language",
+    "device",
+    "gender",
+    "source-ip"
+  ],
+  "alert": {
+    "status": "TestMode",
+    "channel": "none"
+  },
+  "interventions": [],
+  "effectiveState": "Decided",
+  "escalated": false,
+  "recordHash": "86a191241f3ccb651ae9a980c3293b014c1afce5fd868db43d446c4655376ce4"
+}
