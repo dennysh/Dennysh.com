@@ -131,3 +131,9 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - note: la tarea T033 dice "a las 24 h 30 min su cupo aún cuenta para la ventana global". Con ventana móvil de 24 h ese cupo ya queda fuera del tope; lo interpreto como "la fila sigue guardada (retención 25 h) pero ya no cuenta", y así lo prueban los tests. A las 25 h 30 min se purga
 - decision: `putEvent` (de T036) se implementó aquí porque `getEvent` no se puede probar sin él; `getEvent` devuelve también `messageId` (interno, nunca sale en la API)
 - files: server/store-d1.js, tests/unit/retention.test.js, tests/helpers/fixtures.js
+
+## T035 + T036 + T067 + T068 (almacén) — 2026-10-30
+- status: complete (la parte de almacén de T068; el uso del interruptor en el orquestador llega con T049)
+- red: 12 pruebas fallaban (faltaban `appendIntervention`, `updateAlert`, `getBreaker`, `tripBreaker`); green: 147 en total. Un fallo propio (llamar `.first()` sin `.bind()` en el doble de D1) se corrigió en la implementación
+- decision: `appendIntervention` es atómica por clave primaria `(eventId, seq)` con reintento; 10 llamadas simultáneas → exactamente 3 filas. `tripBreaker` usa `MAX(openUntil)`: nunca acorta una pausa abierta
+- files: server/store-d1.js, tests/unit/interventions.test.js

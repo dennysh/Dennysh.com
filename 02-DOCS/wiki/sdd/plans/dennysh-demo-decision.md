@@ -347,8 +347,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T032 | ✅ | Implementar `Store.reserveSlot` con una sentencia condicional única | T031 en verde con D1 local real | T031 | AC-32, S11 |
 | T033 | ✅ | (prueba) Caducidad y purga: a las 24 h 30 min el evento no existe pero su cupo aún cuenta para la ventana global; a las 25 h 30 min las filas de cupo se purgan | `npm test -- retention` falla | T030 | AC-25, AC-32, D-05 |
 | T034 | ✅ | Implementar `getEvent` con caducidad y `purgeExpired` oportunista | T033 en verde | T033 | AC-25, D-05 |
-| T035 | | (prueba) `appendIntervention`: máximo 3, orden, cadena de hashes, `LimitReached` | `npm test -- interventions` falla | T030, T020 | AC-26 |
-| T036 | | Implementar `putEvent`, `updateAlert`, `appendIntervention` | T035 en verde | T035 | AC-09, AC-26 |
+| T035 | ✅ | (prueba) `appendIntervention`: máximo 3, orden, cadena de hashes, `LimitReached` | `npm test -- interventions` falla | T030, T020 | AC-26 |
+| T036 | ✅ | Implementar `putEvent`, `updateAlert`, `appendIntervention` | T035 en verde | T035 | AC-09, AC-26 |
 | T037 | ✅ | (prueba) `signEventId`/`verifyEventId`: ida y vuelta; firma alterada, truncada o de otra clave → `Invalid`; comparación en tiempo constante | `npm test -- event-id` falla | T005 | D-04, AC-25 |
 | T038 | ✅ | Implementar `signEventId` y `verifyEventId` | T037 en verde | T037 | D-04 |
 | T040 | [P] | (prueba) Verificador de Turnstile con doble de red: token repetido, caducado, host ajeno, caída | `npm test -- verifier` falla | T005 | AC-27, S12 |
@@ -371,8 +371,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T057 | ✅ | Implementar `visitorHash` | T056 en verde | T056 | D-05 |
 | T058 | | (prueba) Fallo inyectado: D1, Telegram y correo caídos; la demo sigue o cierra seguro y lo dice | `npm test -- degrade` falla | T049 | D-06, K1 |
 | T059 | | Ajustar manejo de fallos hasta cumplir T058 | T058 en verde | T058 | D-06 |
-| T067 | | (prueba) Interruptor de corte: tras 429, 5xx o vencimiento se abre 60 s; con el interruptor abierto no se llama a Telegram y el estado es `Paused`; se cierra al vencer | `npm test -- breaker` falla | T036 | spec §10 S11 capa 5, D-06 |
-| T068 | | Implementar `getBreaker`/`tripBreaker` y su uso en el orquestador | T067 en verde | T067 | spec §10 S11 capa 5 |
+| T067 | ✅ | (prueba) Interruptor de corte: tras 429, 5xx o vencimiento se abre 60 s; con el interruptor abierto no se llama a Telegram y el estado es `Paused`; se cierra al vencer | `npm test -- breaker` falla | T036 | spec §10 S11 capa 5, D-06 |
+| T068 | ✅ | Implementar `getBreaker`/`tripBreaker` y su uso en el orquestador | T067 en verde | T067 | spec §10 S11 capa 5 |
 | T060 | [P] | Crear `public/_headers` para páginas estáticas con la política de spec §10 S18 (la API se cubre en T065/T066) | `npm run test:static -- headers` lee el build y confirma CSP, HSTS, `nosniff`, `frame-ancestors` y COOP en `/`, `/en/`, `/es/` y 404 | T005, T006 | AC-13, S18 |
 | T061 | [P] | (prueba) Lista blanca de variables `VITE_*` y escáner de secretos sobre `dist/`, repo e historial | `npm run test:static -- secrets` falla si se inyecta un token falso y pasa sin él | T005, T007 | AC-11, S1, S3 |
 | T062 | [P] | (prueba) Reglas estáticas: sin `dangerouslySetInnerHTML`, sin SQL concatenado, sin `fetch` a destinos no listados, sin `Set-Cookie` | `npm run test:static -- rules` falla ante un ejemplo malo y pasa en el código | T005 | S9, S13, S15, D-01 |
