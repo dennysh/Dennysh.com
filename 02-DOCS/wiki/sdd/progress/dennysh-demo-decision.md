@@ -137,3 +137,11 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - red: 12 pruebas fallaban (faltaban `appendIntervention`, `updateAlert`, `getBreaker`, `tripBreaker`); green: 147 en total. Un fallo propio (llamar `.first()` sin `.bind()` en el doble de D1) se corrigió en la implementación
 - decision: `appendIntervention` es atómica por clave primaria `(eventId, seq)` con reintento; 10 llamadas simultáneas → exactamente 3 filas. `tripBreaker` usa `MAX(openUntil)`: nunca acorta una pausa abierta
 - files: server/store-d1.js, tests/unit/interventions.test.js
+
+## T040–T043 (verificador y notificador) — 2026-10-30
+- status: complete
+- red: ambos `Cannot find module`; green: 28 pruebas nuevas, 175 en total
+- evidence: el token de Telegram y el ID de chat no aparecen en ninguna salida (error de red, 401, cuerpo con el token); `Delivered` solo con `ok:true` + `message_id` entero; 4 s por defecto → `Unconfirmed` sin reintento; `parse_mode` ausente; destino fijo; modo prueba no toca la red; el host de Turnstile se compara salvo en modo prueba
+- decision: errores de Turnstile fuera de lista cerrada se reducen a `rejected`; secreto mal configurado o `internal-error` → `VerifierDown` (cierra seguro)
+- note: el contrato real contra la clave de prueba de Turnstile y contra la API de Telegram requiere red y cuentas: no se ejecutó aquí (queda para el e2e T077 y el runbook T091)
+- files: server/http.js, server/verifier.js, server/notifier.js, tests/unit/verifier.test.js, tests/unit/notifier.test.js

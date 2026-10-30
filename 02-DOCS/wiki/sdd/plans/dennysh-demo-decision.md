@@ -351,10 +351,10 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T036 | ✅ | Implementar `putEvent`, `updateAlert`, `appendIntervention` | T035 en verde | T035 | AC-09, AC-26 |
 | T037 | ✅ | (prueba) `signEventId`/`verifyEventId`: ida y vuelta; firma alterada, truncada o de otra clave → `Invalid`; comparación en tiempo constante | `npm test -- event-id` falla | T005 | D-04, AC-25 |
 | T038 | ✅ | Implementar `signEventId` y `verifyEventId` | T037 en verde | T037 | D-04 |
-| T040 | [P] | (prueba) Verificador de Turnstile con doble de red: token repetido, caducado, host ajeno, caída | `npm test -- verifier` falla | T005 | AC-27, S12 |
-| T041 | | Implementar el adaptador del verificador (host esperado, un uso, tiempo límite) | T040 en verde; el contrato también pasa con la clave de pruebas | T040 | S12 |
-| T042 | [P] | (prueba) Notificador de Telegram con doble de red: `Delivered` solo con `ok:true`+`message_id`; error → `Failed`; 4 s → `Unconfirmed`; el token no aparece en ninguna salida; `edit` | `npm test -- notifier` falla | T022 | AC-06, AC-21, S1, S17 |
-| T043 | | Implementar el adaptador del notificador (destino fijo, tiempo límite 4 s, modo prueba `NotSent`) | T042 en verde | T042 | AC-06, AC-21, D-01 |
+| T040 | [P] ✅ | (prueba) Verificador de Turnstile con doble de red: token repetido, caducado, host ajeno, caída | `npm test -- verifier` falla | T005 | AC-27, S12 |
+| T041 | ✅ | Implementar el adaptador del verificador (host esperado, un uso, tiempo límite) | T040 en verde; el contrato también pasa con la clave de pruebas | T040 | S12 |
+| T042 | [P] ✅ | (prueba) Notificador de Telegram con doble de red: `Delivered` solo con `ok:true`+`message_id`; error → `Failed`; 4 s → `Unconfirmed`; el token no aparece en ninguna salida; `edit` | `npm test -- notifier` falla | T022 | AC-06, AC-21, S1, S17 |
+| T043 | ✅ | Implementar el adaptador del notificador (destino fijo, tiempo límite 4 s, modo prueba `NotSent`) | T042 en verde | T042 | AC-06, AC-21, D-01 |
 | T044 | | Spike: comprobar con fuente primaria si hay correo de respaldo gratuito y vigente; registrar el resultado y decidir | entrada en `decisions.md` con fuentes y decisión (implementar o descartar) | T005b | K10, P-10 |
 | T045 | | (condicional a T044) Adaptador de correo con la misma interfaz y pruebas de contrato | si se implementa: `npm test -- email` en verde; si se descarta: tarea marcada "no aplica" con motivo | T044 | spec §5.8 |
 | T046 | [P] ✅ | (prueba) Validación de entradas: tabla de inválidos (campo extra, enum, cuerpo grande, JSON roto, método/tipo) y asignación masiva (`decision`, `__proto__`) | `npm test -- validation` falla | T005 | AC-12, S8, S14 |
