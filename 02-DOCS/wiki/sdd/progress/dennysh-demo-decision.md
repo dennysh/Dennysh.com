@@ -145,3 +145,6 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - decision: errores de Turnstile fuera de lista cerrada se reducen a `rejected`; secreto mal configurado o `internal-error` → `VerifierDown` (cierra seguro)
 - note: el contrato real contra la clave de prueba de Turnstile y contra la API de Telegram requiere red y cuentas: no se ejecutó aquí (queda para el e2e T077 y el runbook T091)
 - files: server/http.js, server/verifier.js, server/notifier.js, tests/unit/verifier.test.js, tests/unit/notifier.test.js
+
+## T044 + T045 — 2026-10-30
+- status: T044 complete; T045 **no aplica** (D-IMPL-06). Fuentes: Cloudflare Email Service pricing y Telegram Bot FAQ (consultadas hoy). Telegram `retry_after` sigue sin verificar
