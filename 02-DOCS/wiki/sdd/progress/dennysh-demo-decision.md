@@ -81,3 +81,12 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - deviation: `explain(outcome, templates, lang, ctx)` lleva un 4.º argumento `ctx = {ruleset, signals}` porque los umbrales y valores observados salen de ahí; el contrato del plan §3 no lo traía
 - decision: las plantillas de `content/explanations/v1.json` son **borradores v0 míos, todas PendingReview**; Dennys las revisa en T090 (P-16). Marcadores `{observed.x}`/`{thresholds.x}` los sustituye el cliente
 - files: core/explain.js, content/explanations/v1.json, scripts/test-static.mjs, tests/unit/explain.test.js
+
+## T019 + T020 — 2026-10-30
+- status: complete
+- red: `npm test -- audit` → "Cannot find module core/audit.js"
+- green: 22 pruebas de auditoría; total 70 en verde
+- decision: `recordHash` sella solo la parte inmutable (identidad, entrada, regla, decisión, explicación, módulos, datos); la alerta, las intervenciones y el estado efectivo cambian después y no lo alteran. Las intervenciones encadenan hashes con `chainInterventions(recordHash, lista)`; la vista pública (`AuditView`) no lleva esos hashes
+- decision: `usedData`/`unusedData` son claves de lista cerrada; entre lo no usado figura `source-ip` además de nombre, nacionalidad, idioma, dispositivo y género
+- refactor: `canonicalJson` y `sha256Hex` pasaron de `ruleset.js` a `core/hash.js`
+- files: core/audit.js, core/hash.js, core/ruleset.js, tests/unit/audit.test.js

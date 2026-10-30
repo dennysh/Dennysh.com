@@ -1,23 +1,14 @@
 // Carga y validación del conjunto de reglas (spec §5.3, AC-24). Puro: sin red ni reloj.
+import { canonicalJson, sha256Hex } from './hash.js'
+
+export { canonicalJson }
+
 const ACTIONS = ['Block', 'Limit', 'Alert']
 const RULE_KEYS = ['id', 'name', 'version', 'action', 'condition', 'limitMinutes']
 const CONDITIONS = {
   'speed-above': ['type', 'signal', 'gt'],
   burst: ['type', 'min', 'maxWindowSeconds'],
   'off-hours-export': ['type', 'from', 'to'],
-}
-
-export function canonicalJson(v) {
-  if (Array.isArray(v)) return `[${v.map(canonicalJson).join(',')}]`
-  if (v && typeof v === 'object') {
-    return `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(v[k])}`).join(',')}}`
-  }
-  return JSON.stringify(v)
-}
-
-async function sha256Hex(text) {
-  const buf = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('')
 }
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)

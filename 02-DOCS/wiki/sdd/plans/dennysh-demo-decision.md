@@ -337,8 +337,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T016 | ✅ | Implementar `core.scenario` | T015 en verde | T015 | spec §5.3 |
 | T017 | ✅ | (prueba) Resolución de explicaciones: `reviewState` solo es Reviewed con `revisadaPor` y `revisadaEn`; build de producción falla con plantillas sin revisar | `npm test -- explain` falla | T011 | AC-23 |
 | T018 | ✅ | Implementar `core.explain`, las plantillas ES/EN v1 en `content/explanations/` (todas `PendingReview`) y el script de compuerta de build que falla en modo producción si alguna plantilla no tiene `revisadaPor` y `revisadaEn` | T017 en verde; `npm run test:static -- explain-review` falla en modo producción y pasa en modo desarrollo | T017 | AC-23, P-16 |
-| T019 | | (prueba) `core.buildAudit` y `core.effectiveState`: 12 campos de spec §5.6, UTC, hash del registro, cadena de hashes, estado efectivo | `npm test -- audit` falla | T013, T016 | AC-05, AC-19, AC-26 |
-| T020 | | Implementar `core.buildAudit` y `core.effectiveState` | T019 en verde | T019 | AC-05, AC-26 |
+| T019 | ✅ | (prueba) `core.buildAudit` y `core.effectiveState`: 12 campos de spec §5.6, UTC, hash del registro, cadena de hashes, estado efectivo | `npm test -- audit` falla | T013, T016 | AC-05, AC-19, AC-26 |
+| T020 | ✅ | Implementar `core.buildAudit` y `core.effectiveState` | T019 en verde | T019 | AC-05, AC-26 |
 | T021 | | (prueba) `core.renderAlert`: español, empieza por `[SIMULACIÓN]`, solo valores de listas cerradas; instantánea | `npm test -- alert-text` falla | T020 | AC-09, S15, D-02 |
 | T022 | | Implementar `core.renderAlert` | T021 en verde | T021 | D-02 |
 | T023 | | (prueba) Mutantes del núcleo: el motor que ignora la severidad, o que lee `country`, hace fallar al menos una prueba | informe de mutación o verificación manual de 3 mutantes: las 3 pruebas fallan | T013, T020 | AC-14, AC-20 |
