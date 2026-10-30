@@ -357,8 +357,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T043 | | Implementar el adaptador del notificador (destino fijo, tiempo límite 4 s, modo prueba `NotSent`) | T042 en verde | T042 | AC-06, AC-21, D-01 |
 | T044 | | Spike: comprobar con fuente primaria si hay correo de respaldo gratuito y vigente; registrar el resultado y decidir | entrada en `decisions.md` con fuentes y decisión (implementar o descartar) | T005b | K10, P-10 |
 | T045 | | (condicional a T044) Adaptador de correo con la misma interfaz y pruebas de contrato | si se implementa: `npm test -- email` en verde; si se descarta: tarea marcada "no aplica" con motivo | T044 | spec §5.8 |
-| T046 | [P] | (prueba) Validación de entradas: tabla de inválidos (campo extra, enum, cuerpo grande, JSON roto, método/tipo) y asignación masiva (`decision`, `__proto__`) | `npm test -- validation` falla | T005 | AC-12, S8, S14 |
-| T047 | | Implementar el esquema de validación compartido | T046 en verde | T046 | AC-12 |
+| T046 | [P] ✅ | (prueba) Validación de entradas: tabla de inválidos (campo extra, enum, cuerpo grande, JSON roto, método/tipo) y asignación masiva (`decision`, `__proto__`) | `npm test -- validation` falla | T005 | AC-12, S8, S14 |
+| T047 | ✅ | Implementar el esquema de validación compartido | T046 en verde | T046 | AC-12 |
 | T048 | | (prueba) `POST /api/simulate`: orden D-03 con espías; cupo agotado o interruptor abierto no llaman al notificador; `AlertView` por caso (incluido `Paused`); respaldo por correo cuando Telegram falla o vence, con estado propio y sin segundo cupo; modo prueba; fallo de D1 cierra seguro | `npm test -- simulate` falla | T036, T038, T041, T043, T047, T057, T068 | AC-03, AC-06, AC-07, AC-21, AC-22, D-03, D-06, spec §5.7 |
 | T049 | | Implementar `POST /api/simulate` (con respaldo y corte) | T048 en verde | T048, T066 | AC-03, D-03 |
 | T050 | | (prueba) `POST /api/intervene`: acciones válidas, `eventId` firmado, 409 al cuarto, Escalar con y sin mensaje | `npm test -- intervene` falla | T038, T049 | AC-09, AC-26, D-04 |

@@ -110,3 +110,10 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - red: `npm test -- event-id visitor-hash` → módulos `server/*.js` inexistentes; green: 90 pruebas en total
 - decision: el código de servidor compartido vive en `server/` (no en `functions/`, para que `functions/api/` contenga solo las tres rutas, T069). `eventId = <32 hex>.<firma HMAC de 128 bits en hex>`, comparación en tiempo constante; `visitorHash` sin fecha; IP ausente comparte un cubo estable
 - files: server/hmac.js, server/event-id.js, server/visitor-hash.js, tests/unit/event-id.test.js, tests/unit/visitor-hash.test.js
+
+## T046 + T047 — 2026-10-30
+- status: complete
+- red: `npm test -- validation` → "Cannot find module server/validation.js"; green: 24 pruebas (campo extra, `__proto__`, `constructor`, enums, tamaño, JSON roto, método, tipo)
+- note: una prueba mía usaba `undefined` y el valor por defecto del parámetro la volvía JSON válido; la cambié a `null` sin tocar la implementación
+- decision: método ≠ POST → 405, tipo ≠ JSON → 415, cuerpo > 4 KB → 413, todo con `{code:"E_INPUT"}`; el resto 400
+- files: server/validation.js, tests/unit/validation.test.js
