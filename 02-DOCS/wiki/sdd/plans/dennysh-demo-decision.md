@@ -349,8 +349,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T034 | | Implementar `getEvent` con caducidad y `purgeExpired` oportunista | T033 en verde | T033 | AC-25, D-05 |
 | T035 | | (prueba) `appendIntervention`: máximo 3, orden, cadena de hashes, `LimitReached` | `npm test -- interventions` falla | T030, T020 | AC-26 |
 | T036 | | Implementar `putEvent`, `updateAlert`, `appendIntervention` | T035 en verde | T035 | AC-09, AC-26 |
-| T037 | | (prueba) `signEventId`/`verifyEventId`: ida y vuelta; firma alterada, truncada o de otra clave → `Invalid`; comparación en tiempo constante | `npm test -- event-id` falla | T005 | D-04, AC-25 |
-| T038 | | Implementar `signEventId` y `verifyEventId` | T037 en verde | T037 | D-04 |
+| T037 | ✅ | (prueba) `signEventId`/`verifyEventId`: ida y vuelta; firma alterada, truncada o de otra clave → `Invalid`; comparación en tiempo constante | `npm test -- event-id` falla | T005 | D-04, AC-25 |
+| T038 | ✅ | Implementar `signEventId` y `verifyEventId` | T037 en verde | T037 | D-04 |
 | T040 | [P] | (prueba) Verificador de Turnstile con doble de red: token repetido, caducado, host ajeno, caída | `npm test -- verifier` falla | T005 | AC-27, S12 |
 | T041 | | Implementar el adaptador del verificador (host esperado, un uso, tiempo límite) | T040 en verde; el contrato también pasa con la clave de pruebas | T040 | S12 |
 | T042 | [P] | (prueba) Notificador de Telegram con doble de red: `Delivered` solo con `ok:true`+`message_id`; error → `Failed`; 4 s → `Unconfirmed`; el token no aparece en ninguna salida; `edit` | `npm test -- notifier` falla | T022 | AC-06, AC-21, S1, S17 |
@@ -367,8 +367,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T053 | | Implementar `GET /api/event/:id` (usa `verifyEventId`) | T052 en verde | T052 | AC-25, D-04 |
 | T054 | | (prueba) Lista blanca de respuestas (S17): cada respuesta de la API, incluidos errores, contiene solo los campos de `AuditView`, `InputView`, `AlertView` y `Error` de §3; ninguno de los "nunca presentes" | `npm test -- response-shape` falla; además comprueba las cabeceras de AC-13 en las respuestas reales de los tres endpoints | T049, T051, T053 | S17, AC-11, AC-13 |
 | T055 | | Ajustar respuestas hasta cumplir la lista blanca | T054 en verde | T054 | S17 |
-| T056 | | (prueba) Hash de visitante: HMAC sin fecha, estable durante 24 h (el tope de 10 min no se reinicia a medianoche), IP en claro nunca llega a la base | `npm test -- visitor-hash` falla | T030 | AC-17, AC-32, D-05 |
-| T057 | | Implementar `visitorHash` | T056 en verde | T056 | D-05 |
+| T056 | ✅ | (prueba) Hash de visitante: HMAC sin fecha, estable durante 24 h (el tope de 10 min no se reinicia a medianoche), IP en claro nunca llega a la base | `npm test -- visitor-hash` falla | T030 | AC-17, AC-32, D-05 |
+| T057 | ✅ | Implementar `visitorHash` | T056 en verde | T056 | D-05 |
 | T058 | | (prueba) Fallo inyectado: D1, Telegram y correo caídos; la demo sigue o cierra seguro y lo dice | `npm test -- degrade` falla | T049 | D-06, K1 |
 | T059 | | Ajustar manejo de fallos hasta cumplir T058 | T058 en verde | T058 | D-06 |
 | T067 | | (prueba) Interruptor de corte: tras 429, 5xx o vencimiento se abre 60 s; con el interruptor abierto no se llama a Telegram y el estado es `Paused`; se cierra al vencer | `npm test -- breaker` falla | T036 | spec §10 S11 capa 5, D-06 |

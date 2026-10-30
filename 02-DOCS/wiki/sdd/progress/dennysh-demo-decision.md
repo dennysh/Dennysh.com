@@ -104,3 +104,9 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 ## T023 — 2026-10-30
 - status: complete
 - evidence (3 mutantes manuales sobre `core/evaluate.js`, restaurado después): M1 ignora severidad → **sobrevivió** a las 80 pruebas (el orden natural de reglas ya daba la precedencia); añadí una prueba con reglas en orden inverso y ahora M1 falla; M2 lee `country` → falla; M3 `>=` en 900 km/h → falla. Original: 81 pruebas en verde
+
+## T037 + T038 + T056 + T057 — 2026-10-30
+- status: complete
+- red: `npm test -- event-id visitor-hash` → módulos `server/*.js` inexistentes; green: 90 pruebas en total
+- decision: el código de servidor compartido vive en `server/` (no en `functions/`, para que `functions/api/` contenga solo las tres rutas, T069). `eventId = <32 hex>.<firma HMAC de 128 bits en hex>`, comparación en tiempo constante; `visitorHash` sin fecha; IP ausente comparte un cubo estable
+- files: server/hmac.js, server/event-id.js, server/visitor-hash.js, tests/unit/event-id.test.js, tests/unit/visitor-hash.test.js
