@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<meta name="robots" content="noindex,nofollow">
+<title>MAQUETA DESECHABLE · Demo de decisión</title>
+<style>
+/* MAQUETA DESECHABLE. Un solo archivo, sin red, sin fuentes externas, sin telemetría. */
+:root{
+  --bg:#0b0d10; --panel:#12161b; --panel2:#171c22; --line:#2a323b; --text:#e9ecef; --muted:#a7b0ba;
+  --accent:#f5b942; --accent-ink:#1a1303; --ok:#6bd39a; --danger:#ff7b7b; --info:#7db8ff; --warn:#f5b942;
+  --focus:#ffffff; --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f6f4ef; --panel:#ffffff; --panel2:#f0ede6; --line:#d6d1c5; --text:#17191c; --muted:#4d5560;
+    --accent:#8a5a00; --accent-ink:#ffffff; --ok:#126b3d; --danger:#a31b1b; --info:#124f99; --warn:#7a4f00; --focus:#000}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.55 var(--sans)}
+a{color:var(--accent)}
+.skip{position:absolute;left:-999px;top:0;background:var(--accent);color:var(--accent-ink);padding:.6rem 1rem;z-index:20}
+.skip:focus{left:8px;top:8px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Rótulo permanente */
+.banner{position:sticky;top:0;z-index:10;background:repeating-linear-gradient(135deg,#f5b942 0 14px,#1a1303 14px 28px);color:#111;
+  padding:2px}
+.banner div{background:#fff7e0;color:#2b1d00;font:700 .82rem/1.35 var(--sans);padding:.45rem .9rem;text-align:center;letter-spacing:.02em}
+.banner b{letter-spacing:.08em}
+
+header.top{max-width:1180px;margin:0 auto;padding:1.4rem 1rem .4rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-start;justify-content:space-between}
+.top h1{margin:0;font-size:clamp(1.4rem,3.4vw,2.1rem);line-height:1.15;letter-spacing:-.01em;max-width:34ch}
+.top p{margin:.5rem 0 0;color:var(--muted);max-width:62ch}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{background:transparent;color:var(--text);border:0;padding:.55rem .95rem;min-height:44px;font:600 .9rem var(--sans);cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+
+main{max-width:1180px;margin:0 auto;padding:0 1rem 3rem}
+.notice{border:1px dashed var(--accent);border-radius:12px;padding:.8rem 1rem;margin:1rem 0;background:color-mix(in srgb,var(--accent) 8%,transparent);color:var(--text);font-size:.95rem}
+
+.launch{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:1.2rem;display:grid;gap:1rem}
+.big{background:var(--accent);color:var(--accent-ink);border:0;border-radius:14px;font:800 clamp(1.1rem,3vw,1.5rem) var(--sans);
+  padding:1.1rem 1.4rem;min-height:64px;cursor:pointer;width:100%;letter-spacing:.01em;box-shadow:0 0 0 0 transparent;transition:transform .15s,box-shadow .2s}
+.big:hover{transform:translateY(-1px);box-shadow:0 6px 24px color-mix(in srgb,var(--accent) 35%,transparent)}
+.big[disabled]{opacity:.55;cursor:progress;transform:none;box-shadow:none}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.chip,.ghost{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:999px;padding:.5rem .95rem;min-height:44px;font:600 .9rem var(--sans);cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.ghost:hover,.chip:hover{border-color:var(--muted)}
+.ghost[disabled]{opacity:.5;cursor:not-allowed}
+.hint{color:var(--muted);font-size:.88rem;margin:0}
+.step{font:600 .85rem var(--mono);color:var(--muted)}
+
+.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:1rem;margin-top:1rem;align-items:start}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}}
+.col{display:grid;gap:1rem;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:1rem 1.1rem;min-width:0}
+.card h2{margin:0 0 .6rem;font-size:.82rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);display:flex;gap:.5rem;align-items:center}
+.card h2 .n{font:700 .78rem var(--mono);background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:.05rem .4rem;color:var(--text)}
+.appear{animation:in .35s ease both}
+@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.log{list-style:none;margin:0;padding:0;font:.9rem/1.5 var(--mono);display:grid;gap:.35rem}
+.log li{display:grid;grid-template-columns:auto 1fr;gap:.7rem;padding:.4rem .6rem;background:var(--panel2);border-left:3px solid var(--accent);border-radius:6px;overflow-wrap:anywhere}
+.log time{color:var(--muted)}
+
+.badge{display:inline-flex;align-items:center;gap:.55rem;font:800 1.15rem var(--sans);padding:.55rem .95rem;border-radius:12px;border:2px solid currentColor}
+.badge .ic{font-size:1.2rem}
+.b-Block{color:var(--danger)} .b-Limit{color:var(--warn)} .b-Alert{color:var(--info)}
+.dec-sub{margin:.6rem 0 0;color:var(--muted)}
+.plain p{margin:.45rem 0}
+.rule{margin-top:.8rem;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.rule dt,.rule dd{margin:0;padding:.5rem .75rem}
+.rule dl{margin:0;display:grid;grid-template-columns:minmax(7rem,.5fr) 1fr}
+.rule dt{background:var(--panel2);color:var(--muted);font-size:.85rem;border-top:1px solid var(--line)}
+.rule dd{border-top:1px solid var(--line);overflow-wrap:anywhere}
+.rule dt:first-of-type,.rule dd:first-of-type{border-top:0}
+.tags{display:flex;flex-wrap:wrap;gap:.35rem}
+.tag{font:.8rem var(--mono);padding:.15rem .5rem;border-radius:999px;border:1px solid var(--line);background:var(--panel2)}
+.tag.no{text-decoration:line-through;color:var(--muted)}
+
+dl.audit{margin:0;display:grid;grid-template-columns:minmax(8rem,.55fr) 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+dl.audit dt,dl.audit dd{margin:0;padding:.55rem .75rem;border-top:1px solid var(--line);overflow-wrap:anywhere}
+dl.audit dt{background:var(--panel2);color:var(--muted);font-size:.84rem}
+dl.audit dd{font:.88rem/1.5 var(--mono)}
+dl.audit dt:first-of-type,dl.audit dt:first-of-type+dd{border-top:0}
+@media (max-width:520px){dl.audit,.rule dl{grid-template-columns:1fr}dl.audit dd{border-top:0;padding-top:0}.rule dd{border-top:0}}
+.sim{display:inline-block;background:var(--accent);color:var(--accent-ink);font:800 .72rem var(--sans);letter-spacing:.08em;padding:.12rem .5rem;border-radius:6px;margin-right:.4rem}
+.alert-box{border:2px dashed var(--accent);border-radius:12px;padding:.8rem .95rem}
+.alert-box p{margin:.35rem 0}
+.actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+@media (max-width:520px){.actions{grid-template-columns:1fr}}
+.act{min-height:52px;border-radius:12px;border:2px solid var(--line);background:var(--panel2);color:var(--text);font:800 1rem var(--sans);cursor:pointer}
+.act:hover:not([disabled]){border-color:var(--accent)}
+.act[disabled]{opacity:.45;cursor:not-allowed}
+.state{margin:.7rem 0 0;font-size:.92rem}
+.pill{font:700 .8rem var(--mono);border:1px solid var(--line);padding:.1rem .5rem;border-radius:999px}
+footer{max-width:1180px;margin:0 auto;padding:1rem 1rem 3rem;color:var(--muted);font-size:.85rem}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important;scroll-behavior:auto !important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Saltar al contenido</a>
+
+<div class="banner" role="note"><div><b>MAQUETA DESECHABLE</b> · <span data-i18n="bannerText">Revisión de diseño. No es el producto. Datos sintéticos. No se envía nada, no hay red ni telemetría.</span></div></div>
+
+<header class="top">
+  <div>
+    <h1 data-i18n="title">Un sistema que decide, lo explica y deja rastro. Con una persona al mando.</h1>
+    <p data-i18n="sub">Pulsa el botón. En unos 30 segundos verás un evento simulado, la decisión automática, por qué la tomó, qué regla aplicó y el registro completo. Tú puedes aprobar, anular o escalar.</p>
+  </div>
+  <div class="lang" role="group" aria-label="Idioma / Language">
+    <button type="button" id="l-es" aria-pressed="true" lang="es">ES</button>
+    <button type="button" id="l-en" aria-pressed="false" lang="en">EN</button>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <p class="notice" data-i18n="notice">Entorno de prueba simulado. Nada real se ataca, se bloquea ni se envía. Las cuentas, direcciones y ciudades son inventadas. La explicación y las reglas son plantillas fijas: aquí no se llama a ningún modelo de IA.</p>
+
+  <section class="launch" aria-labelledby="h-launch">
+    <h2 id="h-launch" class="sr" data-i18n="launchH">Controles de la demo</h2>
+    <button type="button" class="big" id="go" data-i18n="go">Simular acceso anómalo</button>
+    <div class="row" role="group" aria-labelledby="scLabel">
+      <span id="scLabel" class="hint" data-i18n="scLabel">Escenario:</span>
+      <button type="button" class="chip" data-sc="" aria-pressed="true" data-i18n="scRandom">Aleatorio</button>
+      <button type="button" class="chip" data-sc="A" aria-pressed="false" data-i18n="scA">A · Ráfaga de intentos</button>
+      <button type="button" class="chip" data-sc="B" aria-pressed="false" data-i18n="scB">B · Viaje imposible</button>
+      <button type="button" class="chip" data-sc="C" aria-pressed="false" data-i18n="scC">C · Fuera de horario</button>
+    </div>
+    <div class="row">
+      <button type="button" class="ghost" id="skip" disabled data-i18n="showAll">Mostrar todo</button>
+      <button type="button" class="ghost" id="reset" data-i18n="reset">Reiniciar maqueta</button>
+      <span class="step" id="stepLbl" aria-hidden="true"></span>
+    </div>
+    <p class="hint" data-i18n="replayHint">La secuencia es una reproducción escalonada de un evento ya generado. Las horas mostradas son las de este momento.</p>
+  </section>
+
+  <div class="layout">
+    <div class="col" id="colL">
+      <section class="card" id="s-event" hidden aria-labelledby="h-event">
+        <h2 id="h-event"><span class="n">1</span><span data-i18n="hEvent">Evento en vivo</span></h2>
+        <ol class="log" id="log"></ol>
+      </section>
+      <section class="card" id="s-decision" hidden aria-labelledby="h-dec">
+        <h2 id="h-dec"><span class="n">2</span><span data-i18n="hDec">Clasificación y decisión</span></h2>
+        <div id="decBody"></div>
+      </section>
+      <section class="card plain" id="s-expl" hidden aria-labelledby="h-expl">
+        <h2 id="h-expl"><span class="n">3</span><span data-i18n="hExpl">Explicación en lenguaje claro</span></h2>
+        <div id="explBody"></div>
+      </section>
+    </div>
+    <div class="col" id="colR">
+      <section class="card" id="s-audit" hidden aria-labelledby="h-audit">
+        <h2 id="h-audit"><span class="n">4</span><span data-i18n="hAudit">Pista de auditoría</span></h2>
+        <dl class="audit" id="audit"></dl>
+        <p class="hint" id="auditNote" style="margin-top:.6rem"></p>
+      </section>
+      <section class="card" id="s-alert" hidden aria-labelledby="h-alert">
+        <h2 id="h-alert"><span class="n">5</span><span data-i18n="hAlert">Estado de la alerta</span></h2>
+        <div id="alertBody" class="alert-box"></div>
+      </section>
+      <section class="card" id="s-human" hidden aria-labelledby="h-human">
+        <h2 id="h-human"><span class="n">6</span><span data-i18n="hHuman">Supervisión humana</span></h2>
+        <div class="actions" role="group" aria-labelledby="h-human">
+          <button type="button" class="act" data-act="approve" data-i18n="approve">Aprobar</button>
+          <button type="button" class="act" data-act="override" data-i18n="override">Anular</button>
+          <button type="button" class="act" data-act="escalate" data-i18n="escalate">Escalar</button>
+        </div>
+        <p class="hint" id="actHelp" style="margin-top:.6rem"></p>
+        <p class="state" id="effState"></p>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p data-i18n="foot">Maqueta para revisar el diseño aprobado (spec 2026-10-29). No cuenta como implementación ni ratifica nada. Nada de lo que ves se guarda ni sale de esta página.</p>
+</footer>
+
+<div class="sr" aria-live="polite" aria-atomic="true" id="live"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Textos ---------- */
+var I18N = {
+ es:{
+  skip:"Saltar al contenido",
+  bannerText:"Revisión de diseño. No es el producto. Datos sintéticos. No se envía nada, no hay red ni telemetría.",
+  title:"Un sistema que decide, lo explica y deja rastro. Con una persona al mando.",
+  sub:"Pulsa el botón. En unos 30 segundos verás un evento simulado, la decisión automática, por qué la tomó, qué regla aplicó y el registro completo. Tú puedes aprobar, anular o escalar.",
+  notice:"Entorno de prueba simulado. Nada real se ataca, se bloquea ni se envía. Las cuentas, direcciones y ciudades son inventadas. La explicación y las reglas son plantillas fijas: aquí no se llama a ningún modelo de IA.",
+  launchH:"Controles de la demo", go:"Simular acceso anómalo", running:"Simulando…", again:"Simular otro acceso anómalo",
+  scLabel:"Escenario:", scRandom:"Aleatorio", scA:"A · Ráfaga de intentos", scB:"B · Viaje imposible", scC:"C · Fuera de horario",
+  showAll:"Mostrar todo", reset:"Reiniciar maqueta",
+  replayHint:"La secuencia es una reproducción escalonada de un evento ya generado. Las horas mostradas son las de este momento.",
+  hEvent:"Evento en vivo", hDec:"Clasificación y decisión", hExpl:"Explicación en lenguaje claro",
+  hAudit:"Pista de auditoría", hAlert:"Estado de la alerta", hHuman:"Supervisión humana",
+  approve:"Aprobar", override:"Anular", escalate:"Escalar",
+  foot:"Maqueta para revisar el diseño aprobado (spec 2026-10-29). No cuenta como implementación ni ratifica nada. Nada de lo que ves se guarda ni sale de esta página.",
+  step:"Paso {n} de 6",
+  classifying:"Clasificando con las reglas versionadas…",
+  Block:"BLOQUEAR", Limit:"LIMITAR", Alert:"ALERTAR",
+  decSub:{Block:"La sesión queda bloqueada hasta que una persona la verifique.",Limit:"La cuenta queda limitada 15 minutos. No se borra nada.",Alert:"No se bloquea nada. Se avisa a una persona para que lo revise."},
+  /* explicación */
+  eWhat:"Qué decidió", eHow:"Cómo lo decidió", eWhy:"Por qué", eRule:"Regla aplicada", eMods:"Módulos que intervinieron",
+  eHowAll:"Comparó las señales del evento con tres reglas escritas y versionadas. Si coinciden varias, gana la acción más severa. No usó ningún modelo de IA en este momento.",
+  sc:{
+   A:{what:"Limitó la cuenta durante 15 minutos.",why:"Hubo 14 intentos fallidos en 40 segundos. Una persona real no suele equivocarse tantas veces tan rápido; es un patrón de ráfaga.",rule:"R-02 · intentos-en-ráfaga: 10 o más intentos fallidos a una misma cuenta en 60 s → limitar 15 min.",ruleShort:"R-02 intentos-en-ráfaga",mods:["burst-detector v1","severity-classifier v1","notifier (simulado)"],
+      used:["intentos fallidos","ventana de tiempo"]},
+   B:{what:"Bloqueó la sesión hasta verificarla.",why:"Dos inicios de sesión correctos separados por 9 000 km en 12 minutos exigirían una velocidad de unos 45 000 km/h. Eso no es un viaje posible. La regla mira distancia y tiempo, nunca el país.",rule:"R-01 · viaje-imposible: velocidad implícita entre dos inicios correctos > 900 km/h → bloquear sesión.",ruleShort:"R-01 viaje-imposible",mods:["geo-velocity-checker v1","severity-classifier v1","notifier (simulado)"],
+      used:["distancia","minutos entre inicios"]},
+   C:{what:"Avisó a una persona, sin bloquear.",why:"Una exportación masiva a las 03:12 queda fuera del horario 07:00–20:00. Puede ser un turno de noche legítimo, por eso solo se alerta y la persona puede anularlo.",rule:"R-03 · acción-privilegiada-fuera-de-horario: exportación masiva fuera de 07:00–20:00 → alertar.",ruleShort:"R-03 fuera-de-horario",mods:["schedule-checker v1","severity-classifier v1","notifier (simulado)"],
+      used:["tipo de acción","hora local de la organización"]}
+  },
+  notUsed:["nombre","país","idioma","tipo de dispositivo","género"],
+  usedLbl:"Datos usados", notLbl:"Datos que NO se usan", ruleLbl:"Texto de la regla", rsLbl:"Versión de reglas",
+  /* eventos */
+  ev:{
+   A:["Intento fallido de inicio de sesión · cuenta {acc} · origen {ip}","Intentos fallidos acumulados: 5 en 9 s","Intentos fallidos acumulados: 10 en 27 s (se cruza el umbral)","Intentos fallidos acumulados: 14 en 40 s"],
+   B:["Inicio de sesión correcto · cuenta {acc} · Ciudad Norte (sintética) · {ip}","Dato calculado: la ciudad siguiente está a 9 000 km","Inicio de sesión correcto 12 min después · Ciudad Sur (sintética) · {ip2}","Velocidad implícita: unos 45 000 km/h"],
+   C:["Acción privilegiada · cuenta {acc} · dispositivo ya conocido · {ip}","Exportación masiva solicitada: 48 000 registros","Hora local de la organización (sintética): 03:12","Fuera del horario permitido 07:00–20:00"]
+  },
+  /* auditoría */
+  aId:"ID de evento", aTime:"Hora exacta", aIn:"Datos de entrada", aEng:"Motor de decisión", aRule:"Regla usada", aRes:"Resultado",
+  aExpl:"Explicación", aMods:"Módulos usados", aAlert:"Estado de la alerta", aTo:"A quién", aWhen:"Cuándo", aHum:"Intervención humana", aSeal:"Sello de integridad",
+  utcLbl:"UTC", yourTime:"tu hora",
+  engine:"rules-engine v1.0.0 (determinista, sin IA en tiempo real)",
+  explVer:"plantilla v0 · borrador pendiente de revisión (maqueta). En producción solo diría «revisada por humano» si existe la fecha de revisión.",
+  inLbl:{A:"cuenta {acc}, 14 intentos fallidos, ventana 40 s, origen {ip}",B:"cuenta {acc}, 9 000 km, 12 min, velocidad 45 000 km/h",C:"cuenta {acc}, exportación de 48 000 registros, 03:12 (zona de la organización, sintética), origen {ip}"},
+  resLbl:{Block:"BLOQUEAR sesión",Limit:"LIMITAR 15 min",Alert:"ALERTAR (sin bloqueo)"},
+  toLbl:"Telegram ••••67 (ejemplo; en la maqueta no se envió a nadie)",
+  noInterv:"Ninguna todavía",
+  sealNote:"Sello de la maqueta (no criptográfico): {h}. El producto usará un hash SHA-256 por registro encadenado.",
+  /* alerta */
+  aSimTitle:"ALERTA SIMULADA", aSimBody:"En esta maqueta no se envió nada a Telegram ni a ningún otro sitio.",
+  aSimNext:"En el producto, este bloque dirá «Notificado a Telegram ••••67 a las HH:MM:SS» solo con la confirmación real del servicio. Si falla o tarda más de 4 s, mostrará el fallo real, nunca un éxito supuesto.",
+  aSimWhen:"Hora simulada del aviso: {t}",
+  aGrpTitle:"AGRUPADA (SIMULADO)", aGrpBody:"Agrupada con la alerta de las {t} para evitar ruido.",
+  aGrpNext:"Tope del producto: 1 alerta real cada 10 minutos por visitante y 20 en 24 horas en total. Al pasar el tope la demo sigue completa y lo dice con honestidad.",
+  /* humano */
+  actHelp:"Máximo 3 intervenciones. Cada una queda en la pista de auditoría con su hora. Escalar no envía otra notificación: marca el caso para revisión.",
+  effLbl:"Estado efectivo:", effDecided:"decisión automática vigente", effApproved:"aprobada por una persona", effOverridden:"anulada por una persona (se levanta la medida simulada)", escMark:" · escalada para revisión",
+  actLog:{approve:"Aprobar",override:"Anular",escalate:"Escalar"},
+  actNote:{approve:"confirma la decisión del sistema",override:"revierte la decisión automática",escalate:"marca el caso para revisión humana"},
+  maxed:"Se alcanzó el máximo de 3 intervenciones.",
+  live:{start:"Evento simulado iniciado.",dec:"Decisión: {d}.",alert:"Estado de la alerta: simulada, no se envió nada.",alertG:"Estado de la alerta: agrupada, simulada.",act:"Intervención registrada: {a}."}
+ },
+ en:{
+  skip:"Skip to content",
+  bannerText:"Design review. Not the product. Synthetic data. Nothing is sent, no network, no telemetry.",
+  title:"A system that decides, explains itself and leaves a trail. With a person in charge.",
+  sub:"Press the button. In about 30 seconds you will see a simulated event, the automatic decision, why it was made, which rule applied and the full record. You can approve, override or escalate.",
+  notice:"Simulated test environment. Nothing real is attacked, blocked or sent. Accounts, addresses and cities are made up. The explanation and the rules are fixed templates: no AI model is called here.",
+  launchH:"Demo controls", go:"Simulate anomalous access", running:"Simulating…", again:"Simulate another anomalous access",
+  scLabel:"Scenario:", scRandom:"Random", scA:"A · Burst of attempts", scB:"B · Impossible travel", scC:"C · Off-hours action",
+  showAll:"Show everything", reset:"Reset mockup",
+  replayHint:"The sequence is a staged replay of an event that was already generated. Times shown are from right now.",
+  hEvent:"Live event", hDec:"Classification and decision", hExpl:"Plain-language explanation",
+  hAudit:"Audit trail", hAlert:"Alert status", hHuman:"Human oversight",
+  approve:"Approve", override:"Override", escalate:"Escalate",
+  foot:"Mockup to review the approved design (spec 2026-10-29). It is not an implementation and ratifies nothing. Nothing you see is stored or leaves this page.",
+  step:"Step {n} of 6",
+  classifying:"Classifying with the versioned rules…",
+  Block:"BLOCK", Limit:"LIMIT", Alert:"ALERT",
+  decSub:{Block:"The session stays blocked until a person verifies it.",Limit:"The account is limited for 15 minutes. Nothing is deleted.",Alert:"Nothing is blocked. A person is told so they can take a look."},
+  eWhat:"What it decided", eHow:"How it decided", eWhy:"Why", eRule:"Rule applied", eMods:"Modules involved",
+  eHowAll:"It compared the event signals against three written, versioned rules. If several match, the most severe action wins. No AI model was used at this moment.",
+  sc:{
+   A:{what:"It limited the account for 15 minutes.",why:"There were 14 failed attempts in 40 seconds. A real person rarely fails that many times that fast; it is a burst pattern.",rule:"R-02 · burst-of-attempts: 10 or more failed attempts on one account within 60 s → limit for 15 min.",ruleShort:"R-02 burst-of-attempts",mods:["burst-detector v1","severity-classifier v1","notifier (simulated)"],
+      used:["failed attempts","time window"]},
+   B:{what:"It blocked the session until it is verified.",why:"Two successful sign-ins 9,000 km apart within 12 minutes would need a speed of about 45,000 km/h. That is not a possible trip. The rule looks at distance and time, never at the country.",rule:"R-01 · impossible-travel: implied speed between two successful sign-ins > 900 km/h → block session.",ruleShort:"R-01 impossible-travel",mods:["geo-velocity-checker v1","severity-classifier v1","notifier (simulated)"],
+      used:["distance","minutes between sign-ins"]},
+   C:{what:"It alerted a person, without blocking.",why:"A bulk export at 03:12 is outside the 07:00–20:00 window. It may be a legitimate night shift, so it only alerts and a person can override it.",rule:"R-03 · privileged-action-off-hours: bulk export outside 07:00–20:00 → alert.",ruleShort:"R-03 off-hours",mods:["schedule-checker v1","severity-classifier v1","notifier (simulated)"],
+      used:["action type","organisation local time"]}
+  },
+  notUsed:["name","country","language","device type","gender"],
+  usedLbl:"Data used", notLbl:"Data NOT used", ruleLbl:"Rule text", rsLbl:"Ruleset version",
+  ev:{
+   A:["Failed sign-in attempt · account {acc} · source {ip}","Failed attempts so far: 5 in 9 s","Failed attempts so far: 10 in 27 s (threshold crossed)","Failed attempts so far: 14 in 40 s"],
+   B:["Successful sign-in · account {acc} · North City (synthetic) · {ip}","Computed: the next city is 9,000 km away","Successful sign-in 12 min later · South City (synthetic) · {ip2}","Implied speed: about 45,000 km/h"],
+   C:["Privileged action · account {acc} · known device · {ip}","Bulk export requested: 48,000 records","Organisation local time (synthetic): 03:12","Outside the allowed window 07:00–20:00"]
+  },
+  aId:"Event ID", aTime:"Exact time", aIn:"Input data", aEng:"Decision engine", aRule:"Rule used", aRes:"Result",
+  aExpl:"Explanation", aMods:"Modules used", aAlert:"Alert status", aTo:"Sent to", aWhen:"When", aHum:"Human intervention", aSeal:"Integrity seal",
+  utcLbl:"UTC", yourTime:"your time",
+  engine:"rules-engine v1.0.0 (deterministic, no live AI)",
+  explVer:"template v0 · draft pending review (mockup). In production it would only say “reviewed by a human” if a review date exists.",
+  inLbl:{A:"account {acc}, 14 failed attempts, 40 s window, source {ip}",B:"account {acc}, 9,000 km, 12 min, speed 45,000 km/h",C:"account {acc}, export of 48,000 records, 03:12 (organisation zone, synthetic), source {ip}"},
+  resLbl:{Block:"BLOCK session",Limit:"LIMIT 15 min",Alert:"ALERT (no block)"},
+  toLbl:"Telegram ••••67 (example; nothing was sent to anyone in this mockup)",
+  noInterv:"None yet",
+  sealNote:"Mockup seal (non-cryptographic): {h}. The product will use a chained SHA-256 hash per record.",
+  aSimTitle:"SIMULATED ALERT", aSimBody:"In this mockup nothing was sent to Telegram or anywhere else.",
+  aSimNext:"In the product this block will read “Notified to Telegram ••••67 at HH:MM:SS” only with the service’s real confirmation. If it fails or takes more than 4 s it will show the real failure, never an assumed success.",
+  aSimWhen:"Simulated alert time: {t}",
+  aGrpTitle:"GROUPED (SIMULATED)", aGrpBody:"Grouped with the alert from {t} to avoid noise.",
+  aGrpNext:"Product cap: 1 real alert every 10 minutes per visitor and 20 per 24 hours overall. Past the cap the demo still runs in full and says so honestly.",
+  actHelp:"Up to 3 interventions. Each one is added to the audit trail with its time. Escalate sends no new notification: it flags the case for review.",
+  effLbl:"Effective state:", effDecided:"automatic decision in force", effApproved:"approved by a person", effOverridden:"overridden by a person (the simulated measure is lifted)", escMark:" · escalated for review",
+  actLog:{approve:"Approve",override:"Override",escalate:"Escalate"},
+  actNote:{approve:"confirms the system’s decision",override:"reverses the automatic decision",escalate:"flags the case for human review"},
+  maxed:"The maximum of 3 interventions was reached.",
+  live:{start:"Simulated event started.",dec:"Decision: {d}.",alert:"Alert status: simulated, nothing was sent.",alertG:"Alert status: grouped, simulated.",act:"Intervention recorded: {a}."}
+ }
+};
+
+/* ---------- Estado ---------- */
+var lang = (navigator.language||"es").toLowerCase().indexOf("en")===0 ? "en" : "es";
+var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+var chosen = "";            // "", A, B, C
+var run = null;             // evento actual
+var stage = 0;              // 0 reposo .. 6
+var shown = 0;              // líneas de evento visibles
+var timers = [];
+var lastAlertAt = null;     // para el tope simulado
+var COOLDOWN = 10*60*1000;
+var IPS = ["203.0.113.24","198.51.100.77","192.0.2.145"];
+
+function $(id){return document.getElementById(id)}
+function t(k){var v=I18N[lang][k];return v===undefined?k:v}
+function fill(s,m){return String(s).replace(/\{(\w+)\}/g,function(_,k){return m&&m[k]!==undefined?m[k]:""})}
+function pad(n,l){n=String(n);while(n.length<(l||2))n="0"+n;return n}
+
+function fmtUtc(ms){var d=new Date(ms);return pad(d.getUTCHours())+":"+pad(d.getUTCMinutes())+":"+pad(d.getUTCSeconds())+"."+pad(d.getUTCMilliseconds(),3)+" UTC"}
+function fmtLocal(ms){
+  var d=new Date(ms),off=-d.getTimezoneOffset(),sg=off>=0?"+":"-",ab=Math.abs(off),h=Math.floor(ab/60),m=ab%60;
+  return pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds())+" ("+t("yourTime")+", UTC"+sg+h+(m?":"+pad(m):"")+")";
+}
+function fmtHM(ms){var d=new Date(ms);return pad(d.getHours())+":"+pad(d.getMinutes())}
+function fmtHMS(ms){var d=new Date(ms);return pad(d.getUTCHours())+":"+pad(d.getUTCMinutes())+":"+pad(d.getUTCSeconds())+" UTC"}
+function fnv(str){
+  var h1=0x811c9dc5,h2=0x01000193;
+  for(var i=0;i<str.length;i++){h1^=str.charCodeAt(i);h1=Math.imul(h1,0x01000193)>>>0;h2=(Math.imul(h2^str.charCodeAt(i),0x85ebca6b))>>>0}
+  return ("00000000"+h1.toString(16)).slice(-8)+("00000000"+h2.toString(16)).slice(-8);
+}
+function rnd(n){return Math.floor(Math.random()*n)}
+function el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e}
+function clearTimers(){timers.forEach(clearTimeout);timers=[]}
+function announce(msg){var l=$("live");l.textContent="";setTimeout(function(){l.textContent=msg},30)}
+
+/* ---------- Idioma ---------- */
+function applyStatic(){
+  document.documentElement.lang=lang;
+  var nodes=document.querySelectorAll("[data-i18n]");
+  for(var i=0;i<nodes.length;i++){var k=nodes[i].getAttribute("data-i18n");if(I18N[lang][k]!==undefined)nodes[i].textContent=I18N[lang][k]}
+  $("l-es").setAttribute("aria-pressed",lang==="es");$("l-en").setAttribute("aria-pressed",lang==="en");
+  $("go").textContent = stage>0&&stage<6 ? t("running") : (run? t("again"):t("go"));
+  $("actHelp").textContent=t("actHelp");
+}
+
+/* ---------- Generar evento ---------- */
+function pickScenario(){return chosen||["A","B","C"][rnd(3)]}
+var DECISION={A:"Limit",B:"Block",C:"Alert"};
+function newRun(){
+  var sc=pickScenario(),now=Date.now();
+  var acc="usr_demo_"+(1000+rnd(8999));
+  var r={sc:sc,t0:now,acc:acc,ip:IPS[rnd(3)],ip2:IPS[rnd(3)],decision:DECISION[sc],
+    id:"ev_"+new Date(now).toISOString().slice(0,10)+"_"+pad(rnd(65535).toString(16),4),
+    alertMode:(lastAlertAt!==null && now-lastAlertAt<COOLDOWN)?"grouped":"sim",
+    alertAt:now+650,groupedWith:lastAlertAt,decAt:now+40,interv:[]};
+  r.evOffsets = sc==="A"?[-40000,-31000,-13000,0]: sc==="B"?[-720000,-720000,0,0]: [-5000,-4000,-3000,0];
+  if(r.alertMode==="sim") lastAlertAt=r.alertAt;
+  return r;
+}
+
+/* ---------- Secuencia ---------- */
+var STEPS=[ /* [ms desde el clic, acción] */ ];
+function start(){
+  clearTimers();
+  run=newRun();stage=1;shown=0;
+  $("go").disabled=true;$("skip").disabled=false;
+  announce(t("live").start);
+  var T=reduce?[0,0,0,0,0,0,0,0,0]:[200,1300,2400,3500,4600,6800,9500,13500,18000];
+  // eventos
+  [0,1,2,3].forEach(function(i){timers.push(setTimeout(function(){shown=i+1;renderAll()},T[i]))});
+  timers.push(setTimeout(function(){stage=2;renderAll()},T[4]+ (reduce?0:900)));   // clasificando
+  timers.push(setTimeout(function(){stage=3;renderAll();announce(fill(t("live").dec,{d:t(run.decision)}))},T[5]+ (reduce?0:600)));
+  timers.push(setTimeout(function(){stage=4;renderAll()},T[6]));                    // explicación
+  timers.push(setTimeout(function(){stage=5;renderAll();announce(run.alertMode==="grouped"?t("live").alertG:t("live").alert)},T[7])); // auditoría + alerta
+  timers.push(setTimeout(function(){stage=6;renderAll()},T[8]));                    // supervisión humana
+  renderAll();
+}
+function showAll(){
+  if(!run)return;clearTimers();shown=4;stage=6;renderAll();
+  announce(fill(t("live").dec,{d:t(run.decision)}));
+}
+function resetAll(){
+  clearTimers();run=null;stage=0;shown=0;lastAlertAt=null;
+  $("go").disabled=false;$("skip").disabled=true;renderAll();
+}
+
+/* ---------- Render ---------- */
+function show(id,on){$(id).hidden=!on}
+function renderAll(){
+  if(!run){["s-event","s-decision","s-expl","s-audit","s-alert","s-human"].forEach(function(i){show(i,false)});
+    $("stepLbl").textContent="";applyStatic();return}
+  var L=I18N[lang],S=L.sc[run.sc];
+  show("s-event",stage>=1);show("s-decision",stage>=2);show("s-expl",stage>=4);
+  show("s-audit",stage>=5);show("s-alert",stage>=5);show("s-human",stage>=6);
+  $("stepLbl").textContent = stage>=6 ? fill(t("step"),{n:6}) : fill(t("step"),{n:Math.max(1,Math.min(stage,5))});
+
+  // 1 evento
+  var log=$("log");log.textContent="";
+  var lines=L.ev[run.sc];
+  for(var i=0;i<shown;i++){
+    var li=el("li","appear");
+    var tm=el("time",null,fmtHMS(run.t0+run.evOffsets[i]));tm.setAttribute("dateTime",new Date(run.t0+run.evOffsets[i]).toISOString());
+    li.appendChild(tm);li.appendChild(el("span",null,fill(lines[i],{acc:run.acc,ip:run.ip,ip2:run.ip2})));
+    log.appendChild(li);
+  }
+  // 2 decisión
+  var d=$("decBody");d.textContent="";
+  if(stage===2){d.appendChild(el("p","hint",t("classifying")))}
+  else if(stage>=3){
+    var b=el("div","badge appear b-"+run.decision);
+    b.appendChild(el("span","ic",{Block:"✕",Limit:"⏱",Alert:"!"}[run.decision]));
+    b.appendChild(el("span",null,t(run.decision)));
+    b.setAttribute("role","status");
+    d.appendChild(b);d.appendChild(el("p","dec-sub",L.decSub[run.decision]));
+  }
+  // 3 explicación
+  var e=$("explBody");e.textContent="";
+  if(stage>=4){
+    [["eWhat",S.what],["eHow",L.eHowAll],["eWhy",S.why]].forEach(function(p){
+      var x=el("p","appear");x.appendChild(el("strong",null,t(p[0])+": "));x.appendChild(document.createTextNode(p[1]));e.appendChild(x)});
+    var rl=el("div","rule appear"),dl=el("dl");
+    function row(k,vNode){dl.appendChild(el("dt",null,k));var dd=el("dd");dd.appendChild(vNode);dl.appendChild(dd)}
+    row(t("eRule"),document.createTextNode(S.ruleShort));
+    row(t("ruleLbl"),document.createTextNode(S.rule));
+    row(t("rsLbl"),document.createTextNode("ruleset v1.0.0 · sha256:"+fnv("ruleset-v1").slice(0,12)+"… (maqueta)"));
+    var u=el("div","tags");S.used.forEach(function(x){u.appendChild(el("span","tag",x))});row(t("usedLbl"),u);
+    var nu=el("div","tags");L.notUsed.forEach(function(x){nu.appendChild(el("span","tag no",x))});row(t("notLbl"),nu);
+    var m=el("div","tags");S.mods.forEach(function(x){m.appendChild(el("span","tag",x))});row(t("eMods"),m);
+    rl.appendChild(dl);e.appendChild(rl);
+  }
+  // 4 auditoría
+  var a=$("audit");a.textContent="";
+  if(stage>=5){
+    var fields=[
+     [t("aId"),run.id],
+     [t("aTime"),fmtUtc(run.decAt)+"  ·  "+fmtLocal(run.decAt)],
+     [t("aIn"),fill(L.inLbl[run.sc],{acc:run.acc,ip:run.ip})],
+     [t("aEng"),L.engine],
+     [t("aRule"),S.ruleShort+" · ruleset v1.0.0"],
+     [t("aRes"),L.resLbl[run.decision]],
+     [t("aExpl"),L.explVer],
+     [t("aMods"),S.mods.join(" · ")],
+     [t("aAlert"),statusLine()],
+     [t("aTo"),L.toLbl],
+     [t("aWhen"),fmtUtc(run.alertAt)+"  ·  "+fmtLocal(run.alertAt)],
+     [t("aHum"),run.interv.length?run.interv.map(function(x,i){return (i+1)+". "+fmtUtc(x.at)+" · "+L.actLog[x.a]+" · "+(lang==="es"?"visitante (demo)":"visitor (demo)")}).join("\n"):L.noInterv]
+    ];
+    var seal=fnv(JSON.stringify([fields.slice(0,11).map(function(f){return f[1]}),run.interv]));
+    fields.push([t("aSeal"),seal]);
+    fields.forEach(function(f){a.appendChild(el("dt",null,f[0]));var dd=el("dd",null,f[1]);dd.style.whiteSpace="pre-line";a.appendChild(dd)});
+    $("auditNote").textContent=fill(L.sealNote,{h:seal});
+  }
+  // 5 alerta
+  var ab=$("alertBody");ab.textContent="";
+  if(stage>=5){
+    var tt=el("p");tt.appendChild(el("span","sim",lang==="es"?"SIMULACIÓN":"SIMULATION"));
+    tt.appendChild(el("strong",null,run.alertMode==="grouped"?L.aGrpTitle:L.aSimTitle));ab.appendChild(tt);
+    if(run.alertMode==="grouped"){
+      ab.appendChild(el("p",null,fill(L.aGrpBody,{t:fmtHM(run.groupedWith)})));ab.appendChild(el("p","hint",L.aGrpNext));
+    }else{
+      ab.appendChild(el("p",null,L.aSimBody));ab.appendChild(el("p",null,fill(L.aSimWhen,{t:fmtHMS(run.alertAt)})));ab.appendChild(el("p","hint",L.aSimNext));
+    }
+  }
+  // 6 humano
+  if(stage>=6){
+    var full=run.interv.length>=3;
+    var btns=document.querySelectorAll(".act");
+    for(var j=0;j<btns.length;j++)btns[j].disabled=full;
+    var eff=effective(),txt=t("effLbl")+" "+({decided:L.effDecided,approved:L.effApproved,overridden:L.effOverridden}[eff.s])+(eff.esc?L.escMark:"");
+    $("effState").textContent=txt+(full?"  ·  "+L.maxed:"");
+  }
+  applyStatic();
+  if(stage>=6){$("go").disabled=false;$("go").textContent=t("again");$("skip").disabled=true}
+}
+function statusLine(){
+  var L=I18N[lang];
+  return run.alertMode==="grouped" ? fill(L.aGrpBody,{t:fmtHM(run.groupedWith)})+" [SIMULADO]" : L.aSimTitle+": "+(lang==="es"?"no se envió nada":"nothing was sent");
+}
+function effective(){
+  var s="decided",esc=false;
+  run.interv.forEach(function(x){if(x.a==="approve")s="approved";else if(x.a==="override")s="overridden";else esc=true});
+  return {s:s,esc:esc};
+}
+
+/* ---------- Eventos de UI ---------- */
+$("go").addEventListener("click",start);
+$("skip").addEventListener("click",showAll);
+$("reset").addEventListener("click",resetAll);
+$("l-es").addEventListener("click",function(){lang="es";renderAll()});
+$("l-en").addEventListener("click",function(){lang="en";renderAll()});
+Array.prototype.forEach.call(document.querySelectorAll(".chip"),function(c){
+  c.addEventListener("click",function(){
+    chosen=c.getAttribute("data-sc");
+    Array.prototype.forEach.call(document.querySelectorAll(".chip"),function(x){x.setAttribute("aria-pressed",x===c)});
+  });
+});
+Array.prototype.forEach.call(document.querySelectorAll(".act"),function(b){
+  b.addEventListener("click",function(){
+    if(!run||run.interv.length>=3)return;
+    var a=b.getAttribute("data-act");
+    run.interv.push({a:a,at:Date.now()});
+    announce(fill(t("live").act,{a:t("actLog")[a]}));
+    renderAll();
+  });
+});
+
+applyStatic();renderAll();
+})();
+</script>
+</body>
+</html>

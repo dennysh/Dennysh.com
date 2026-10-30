@@ -1,0 +1,44 @@
+# Decisiones SDD — dennysh-demo-decision
+
+Registro de decisiones tomadas al planificar (2026-10-29). Todas descansan en valores por defecto de P-01 a P-18, que siguen siendo de Dennys: son **supuestos por confirmar**.
+
+| ID | Decisión | Por qué | Alternativa descartada |
+| --- | --- | --- | --- |
+| D-PLAN-01 | Núcleo de decisión puro, sin E/S, con puertos inyectables (almacén, verificador, notificador, reloj, azar) | Hace verificables las reglas, la explicación y la auditoría sin red, y evita ataduras a Cloudflare | Lógica dentro de los handlers |
+| D-PLAN-02 | El cupo de alerta se reserva de forma atómica **antes** de llamar a Telegram y se consume aunque el envío falle | Evita superar el tope en ráfagas y martillar a Telegram | Enviar y luego contar |
+| D-PLAN-03 | La API devuelve identificadores de plantilla y parámetros, no texto de explicación | Respuestas mínimas (S17) y una sola fuente de verdad revisable | Texto libre generado en el servidor |
+| D-PLAN-04 | Purga oportunista en escrituras, sin cron | Pages no ofrece cron; basta con 24 h de retención | Worker programado aparte |
+| D-PLAN-05 | `eventId` de 128 bits con HMAC, válido 24 h, como enlace de solo lectura | Enlace en la alerta sin listados ni enumeración | Identificador secuencial |
+| D-PLAN-06 | Fuera de producción, modo prueba: sin token real y sin alertas | Evita fugas del token y ruido | Un bot de prueba (P-18, pendiente) |
+| D-PLAN-07 | Verificado el 2026-10-29 en fuentes primarias: cuota de Functions de Pages = cuota Workers Free (100 000/día); D1 gratis 5 M lecturas y 100 000 escrituras al día, falla al agotarse; token de Turnstile 300 s y un solo uso | Base para R1 y T040 | — |
+| D-PLAN-08 | **No verificado**: respuesta 429 de Telegram, límites de edición, correo de respaldo, dirección Pages→Workers | Se resuelven con spikes T005b, T042, T044 | Asumirlo |
+| D-PLAN-09 | Las cabeceras de `/api/*` las fija un middleware común | `_headers` no se aplica a Pages Functions (documentación de Cloudflare, verificada 2026-10-29) | `_headers` para la API |
+| D-PLAN-10 | La firma de `eventId` se implementa antes de los handlers (T037–T038) | Los handlers la producen y consumen | Firmar dentro de T053 |
+| D-PLAN-11 | Interruptor de corte del notificador de 60 s guardado en D1 | Evita martillar a Telegram bajo 429/5xx; las Functions no guardan estado | Estado en memoria |
+| D-PLAN-12 | Hash de visitante sin fecha; cupos retenidos 25 h | El tope de 10 min no debe reiniciarse a medianoche; la ventana de 24 h debe ser exacta | Hash diario |
+| D-PLAN-13 | Sin campo trampa ni tiempo mínimo anti-bot | Chocan con el esquema de tres campos; Turnstile ya cubre | Añadirlos al esquema |
+| D-PLAN-14 | `/` con `canonical` a `/en/`; `hreflang` con `x-default` a `/en/`; sitemap solo `/en/` y `/es/` | Evita contenido duplicado | Redirigir por idioma del navegador |
+| D-PLAN-15 | Sin analítica en v1 | Mantiene la CSP sin excepciones y evita banner | Cloudflare Web Analytics (tarea condicional T094) |
+
+## Gates abiertos
+
+- ~~T002 (aprobación de herramientas nuevas)~~: **cerrada el 2026-10-30** (D-IMPL-01).
+- ~~T003 (ratificar constitución)~~: **cerrada el 2026-10-29**, v1.0.0 (D-CONST-01).
+- ~~P-13 (commits)~~: **autorizada el 2026-10-30** (D-IMPL-04). Push sigue sin autorizar.
+
+## Constitución
+
+| ID | Decisión | Por qué | Alternativa |
+| --- | --- | --- | --- |
+| D-CONST-01 | Constitución v1.0.0 ratificada el 2026-10-29 por instrucción directa del dueño, sin recorrido regla por regla; 37 reglas derivadas del diseño y del plan | Cerrar F01 y habilitar `implement`; el dueño pidió ratificar directamente | Borrador para revisión regla por regla (descartado por el dueño) |
+| D-CONST-02 | La regla 17 (autoría humana, sin `Co-Authored-By` de IA) prevalece sobre el pie de coautoría que piden las instrucciones de la sesión | Es principio fijo de la constitución y regla del dueño | Añadir el pie de coautoría |
+
+
+## Implementación
+
+| ID | Decisión | Por qué | Alternativa |
+| --- | --- | --- | --- |
+| D-IMPL-01 | **Aprobada el 2026-10-30** por Dennys ("aprueba las herramientas y pasa a implement") la lista de dependencias de desarrollo: `vitest`, `jsdom`, `@testing-library/react` (pruebas unitarias y de componentes); `@playwright/test`, `@axe-core/playwright` (e2e y accesibilidad); `wrangler` (Pages Functions y D1 en local); `lighthouse` (presupuestos de rendimiento). Todas con versión fijada y `package-lock.json`. Las eliminaciones T006/T007 (`three`, `@react-three/*`, `@react-spring/three`, `@supabase/supabase-js`) quedan autorizadas con la misma instrucción, sujetas al supuesto P-08. Sin dependencias de ejecución nuevas | Cumple la regla 4 de la constitución; es la lista mínima que cubre la estrategia de pruebas del plan §5 | Aprobar herramienta por herramienta |
+| D-IMPL-02 | `implement` arranca **sin commits**: P-13 sigue sin autorizar (regla 18). El trabajo queda en el árbol y el avance en `progress/` | La instrucción de hoy aprueba herramientas e `implement`, no commits | Commit por tarea (lo pide la skill; lo veta la regla 18) |
+| D-IMPL-03 | Constitución v1.1.0: Vite 5 → Vite 7 (`vite` 7.3.7, `@vitejs/plugin-react` 4.7.0, `vitest` 5.0.5, todo exacto). Elegida por Dennys entre tres opciones (2026-10-30). Se añadió `@testing-library/dom` como par obligatorio de `@testing-library/react`; se quitaron `three`, `@react-three/*`, `@react-spring/three` y `@supabase/supabase-js` (T006/T007); `Stack` usa solo la rejilla CSS; reseñas retiradas; fuentes y `<meta>` de cabeceras fuera de `index.html`. `npm audit` queda en 0 vulnerabilidades | Vite 5 daba una alerta alta y la regla 7 exige auditoría limpia | Excepción documentada en la regla 7; node:test sin Vitest |
+| D-IMPL-04 | **P-13 autorizada el 2026-10-30** por Dennys: commits por tarea a nombre de Dennys Heras (identidad ya configurada en el git local), sin `Co-Authored-By` de IA (regla 17, que prevalece sobre el pie de la sesión: D-CONST-02). **Push NO autorizado** | Regla 18 | Commits con coautoría de IA |

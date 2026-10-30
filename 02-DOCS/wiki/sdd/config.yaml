@@ -1,0 +1,16 @@
+# Runtime de SDD para dennysh (escrito en T001, 2026-10-30)
+stack:
+  language: javascript
+  framework: react-18-vite-5
+  package_manager: npm
+  hosting: cloudflare-pages
+testing:
+  strict_tdd: true
+  commands:
+    apply: npm test
+    verify: bash scripts/verify.sh
+sdd:
+  review_budget: medium
+  registry_path: .rsc/skill-registry.json
+models:
+  enabled: false
