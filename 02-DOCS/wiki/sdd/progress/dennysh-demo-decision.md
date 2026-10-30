@@ -56,3 +56,9 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - green: 12 pruebas (3 escenarios, precedencia, vacío → Allow, fronteras 900 km/h, 10/60 s, [07:00, 20:00))
 - decision: horario laboral es [07:00, 20:00): las 20:00 exactas alertan (la spec dice "fuera de 07:00–20:00" sin precisar el borde); `localMinutes` desde medianoche
 - files: core/evaluate.js, tests/unit/evaluate.test.js
+
+## T014 — 2026-10-30
+- status: complete
+- red: la prueba pasó de entrada (el motor ya no lee atributos protegidos); se demostró que puede fallar con 3 mutantes (leen país, idioma, dispositivo) que sí la rompen
+- green: 3 pruebas; 500 casos × 5 variaciones con generador sembrado (sin dependencias nuevas)
+- files: tests/unit/fairness.test.js
