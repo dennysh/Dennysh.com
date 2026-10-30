@@ -117,3 +117,10 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - note: una prueba mía usaba `undefined` y el valor por defecto del parámetro la volvía JSON válido; la cambié a `null` sin tocar la implementación
 - decision: método ≠ POST → 405, tipo ≠ JSON → 415, cuerpo > 4 KB → 413, todo con `{code:"E_INPUT"}`; el resto 400
 - files: server/validation.js, tests/unit/validation.test.js
+
+## T030 + T031 + T032 — 2026-10-30
+- status: complete
+- evidence: `migrations/0001_init.sql` se aplica dos veces sin error sobre base vacía (3 pruebas); sin columnas de IP ni texto libre; restricciones CHECK: 3 intervenciones máx. y acciones cerradas
+- red: `npm test -- slots` → "Cannot find module server/store-d1.js"; green: 11 pruebas (tope 10 min, global 20 en ventana móvil de 24 h, 50 llamadas simultáneas: exactamente 20 reservadas / exactamente 1 por visitante, una sola sentencia INSERT condicional, StoreDown)
+- decision: el SQL de D1 se prueba con `node:sqlite` (D1 es SQLite) mediante un doble `tests/helpers/d1.js`; sin dependencias nuevas. No se probó contra `wrangler d1` local (necesita `workerd`; queda para el e2e)
+- files: migrations/0001_init.sql, server/store-d1.js, tests/helpers/d1.js, tests/unit/migrations.test.js, tests/unit/slots.test.js
