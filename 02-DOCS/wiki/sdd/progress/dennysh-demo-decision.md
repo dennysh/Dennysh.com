@@ -73,3 +73,11 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 ## Checkpoint — 2026-10-30
 - `bash scripts/verify.sh` → verify OK; 35 pruebas unitarias en verde
 - commits por tarea autorizados (D-IMPL-04); sin push
+
+## T017 + T018 — 2026-10-30
+- status: complete
+- red: `npm test -- explain` → "Cannot find module core/explain.js"
+- green: 13 pruebas; `NODE_ENV=production npm run test:static -- explain-review` sale 1 y nombra las 4 plantillas; en desarrollo sale 0
+- deviation: `explain(outcome, templates, lang, ctx)` lleva un 4.º argumento `ctx = {ruleset, signals}` porque los umbrales y valores observados salen de ahí; el contrato del plan §3 no lo traía
+- decision: las plantillas de `content/explanations/v1.json` son **borradores v0 míos, todas PendingReview**; Dennys las revisa en T090 (P-16). Marcadores `{observed.x}`/`{thresholds.x}` los sustituye el cliente
+- files: core/explain.js, content/explanations/v1.json, scripts/test-static.mjs, tests/unit/explain.test.js
