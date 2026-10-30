@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "rules": [
+    {
+      "id": "R-01",
+      "name": "viaje-imposible",
+      "version": "1.0.0",
+      "action": "Block",
+      "condition": { "type": "speed-above", "signal": "impliedSpeedKmh", "gt": 900 }
+    },
+    {
+      "id": "R-02",
+      "name": "intentos-en-rafaga",
+      "version": "1.0.0",
+      "action": "Limit",
+      "limitMinutes": 15,
+      "condition": { "type": "burst", "min": 10, "maxWindowSeconds": 60 }
+    },
+    {
+      "id": "R-03",
+      "name": "accion-privilegiada-fuera-de-horario",
+      "version": "1.0.0",
+      "action": "Alert",
+      "condition": { "type": "off-hours-export", "from": 420, "to": 1200 }
+    }
+  ]
+}

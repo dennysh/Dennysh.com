@@ -41,3 +41,11 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - red: `npm test` falló: no existía `scripts/lib/scan-secrets.mjs`; luego una prueba de falso positivo (`${VAR:?msg}`) falló por aserción
 - green: 6 pruebas en verde; `npm run test:static` → "92 archivos sin secretos"; `git check-ignore .env .dev.vars` imprime ambos
 - files: scripts/lib/scan-secrets.mjs, scripts/test-static.mjs, tests/unit/secret-scan.test.js, vitest.config.js, .env.example, .gitignore, carpetas core/ functions/api/ migrations/ content/ tests/
+
+## T010 + T011 — 2026-10-30
+- status: complete
+- red: `npm test -- ruleset` → "Cannot find module core/ruleset.js"
+- green: 7 pruebas; hash estable al invertir claves en profundidad y distinto al cambiar un umbral
+- note: una prueba mía estaba mal (el replacer de `JSON.stringify` actúa como lista blanca y borraba claves anidadas); corregí la prueba sin tocar la implementación ni relajar la aserción
+- decision: `loadRuleset` es asíncrona (Web Crypto, común a Node, Workers y navegador) y devuelve `{ok, ruleset|reason}`; condiciones en lista cerrada `speed-above | burst | off-hours-export`
+- files: core/ruleset.js, content/ruleset.v1.json, tests/unit/ruleset.test.js
