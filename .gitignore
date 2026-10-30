@@ -58,3 +58,9 @@ dist
 
 # secretos locales de Pages Functions
 .dev.vars
+
+# e2e y Wrangler locales
+dist-e2e
+.wrangler
+test-results
+playwright-report

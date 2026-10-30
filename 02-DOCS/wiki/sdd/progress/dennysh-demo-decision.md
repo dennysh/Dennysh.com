@@ -185,3 +185,18 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - decision: tipografía = pila del sistema (`system-ui`, `ui-monospace`), sin archivos de fuente: cumple "fuentes propias" con 0 bytes y sin dominios externos (T079 parcial; falta la dirección visual de T081). Estilos en variables (`src/styles/tokens.css`): dirección visual PROVISIONAL, oscuro por defecto y acento ámbar, hasta que Dennys elija
 - decision: `scripts/verify.sh` ahora construye antes de las comprobaciones estáticas (necesitan `dist/`)
 - note: los marcadores `pending` visibles en el sitio construido son 14 (P-04, P-06, P-09, P-22); el build de producción real exige que Dennys los autorice o los resuelva
+
+## T072–T074, T076–T079, T082 (interfaz y e2e) — 2026-10-30
+- status: complete, con la salvedad de que el estilo es PROVISIONAL (T081 la elige Dennys); T073, T079 y T082 se marcan hechas porque cumplen su done-check, no porque la dirección visual esté decidida
+- evidence: `npx playwright test` → mocked 24/24 y real 5/5 (29 en total):
+  - a11y: axe sin violaciones WCAG 2.2 AA en oscuro y claro, en `/en/`, `/es/` y `/en/privacy/`; `prefers-reduced-motion` muestra todo de golpe y sin animación; botones ≥ 44 px; teclado
+  - horas: `America/Guayaquil` muestra `02:41:17 (UTC-5)` junto a `07:41:17.402 UTC`
+  - tiempos: reproducción completa ≤ 30 s con cronología evento ~1 s / decisión ~6 s / alerta ~22 s; "Mostrar todo" ≤ 2,5 s; `aria-live` anuncia exactamente 4 cambios
+  - cliente: recarga restaura, registro caducado dice "El registro expiró", Turnstile bloqueado muestra aviso y ejemplo estático etiquetado, chips envían el escenario, doble clic = 1 evento
+  - AC-01: 360×640 muestra tesis, resumen y botón sin desplazarse (**falló primero**; arreglado compactando cabecera móvil y acortando las líneas del resumen)
+  - pila real (`wrangler pages dev` + D1 local + Turnstile real con clave de prueba): tres escenarios → tres decisiones; tope por visitante (Grouped); Anular/Escalar/Aprobar hasta 3 y 409 a la cuarta; 404 uniforme; recarga restaura; ninguna cookie, solo estáticos + Turnstile + `/api` con cuerpo permitido, sin violaciones de CSP
+- note (honestidad): las pruebas e2e se escribieron después de los componentes (no rojo→verde); su sensibilidad quedó demostrada porque AC-01 falló de verdad
+- note: el envío a Telegram en e2e usa un token INVÁLIDO de prueba, así que hay una llamada real a `api.telegram.org` que responde error; es lo que prueba que "Entregada" no se afirma sin confirmación
+- note (entorno): Chromium necesitaba librerías del sistema que faltaban y no hay `sudo`; las descargué con `apt-get download` y las extraje FUERA del repo (carpeta temporal de la sesión) usando `LD_LIBRARY_PATH`. En otra máquina basta `npx playwright install-deps`. La carpeta temporal no persiste
+- decision: `npm run test:e2e` construye `dist-e2e` con la clave pública de prueba de Turnstile (`1x00000000000000000000AA`) y arranca vista previa estática + `wrangler pages dev` con enlaces de prueba; nada de eso es un secreto. `wrangler.jsonc` trae `database_id` marcador: lo rellena Dennys en T063
+- files: playwright.config.js, tests/e2e/*.spec.js, tests/e2e/helpers.js, wrangler.jsonc, scripts/prerender.mjs (OUT_DIR), src/styles/*, src/content/site.js

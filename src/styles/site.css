@@ -77,3 +77,20 @@ section.block > .wrap > h2 { margin: 0 0 var(--space-3); font-size: clamp(1.5rem
 footer.site { border-top: 1px solid var(--line); padding-block: var(--space-5); color: var(--muted); }
 footer.site .wrap { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); justify-content: space-between; }
 footer.site a { color: var(--muted); }
+
+@media (max-width: 600px) {
+  .topbar .wrap { min-height: 0; gap: 0 var(--space-3); padding-block: var(--space-1); }
+  .topbar nav { order: 3; width: 100%; overflow-x: auto; }
+  .topbar nav ul { flex-wrap: nowrap; white-space: nowrap; gap: var(--space-4); }
+  .topbar nav a { padding: var(--space-1) 0; }
+  .hero { padding-block: var(--space-4) var(--space-5); }
+  .hero h1 { font-size: 1.4rem; margin-bottom: var(--space-2); }
+  .who { font-size: .85rem; margin-bottom: var(--space-3); }
+  .who span + span::before { margin-right: var(--space-2); }
+  .who { gap: 0 var(--space-2); }
+  .cta { margin-bottom: var(--space-3); gap: var(--space-2); }
+  .cta .btn { padding: 0 var(--space-4); }
+  .summary { padding: var(--space-3); }
+  .summary ol { padding-left: 1.1rem; font-size: .85rem; line-height: 1.35; }
+  .summary li { margin: 2px 0; }
+}

@@ -6,7 +6,7 @@ import { createServer } from 'vite'
 import { site } from '../src/content/site.js'
 import { headHtml, llmsTxt, resumeJson, robotsTxt, sitemapXml } from './lib/machine.mjs'
 
-const DIST = 'dist'
+const DIST = process.env.OUT_DIR ?? 'dist'
 const template = readFileSync(join(DIST, 'index.html'), 'utf8')
 const write = (rel, text) => {
   const f = join(DIST, rel)

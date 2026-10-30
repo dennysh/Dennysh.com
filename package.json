@@ -7,9 +7,10 @@
     "build": "vite build && node scripts/prerender.mjs",
     "preview": "vite preview",
     "test": "vitest run --passWithNoTests",
-    "test:e2e": "playwright test --pass-with-no-tests",
+    "test:e2e": "npm run build:e2e && playwright test",
     "test:static": "node scripts/test-static.mjs",
-    "verify": "bash scripts/verify.sh"
+    "verify": "bash scripts/verify.sh",
+    "build:e2e": "VITE_TURNSTILE_SITEKEY=1x00000000000000000000AA OUT_DIR=dist-e2e vite build --outDir dist-e2e && OUT_DIR=dist-e2e node scripts/prerender.mjs"
   },
   "dependencies": {
     "react": "^18.2.0",
