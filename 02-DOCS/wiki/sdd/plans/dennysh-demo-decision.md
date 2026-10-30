@@ -330,8 +330,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T007 | ✅ | Retirar Supabase (supuesto P-08): `src/lib/supabase.js`, secciones de reseñas, `@supabase/supabase-js` y toda referencia a `VITE_SUPABASE_*`. Si Dennys decide conservarlo, esta tarea se convierte en "verificar RLS" (spec S4) | `npm ls @supabase/supabase-js` vacío; `grep -R "supabase\|VITE_SUPABASE" src index.html` vacío; el build no contiene la URL de Supabase | T004 | S4, S20, P-08 |
 | T010 | ✅ | (prueba) Esquema y carga del ruleset: rechaza campos desconocidos; hash canónico estable | `npm test -- ruleset` falla: no existe el cargador | T005 | spec §5.3, AC-24 |
 | T011 | ✅ | Implementar `content/ruleset.v1.json` (R-01..R-03 con umbrales de spec §5.3) y `core.loadRuleset` | T010 en verde; el hash no cambia al reordenar claves | T010 | spec §5.3 |
-| T012 | | (prueba) `core.evaluate`: A→Limitar, B→Bloquear, C→Alertar; precedencia; ninguna regla → Permitir | `npm test -- evaluate` falla | T011 | AC-04, AC-20 |
-| T013 | | Implementar `core.evaluate` | T012 en verde | T012 | AC-04, AC-20 |
+| T012 | ✅ | (prueba) `core.evaluate`: A→Limitar, B→Bloquear, C→Alertar; precedencia; ninguna regla → Permitir | `npm test -- evaluate` falla | T011 | AC-04, AC-20 |
+| T013 | ✅ | Implementar `core.evaluate` | T012 en verde | T012 | AC-04, AC-20 |
 | T014 | | (prueba de propiedad) Equidad: cambiar nombre, país, idioma, dispositivo y género sintéticos no cambia `Outcome` | `npm test -- fairness` falla o, si ya pasa, se demuestra con un mutante que lee `country` y hace fallar la prueba | T013 | AC-14 |
 | T015 | | (prueba) Generador de escenarios: tres escenarios, IP de rangos de documentación, determinista con rng sembrado | `npm test -- scenarios` falla | T011 | spec §5.3 |
 | T016 | | Implementar `core.scenario` | T015 en verde | T015 | spec §5.3 |

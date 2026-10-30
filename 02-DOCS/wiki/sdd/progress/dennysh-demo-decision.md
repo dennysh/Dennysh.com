@@ -49,3 +49,10 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - note: una prueba mía estaba mal (el replacer de `JSON.stringify` actúa como lista blanca y borraba claves anidadas); corregí la prueba sin tocar la implementación ni relajar la aserción
 - decision: `loadRuleset` es asíncrona (Web Crypto, común a Node, Workers y navegador) y devuelve `{ok, ruleset|reason}`; condiciones en lista cerrada `speed-above | burst | off-hours-export`
 - files: core/ruleset.js, content/ruleset.v1.json, tests/unit/ruleset.test.js
+
+## T012 + T013 — 2026-10-30
+- status: complete
+- red: `npm test -- evaluate` → "Cannot find module core/evaluate.js"
+- green: 12 pruebas (3 escenarios, precedencia, vacío → Allow, fronteras 900 km/h, 10/60 s, [07:00, 20:00))
+- decision: horario laboral es [07:00, 20:00): las 20:00 exactas alertan (la spec dice "fuera de 07:00–20:00" sin precisar el borde); `localMinutes` desde medianoche
+- files: core/evaluate.js, tests/unit/evaluate.test.js
