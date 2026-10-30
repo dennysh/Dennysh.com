@@ -17,7 +17,7 @@ describe('capa de máquinas (AC-15, AC-33)', () => {
   const page = (lang, canonical) => `<html>${headHtml({ lang, path: `/${lang}/`, canonical, title: 't', description: 'd', withAlternates: true, ld: true })}</html>`
   const files = {
     'index.html': page('en', '/en/'), 'en/index.html': page('en', '/en/'), 'es/index.html': page('es', '/es/'),
-    'llms.txt': llmsTxt(), 'dennys.json': JSON.stringify({ basics: { email: 'dennys14_hq@hotmail.com' } }),
+    'llms.txt': llmsTxt(), 'dennys.json': JSON.stringify({ basics: { email: 'dennys@dennysh.com' } }),
     'robots.txt': 'Sitemap: https://dennysh.com/sitemap.xml', 'sitemap.xml': sitemapXml(),
   }
   it('pasa con los archivos generados', () => expect(checkMachine(reader(files))).toEqual([]))

@@ -20,7 +20,7 @@ export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-09', 'P-22']
 
 export const unauthorized = (list, authorized = AUTHORIZED_PENDING) => list.filter((p) => !authorized.includes(p.id))
 
-const EMAIL = 'dennys14_hq@hotmail.com'
+const EMAIL = 'dennys@dennysh.com'
 const LINKEDIN = 'https://www.linkedin.com/in/dennys-heras-27b0b520b/'
 const GITHUB = 'https://github.com/dennysh'
 
@@ -45,7 +45,7 @@ export const site = {
         'Comes from 7 years in fiber-optic networks, where things have to work in the field.',
         'In production: a Telegram bot for ISP technicians that finds the nearest network box, and a football-championships platform.',
         'Works with AI coding agents under limits, with automatic review and human checks.',
-        'Contact: dennys14_hq@hotmail.com, LinkedIn and GitHub (dennysh).',
+        'Contact: dennys@dennysh.com, LinkedIn and GitHub (dennysh).',
       ],
     },
     demo: {
@@ -151,7 +151,7 @@ export const site = {
         'Viene de 7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.',
         'En producción: un bot de Telegram para técnicos de ISP que encuentra la caja de red más cercana, y una plataforma de campeonatos de fútbol.',
         'Trabaja con agentes de IA que programan, bajo límites, con revisión automática y verificación humana.',
-        'Contacto: dennys14_hq@hotmail.com, LinkedIn y GitHub (dennysh).',
+        'Contacto: dennys@dennysh.com, LinkedIn y GitHub (dennysh).',
       ],
     },
     demo: {

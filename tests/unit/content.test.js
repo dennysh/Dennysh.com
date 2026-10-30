@@ -64,9 +64,17 @@ describe('contenido bilingüe (spec §3, §9)', () => {
     expect(en).toMatch(/used internally at the company/i); expect(es).toMatch(/se usa internamente en la empresa/i)
   })
   it('contacto verificado en archivo', () => {
-    expect(links.emailAddress).toBe('dennys14_hq@hotmail.com')
+    expect(links.emailAddress).toBe('dennys@dennysh.com')
     expect(links.linkedin).toContain('dennys-heras-27b0b520b')
     expect(links.github).toBe('https://github.com/dennysh')
+  })
+  it('el correo público es dennys@dennysh.com en todas partes; el Hotmail no se publica', async () => {
+    const { jsonLd, llmsTxt, resumeJson } = await import('../../scripts/lib/machine.mjs')
+    const everything = [JSON.stringify(site), llmsTxt(), JSON.stringify(resumeJson()), JSON.stringify(jsonLd('en')), JSON.stringify(jsonLd('es'))].join(' ')
+    expect(everything).toContain('dennys@dennysh.com')
+    expect(everything).not.toMatch(/hotmail/i)
+    expect(links.email).toBe('mailto:dennys@dennysh.com')
+    expect(site.en.hero.summary[4]).toContain('dennys@dennysh.com'); expect(site.es.hero.summary[4]).toContain('dennys@dennysh.com')
   })
   it('los enlaces a repos solo apuntan a github.com/dennysh', () => {
     for (const it of site.en.work.items) if (typeof it.repo === 'string') expect(it.repo).toMatch(/^https:\/\/github\.com\/dennysh\//)
