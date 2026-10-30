@@ -10,3 +10,12 @@
 
 ## harness/
 - [Perfil](harness/user-profile.md) · [Decisiones](harness/decisions.md) · [Plan de instalación](harness/installation-plan.md)
+
+## Implementación (SDD) — 2026-10-30
+
+| Qué | Dónde |
+| --- | --- |
+| Avance de `implement` (evidencia por tarea) | `sdd/progress/dennysh-demo-decision.md` |
+| Runbooks para Dennys (Cloudflare, Telegram, lista previa) | `sdd/runbooks/` |
+| Propuesta de dirección visual con capturas | `../../docs/design/design-direction.md` |
+| Propuesta de limpieza de documentos sueltos | `propuesta-limpieza-documentos.md` |

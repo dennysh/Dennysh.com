@@ -37,7 +37,10 @@ function secrets() {
   const patch = execFileSync('git', ['log', '-p', '--all', '--no-color'], { encoding: 'utf8', maxBuffer: 512 * 1024 * 1024 })
   const hist = scanPatchAdditions(patch)
   for (const h of hist) console.error(`SECRETO? en el historial: ${h.file} (${h.rule})`)
-  const ok = !hits.length && !vite.length && !hist.length
+  // AC-22: el build no lleva nombres de variables secretas del servidor (ni token ni claves).
+  const leaks = walk('dist').filter((f) => /\.(html|js|css|json|txt)$/.test(f)).filter((f) => /TELEGRAM_BOT_TOKEN|TURNSTILE_SECRET|HMAC_KEY/.test(readFileSync(f, 'utf8')))
+  for (const f of leaks) console.error(`SECRETO? nombre de variable secreta en ${f}`)
+  const ok = !hits.length && !vite.length && !hist.length && !leaks.length
   if (ok) console.log(`secrets OK — ${files.length} archivos, variables VITE_* y historial sin secretos`)
   return ok
 }

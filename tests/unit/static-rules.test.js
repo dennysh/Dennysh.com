@@ -25,6 +25,25 @@ describe('headers (T060, AC-13, S18)', () => {
   ])('falla %s', (_n, mutate) => {
     expect(checkHeadersFile(mutate(renderHeadersFile())).length).toBeGreaterThan(0)
   })
+  describe('cabeceras debilitadas (revisión T092)', () => {
+    const swap = (from, to) => (t) => t.replace(from, to)
+    const csp = (value) => (t) => t.replace(/ {2}Content-Security-Policy:.*\n/, `  Content-Security-Policy: ${value}\n`)
+    it.each([
+      ['default-src comodín', csp("default-src *; frame-ancestors 'none'; object-src 'none'; font-src 'self'")],
+      ['script-src https: genérico', csp("default-src 'self'; script-src https: data:; frame-ancestors 'none'; object-src 'none'; font-src 'self'")],
+      ['script-src con data:', csp("default-src 'self'; script-src 'self' data:; frame-ancestors 'none'; object-src 'none'; font-src 'self'")],
+      ['HSTS max-age=0', swap('max-age=31536000', 'max-age=0')],
+      ['HSTS de un día', swap('max-age=31536000', 'max-age=86400')],
+      ['Referrer-Policy unsafe-url', swap('strict-origin-when-cross-origin', 'unsafe-url')],
+      ['Permissions-Policy con comodín', swap('camera=()', 'camera=*')],
+      ['COOP distinto de same-origin', swap('Cross-Origin-Opener-Policy: same-origin', 'Cross-Origin-Opener-Policy: unsafe-none')],
+      ['un bloque /demo/* que redefine la CSP', (t) => `${t}/demo/*\n  Content-Security-Policy: default-src * 'unsafe-inline'\n`],
+      ['el bloque /api/* redefine la CSP', (t) => t.replace('/api/*\n', "/api/*\n  Content-Security-Policy: default-src *\n")],
+    ])('falla: %s', (_n, mutate) => {
+      expect(checkHeadersFile(mutate(renderHeadersFile())).length).toBeGreaterThan(0)
+    })
+  })
+
   it('la CSP no depende de dominios de fuentes externos', () => {
     expect(renderHeadersFile()).not.toMatch(/fonts\.(googleapis|gstatic)/)
   })

@@ -39,4 +39,30 @@ describe('scanText', () => {
     expect(scanText('x.js', "TELEGRAM_BOT_TOKEN=123456789:AAH-abcdefghijklmnopqrstuvwxyz0123456").length).toBeGreaterThan(0)
     expect(scanText('x.js', "TURNSTILE_SECRET=0x4AAAAAAAreal-secret-value").length).toBeGreaterThan(0)
   })
+
+  describe('falsos negativos conocidos (revisión T092)', () => {
+    const must = {
+      'JSON con la clave entre comillas': '{"TELEGRAM_BOT_TOKEN": "abc123secretvalue"}',
+      'token dentro de la URL de la API': 'fetch("https://api.telegram.org/bot123456789:AAHabcdefghijklmnopqrstuvwxyz0123456/sendMessage")',
+      'minúsculas y camelCase': 'const apiKey = "sk_live_abcdefghijklmnopqrstuvwx"',
+      'clave AWS': 'aws = "AKIAIOSFODNN7EXAMPLE"',
+      'token de GitHub': 'GH=ghp_abcdefghijklmnopqrstuvwxyz0123456789',
+      'clave HMAC en variable de entorno': 'EVENT_HMAC_KEY=deadbeefdeadbeefdeadbeef',
+      'cabecera Bearer': 'Authorization: Bearer abcdefghijklmnopqrstuvwxyz012345',
+      'valor de prueba con sufijo real pegado': 'TURNSTILE_SECRET=1x0000000000000000000000000000000AAreal',
+    }
+    for (const [name, line] of Object.entries(must)) {
+      it(`detecta: ${name}`, () => expect(scanText('x.js', line).length).toBeGreaterThan(0))
+    }
+    const mustNot = [
+      'turnstileToken: "t"',
+      "const token = await getToken()",
+      "const token = 'x'.repeat(2049)",
+      "TELEGRAM_BOT_TOKEN=",
+      "'TELEGRAM_BOT_TOKEN=000000000:e2e-token-invalido-no-existe-000000000',",
+      "apiKey: process.env.KEY",
+      "const bearer = 'Bearer'",
+    ]
+    for (const line of mustNot) it(`no marca: ${line}`, () => expect(scanText('x.js', line)).toEqual([]))
+  })
 })

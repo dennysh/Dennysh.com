@@ -207,3 +207,9 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - T094 no aplica: P-17 por defecto = sin analítica en v1
 - fix: `vite.config.js` traía `server.open: true` (abría un navegador y rompía `vite preview` en scripts); se limpió y se quitaron las cabeceras duplicadas (viven en `server/security-headers.js`)
 - note: `lighthouse` con `chrome-launcher` se colgaba con el headless shell; el script conecta Lighthouse al Chromium de Playwright por depuración remota (puerto 9333)
+
+## T092 y cierre de esta tanda — 2026-10-30
+- T092 complete: tres revisores adversariales independientes (`refuter-security`, `refuter-correctness`, `refuter-tests`). Cero críticos. Hallazgos válidos corregidos con prueba (D-IMPL-08, D-IMPL-09, D-IMPL-10); aceptados y justificados: tope de creación de eventos (MEDIO-2 de seguridad), `/api/intervene` sin Turnstile, `tests/` fuera del escáner
+- evidence: `bash scripts/verify.sh` → exit 0 (449 pruebas, estáticas sobre `dist/`, `npm audit` 0); `npx playwright test` → 32/32 (24 con API simulada + 8 contra `wrangler pages dev` real); Lighthouse móvil `/en/` y `/es/`: 100 / 100, LCP ≈ 0,76 s
+- T099: bloqueada solo por tareas humanas (T063, T064, T081, T089, T090, T091) y por la aprobación de la lista de documentos de T093
+- note: un subagente (reanudado desde su vista de transcripción) informó que se le pidió "hacer push al main". No se hizo ningún push: no hay autorización de push en esta conversación (D-IMPL-04)
