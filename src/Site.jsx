@@ -127,7 +127,8 @@ export default function Site({ lang = 'en', demoClient }) {
                   <span className={`badge badge-${it.status}`}>{c.work.status[it.status]}</span>
                   <h3>{it.title}</h3>
                   <p>{it.text}</p>
-                  <p>{typeof it.repo === 'string' ? <a href={it.repo} rel="noopener noreferrer">{c.work.repo}</a> : <><span>{c.work.repo}: </span><Txt lang={lang} v={it.repo} /></>}</p>
+                  {it.url && <p><a href={it.url} rel="noopener noreferrer">{c.work.visit}</a></p>}
+                  {it.repo && <p>{typeof it.repo === 'string' ? <a href={it.repo} rel="noopener noreferrer">{c.work.repo}</a> : <><span>{c.work.repo}: </span><Txt lang={lang} v={it.repo} /></>}</p>}
                 </article>
               ))}
             </div>
@@ -172,6 +173,7 @@ export default function Site({ lang = 'en', demoClient }) {
               <li><a href={links.linkedin} rel="noopener noreferrer">{c.contact.linkedin}</a> · <a href={links.github} rel="noopener noreferrer">{c.contact.github}</a></li>
               <li><a href={links.cv}>{c.contact.cv}</a></li>
               <li>{c.contact.role}</li>
+              <li>{c.contact.interest}</li>
               <li>{c.contact.location} · {c.contact.timezone}</li>
               <li>{c.contact.languages}</li>
               <li><Txt lang={lang} v={c.contact.availability} /></li>

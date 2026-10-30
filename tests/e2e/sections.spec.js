@@ -39,7 +39,7 @@ test('con JavaScript desactivado el contenido y el ejemplo estático son legible
   const ctx = await browser.newContext({ javaScriptEnabled: false })
   const page = await ctx.newPage()
   await page.goto('http://localhost:4173/en/')
-  await expect(page.locator('h1')).toContainText('Automation that decides')
+  await expect(page.locator('h1')).toContainText('I build AI systems that explain themselves')
   await expect(page.locator('#summary li')).toHaveCount(5)
   await expect(page.getByTestId('static-example')).toContainText('not a real send')
   await ctx.close()

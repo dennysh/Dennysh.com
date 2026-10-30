@@ -61,7 +61,6 @@ section.block > .wrap > h2 { margin: 0 0 var(--space-3); font-size: clamp(1.5rem
 .badge { display: inline-block; justify-self: start; font-size: .78rem; padding: 2px var(--space-3); border-radius: 999px; border: 1px solid var(--line); }
 .badge-production { border-color: var(--ok); color: var(--ok); }
 .badge-development { border-color: var(--warn); color: var(--warn); }
-.badge-exploration { color: var(--muted); }
 
 .skill-groups { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
 .skill-groups h3 { margin: 0 0 var(--space-2); font-size: 1rem; }

@@ -26,16 +26,42 @@ describe('contenido bilingüe (spec §3, §9)', () => {
     expect(all).not.toMatch(/\b\d+\s?%/)
     expect(all).not.toMatch(/clientes? (satisfech|reales)|years of experience in AI/i)
   })
-  it('el único dato numérico personal es "siete años" de fibra óptica (verificado en archivo)', () => {
+  it('los únicos números son los 7 años de fibra óptica y el año 2025 del bot (verificados por Dennys)', () => {
     const digits = walk(site).join(' ').match(/\b\d{1,4}\b/g) ?? []
-    expect(digits.filter((d) => !['2026', '5', '27'].includes(d))).toEqual([])
+    expect(digits.filter((d) => !['2026', '2025', '5', '7', '27'].includes(d))).toEqual([])
   })
   it('cada estado de trabajo existe en la tabla de estados', () => {
     for (const lang of ['en', 'es']) for (const it of site[lang].work.items) expect(Object.keys(site[lang].work.status)).toContain(it.status)
   })
-  it('la jerarquía es honesta: el bot en producción es el único en producción', () => {
-    const prod = site.en.work.items.filter((i) => i.status === 'production')
-    expect(prod.map((i) => i.id)).toEqual(['caja-cercana'])
+  it('cada trabajo es "en producción" o "en desarrollo", nada más (encargo 2026-10-30)', () => {
+    for (const lang of ['en', 'es']) {
+      expect(Object.keys(site[lang].work.status).sort()).toEqual(['development', 'production'])
+      for (const it of site[lang].work.items) expect(['production', 'development']).toContain(it.status)
+    }
+    const prod = site.en.work.items.filter((i) => i.status === 'production').map((i) => i.id)
+    expect(prod).toEqual(['caja-cercana', 'super-gol-kids'])
+    expect(site.en.work.items.find((i) => i.id === 'naunturia').status).toBe('development')
+  })
+  it('Super Gol Kids: en producción, enlace al sitio público del cliente, sin cifras ni correos; Naunturia sin enlace', () => {
+    for (const lang of ['en', 'es']) {
+      const sg = site[lang].work.items.find((i) => i.id === 'super-gol-kids')
+      const nu = site[lang].work.items.find((i) => i.id === 'naunturia')
+      expect(sg.url).toBe('https://www.supergolkids.com/')
+      expect(sg.text).toMatch(lang === 'es' ? /campeonatos de fútbol infantil/i : /children'?s football championships/i)
+      expect(JSON.stringify(sg)).not.toMatch(/@|\d/)
+      expect(nu.url).toBeUndefined(); expect(nu.repo).toBeUndefined()
+      expect(JSON.stringify(nu)).not.toMatch(/https?:|@/)
+    }
+  })
+  it('la página del ingeniero (sin confirmar) no aparece en ninguna parte', () => {
+    expect(walk(site).join(' ')).not.toMatch(/ingenier[oa]|engineer'?s page/i)
+  })
+  it('el bot: redacción acordada (P-05 cerrada), sin empleador ni cifras', () => {
+    const en = site.en.work.items.find((i) => i.id === 'caja-cercana').text
+    const es = site.es.work.items.find((i) => i.id === 'caja-cercana').text
+    expect(en).toMatch(/2025/); expect(es).toMatch(/2025/)
+    expect(en).toMatch(/nearest network box/i); expect(es).toMatch(/caja de red más cercana/i)
+    expect(en).toMatch(/used internally at the company/i); expect(es).toMatch(/se usa internamente en la empresa/i)
   })
   it('contacto verificado en archivo', () => {
     expect(links.emailAddress).toBe('dennys14_hq@hotmail.com')
@@ -47,28 +73,66 @@ describe('contenido bilingüe (spec §3, §9)', () => {
   })
 })
 
-describe('rol buscado (P-09, respuesta de Dennys 2026-10-30)', () => {
-  it('es una frase honesta de interés, en los dos idiomas, sin marcador', () => {
+describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
+  it('titular: sistemas con IA que se explican y se auditan, en los dos idiomas', () => {
+    expect(site.es.hero.thesis).toBe('Construyo sistemas con IA que se explican y se auditan.')
+    expect(site.en.hero.thesis).toBe('I build AI systems that explain themselves and can be audited.')
+  })
+  it('una sola línea de origen bajo el titular: 7 años de fibra óptica, en campo; la fibra no es una etiqueta', () => {
+    for (const lang of ['es', 'en']) {
+      const who = site[lang].hero.who
+      expect(who).toHaveLength(1)
+      expect(who[0]).toMatch(lang === 'es' ? /7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo/ : /7 years in fiber-optic networks, where things have to work in the field/)
+    }
+  })
+  it('nada de técnico de telecomunicaciones ni de tono visionario fuera de Contacto', () => {
+    for (const lang of ['es', 'en']) {
+      const { contact, ...rest } = site[lang]
+      const all = walk(rest).join(' ')
+      expect(all).not.toMatch(/técnic[oa] de telecom|telecom(munications)? technician|ingeniero de telecom/i)
+      expect(all).not.toMatch(/cerebro|brain|\bvisión\b|\bvision(ary)?\b/i)
+      expect(all).not.toMatch(/world-class|revolution|revolucion|cutting-edge|vanguardia|futuro de la|future of/i)
+    }
+  })
+  it('Hero, resumen, JSON-LD, dennys.json y llms.txt dicen lo mismo (mismo enunciado de origen y de IA)', async () => {
+    const { jsonLd, llmsTxt, resumeJson } = await import('../../scripts/lib/machine.mjs')
+    const en = site.en
+    expect(JSON.stringify(jsonLd('en'))).toContain(en.hero.summary[0])
+    expect(JSON.stringify(jsonLd('es'))).toContain(site.es.hero.summary[0])
+    expect(llmsTxt()).toContain(en.hero.summary[0])
+    expect(llmsTxt()).toContain(en.hero.who[0])
+    expect(resumeJson().basics.summary).toContain(en.hero.summary[0])
+    expect(resumeJson().basics.summary).toContain(en.hero.who[0])
+    for (const out of [llmsTxt(), JSON.stringify(resumeJson()), JSON.stringify(jsonLd('en')), JSON.stringify(jsonLd('es'))]) {
+      expect(out).not.toMatch(/1[,.]?719|Ecuador|brain|cerebro|Automation that decides|Automatización que decide/i)
+    }
+    expect(llmsTxt()).toContain('https://www.supergolkids.com/')
+    expect(resumeJson().projects.map((p) => p.name).join(' ')).toMatch(/Super Gol Kids/)
+    expect(resumeJson().projects.map((p) => p.name).join(' ')).toMatch(/Naunturia/)
+  })
+  it('la frase IA y cerebro solo vive en Contacto, corta, como interés', () => {
+    for (const lang of ['es', 'en']) {
+      const { contact, ...rest } = site[lang]
+      expect(walk(rest).join(' ')).not.toMatch(/cerebro|brain/i)
+      const i = contact.interest
+      expect(i).toMatch(/cerebro|brain/i)
+      expect(i).toMatch(lang === 'es' ? /interés/i : /interest/i)
+      expect(i.length).toBeLessThan(120)
+      expect(contact.role).not.toMatch(/cerebro|brain/i)
+    }
+  })
+  it('el rol buscado es una frase honesta de interés, sin marcador', () => {
     for (const lang of ['es', 'en']) {
       const r = site[lang].contact.role
       expect(typeof r).toBe('string')
       expect(r).toMatch(lang === 'es' ? /inteligencia artificial/i : /artificial intelligence/i)
       expect(r).toMatch(lang === 'es' ? /control humano/i : /human control/i)
-      expect(r).toMatch(lang === 'es' ? /largo plazo/i : /long term|long-term/i)
-      expect(r).toMatch(/cerebro|brain/i)
     }
   })
   it('la visión de IA y cerebro se presenta como interés, nunca como capacidad demostrada', () => {
     for (const lang of ['es', 'en']) {
       const all = walk(site[lang]).join(' ')
       expect(all).not.toMatch(/(constru[ií]|desarroll[eé]|logr[eé]|demostr|built|developed|achieved|proved|demonstrated)[^.]*(cerebro|brain|neuro)/i)
-    }
-  })
-  it('el Hero lleva la primera frase (sin la visión de largo plazo, para que quepa en móvil)', () => {
-    for (const lang of ['es', 'en']) {
-      const who = site[lang].hero.who
-      expect(typeof who[0]).toBe('string')
-      expect(who[0]).not.toMatch(/cerebro|brain/i)
     }
   })
   it('ubicación, idiomas y zona horaria son datos confirmados por Dennys (2026-10-30); solo la disponibilidad sigue pendiente', () => {

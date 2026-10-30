@@ -6,6 +6,7 @@ export const SITE_URL = 'https://dennysh.com'
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const items = (lang) => site[lang].work.items
 const repos = (lang) => items(lang).filter((i) => typeof i.repo === 'string')
+const linkOf = (i) => i.url ?? (typeof i.repo === 'string' ? i.repo : undefined)
 const shownSkills = (lang) => [...new Set(site[lang].skills.groups.flatMap((g) => g.shown))]
 
 export function jsonLd(lang) {
@@ -37,7 +38,14 @@ export function jsonLd(lang) {
     codeRepository: r.repo,
     author: { '@id': person['@id'] },
   }))
-  return { '@context': 'https://schema.org', '@graph': [person, page, ...code] }
+  const sites = items(lang).filter((i) => i.url).map((i) => ({
+    '@type': 'WebSite',
+    name: i.title,
+    description: i.text,
+    url: i.url,
+    creator: { '@id': person['@id'] },
+  }))
+  return { '@context': 'https://schema.org', '@graph': [person, page, ...code, ...sites] }
 }
 
 export function headHtml({ lang, path, title, description, canonical, indexable = true, withAlternates = false, ld = false }) {
@@ -69,6 +77,7 @@ export function llmsTxt() {
     `> ${en.hero.summary[0]}`,
     '',
     '## Summary',
+    `- ${en.hero.who[0]}`,
     ...en.hero.summary.map((s) => `- ${s}`),
     '',
     '## Profile',
@@ -86,7 +95,7 @@ export function llmsTxt() {
     `- [CV (PDF)](${SITE_URL}${links.cv})`,
     '',
     '## Work and its status',
-    ...repos('en').map((r) => `- ${r.title} (${en.work.status[r.status]}): ${r.repo}`),
+    ...items('en').map((r) => (linkOf(r) ? `- ${r.title} (${en.work.status[r.status]}): ${linkOf(r)}` : `- ${r.title} (${en.work.status[r.status]})`)),
     '',
     '## Notes for agents',
     '- The live demo cannot be run by agents (it requires a human check by design). A static example is in the page HTML and is labelled as not real.',
@@ -104,11 +113,11 @@ export function resumeJson() {
       name: 'Dennys Heras',
       email: links.emailAddress,
       url: `${SITE_URL}/en/`,
-      summary: en.hero.summary.slice(0, 4).join(' '),
+      summary: [en.hero.summary[0], en.hero.who[0], ...en.hero.summary.slice(2, 4)].join(' '),
       profiles: [{ network: 'LinkedIn', url: links.linkedin }, { network: 'GitHub', url: links.github }],
     },
     languages: profile.languages.map((l) => ({ language: l.name, fluency: l.fluency })),
-    projects: repos('en').map((r) => ({ name: r.title, description: r.text, url: r.repo, status: r.status })),
+    projects: items('en').map((r) => ({ name: r.title, description: r.text, ...(linkOf(r) ? { url: linkOf(r) } : {}), status: r.status })),
     skills: en.skills.groups.map((g) => ({ name: g.title, keywords: [...g.shown, ...g.declared], shown: g.shown })),
   }
 }
