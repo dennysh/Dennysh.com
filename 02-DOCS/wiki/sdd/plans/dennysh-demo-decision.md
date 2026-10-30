@@ -369,8 +369,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T055 | ✅ | Ajustar respuestas hasta cumplir la lista blanca | T054 en verde | T054 | S17 |
 | T056 | ✅ | (prueba) Hash de visitante: HMAC sin fecha, estable durante 24 h (el tope de 10 min no se reinicia a medianoche), IP en claro nunca llega a la base | `npm test -- visitor-hash` falla | T030 | AC-17, AC-32, D-05 |
 | T057 | ✅ | Implementar `visitorHash` | T056 en verde | T056 | D-05 |
-| T058 | | (prueba) Fallo inyectado: D1, Telegram y correo caídos; la demo sigue o cierra seguro y lo dice | `npm test -- degrade` falla | T049 | D-06, K1 |
-| T059 | | Ajustar manejo de fallos hasta cumplir T058 | T058 en verde | T058 | D-06 |
+| T058 | ✅ | (prueba) Fallo inyectado: D1, Telegram y correo caídos; la demo sigue o cierra seguro y lo dice | `npm test -- degrade` falla | T049 | D-06, K1 |
+| T059 | ✅ | Ajustar manejo de fallos hasta cumplir T058 | T058 en verde | T058 | D-06 |
 | T067 | ✅ | (prueba) Interruptor de corte: tras 429, 5xx o vencimiento se abre 60 s; con el interruptor abierto no se llama a Telegram y el estado es `Paused`; se cierra al vencer | `npm test -- breaker` falla | T036 | spec §10 S11 capa 5, D-06 |
 | T068 | ✅ | Implementar `getBreaker`/`tripBreaker` y su uso en el orquestador | T067 en verde | T067 | spec §10 S11 capa 5 |
 | T060 | [P] | Crear `public/_headers` para páginas estáticas con la política de spec §10 S18 (la API se cubre en T065/T066) | `npm run test:static -- headers` lee el build y confirma CSP, HSTS, `nosniff`, `frame-ancestors` y COOP en `/`, `/en/`, `/es/` y 404 | T005, T006 | AC-13, S18 |
