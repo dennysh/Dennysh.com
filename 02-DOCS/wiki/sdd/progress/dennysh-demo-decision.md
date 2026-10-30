@@ -159,3 +159,9 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - red: `Cannot find module server/intervene.js` y `server/event.js`; green: 230 pruebas en total (Aprobar/Anular, 409 al cuarto, 404 uniforme, Escalar con/sin mensaje, edición fallida visible, el id de mensaje de Telegram nunca sale)
 - note: `AlertView.escalation` se persiste en `alertJson` (D-IMPL-07)
 - files: server/intervene.js, server/event.js, tests/unit/intervene.test.js, tests/unit/event.test.js
+
+## T049 + T054 + T055 (cableado Pages) — 2026-10-30
+- status: complete
+- red: `Cannot find module functions/api/simulate.js`; green: 235 pruebas. Los tres endpoints reales (`functions/api/simulate.js`, `intervene.js`, `event/[id].js`) pasan por la lista blanca `server/views.js` (un campo contaminado en el registro almacenado no llega a la respuesta) y por las cabeceras; errores solo `{code}`; ni token, chat completo, claves, IP ni hash de visitante aparecen
+- evidence: `wrangler pages functions build` compila el Worker (imports JSON incluidos). No se ejecutó `wrangler pages dev` ni D1 local: queda para el e2e
+- files: server/views.js, server/services.js, server/handlers.js, functions/api/*.js, functions/api/_middleware.js, tests/unit/response-shape.test.js
