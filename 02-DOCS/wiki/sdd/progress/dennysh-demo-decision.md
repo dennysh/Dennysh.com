@@ -124,3 +124,10 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - red: `npm test -- slots` → "Cannot find module server/store-d1.js"; green: 11 pruebas (tope 10 min, global 20 en ventana móvil de 24 h, 50 llamadas simultáneas: exactamente 20 reservadas / exactamente 1 por visitante, una sola sentencia INSERT condicional, StoreDown)
 - decision: el SQL de D1 se prueba con `node:sqlite` (D1 es SQLite) mediante un doble `tests/helpers/d1.js`; sin dependencias nuevas. No se probó contra `wrangler d1` local (necesita `workerd`; queda para el e2e)
 - files: migrations/0001_init.sql, server/store-d1.js, tests/helpers/d1.js, tests/unit/migrations.test.js, tests/unit/slots.test.js
+
+## T033 + T034 — 2026-10-30
+- status: complete
+- red: 6 de 6 pruebas de `retention` fallaban (faltaban `putEvent`, `getEvent`, `purgeExpired`); green: 135 pruebas en total
+- note: la tarea T033 dice "a las 24 h 30 min su cupo aún cuenta para la ventana global". Con ventana móvil de 24 h ese cupo ya queda fuera del tope; lo interpreto como "la fila sigue guardada (retención 25 h) pero ya no cuenta", y así lo prueban los tests. A las 25 h 30 min se purga
+- decision: `putEvent` (de T036) se implementó aquí porque `getEvent` no se puede probar sin él; `getEvent` devuelve también `messageId` (interno, nunca sale en la API)
+- files: server/store-d1.js, tests/unit/retention.test.js, tests/helpers/fixtures.js

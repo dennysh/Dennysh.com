@@ -345,8 +345,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T030 | ✅ | Migraciones D1: `events`, `interventions`, `alert_slots` | la migración se aplica limpia sobre una base local vacía y se puede volver a aplicar sin error | T005 | spec §5.6, §10 |
 | T031 | ✅ | (prueba) `Store.reserveSlot` atómico: 50 llamadas simultáneas ≤1 por visitante y ≤20 globales; ventana móvil | `npm test -- slots` falla | T030 | AC-07, AC-08, AC-32 |
 | T032 | ✅ | Implementar `Store.reserveSlot` con una sentencia condicional única | T031 en verde con D1 local real | T031 | AC-32, S11 |
-| T033 | | (prueba) Caducidad y purga: a las 24 h 30 min el evento no existe pero su cupo aún cuenta para la ventana global; a las 25 h 30 min las filas de cupo se purgan | `npm test -- retention` falla | T030 | AC-25, AC-32, D-05 |
-| T034 | | Implementar `getEvent` con caducidad y `purgeExpired` oportunista | T033 en verde | T033 | AC-25, D-05 |
+| T033 | ✅ | (prueba) Caducidad y purga: a las 24 h 30 min el evento no existe pero su cupo aún cuenta para la ventana global; a las 25 h 30 min las filas de cupo se purgan | `npm test -- retention` falla | T030 | AC-25, AC-32, D-05 |
+| T034 | ✅ | Implementar `getEvent` con caducidad y `purgeExpired` oportunista | T033 en verde | T033 | AC-25, D-05 |
 | T035 | | (prueba) `appendIntervention`: máximo 3, orden, cadena de hashes, `LimitReached` | `npm test -- interventions` falla | T030, T020 | AC-26 |
 | T036 | | Implementar `putEvent`, `updateAlert`, `appendIntervention` | T035 en verde | T035 | AC-09, AC-26 |
 | T037 | ✅ | (prueba) `signEventId`/`verifyEventId`: ida y vuelta; firma alterada, truncada o de otra clave → `Invalid`; comparación en tiempo constante | `npm test -- event-id` falla | T005 | D-04, AC-25 |
