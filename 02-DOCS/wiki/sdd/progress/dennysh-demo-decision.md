@@ -90,3 +90,13 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - decision: `usedData`/`unusedData` son claves de lista cerrada; entre lo no usado figura `source-ip` además de nombre, nacionalidad, idioma, dispositivo y género
 - refactor: `canonicalJson` y `sha256Hex` pasaron de `ruleset.js` a `core/hash.js`
 - files: core/audit.js, core/hash.js, core/ruleset.js, tests/unit/audit.test.js
+
+## T021 + T022 — 2026-10-30
+- status: complete
+- red: `npm test -- alert-text` → "Cannot find module core/alert-text.js"
+- green: 10 pruebas (instantáneas exactas de A/B/C, `[SIMULACIÓN]`, ≤ 400 caracteres, hora de Guayaquil también al cruzar medianoche, entrada hostil no llega al mensaje, eventId inseguro sin enlace)
+- decision: enlace del mensaje `https://dennysh.com/es/?evento=<eventId>` (supuesto; la página que lo lee es de T073-T075); texto plano sin `parse_mode`
+- files: core/alert-text.js, tests/unit/alert-text.test.js
+
+## Checkpoint — 2026-10-30 (T017-T022)
+- `bash scripts/verify.sh` en 0; 80 pruebas unitarias en verde

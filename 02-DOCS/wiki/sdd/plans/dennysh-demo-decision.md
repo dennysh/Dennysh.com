@@ -339,8 +339,8 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T018 | ✅ | Implementar `core.explain`, las plantillas ES/EN v1 en `content/explanations/` (todas `PendingReview`) y el script de compuerta de build que falla en modo producción si alguna plantilla no tiene `revisadaPor` y `revisadaEn` | T017 en verde; `npm run test:static -- explain-review` falla en modo producción y pasa en modo desarrollo | T017 | AC-23, P-16 |
 | T019 | ✅ | (prueba) `core.buildAudit` y `core.effectiveState`: 12 campos de spec §5.6, UTC, hash del registro, cadena de hashes, estado efectivo | `npm test -- audit` falla | T013, T016 | AC-05, AC-19, AC-26 |
 | T020 | ✅ | Implementar `core.buildAudit` y `core.effectiveState` | T019 en verde | T019 | AC-05, AC-26 |
-| T021 | | (prueba) `core.renderAlert`: español, empieza por `[SIMULACIÓN]`, solo valores de listas cerradas; instantánea | `npm test -- alert-text` falla | T020 | AC-09, S15, D-02 |
-| T022 | | Implementar `core.renderAlert` | T021 en verde | T021 | D-02 |
+| T021 | ✅ | (prueba) `core.renderAlert`: español, empieza por `[SIMULACIÓN]`, solo valores de listas cerradas; instantánea | `npm test -- alert-text` falla | T020 | AC-09, S15, D-02 |
+| T022 | ✅ | Implementar `core.renderAlert` | T021 en verde | T021 | D-02 |
 | T023 | | (prueba) Mutantes del núcleo: el motor que ignora la severidad, o que lee `country`, hace fallar al menos una prueba | informe de mutación o verificación manual de 3 mutantes: las 3 pruebas fallan | T013, T020 | AC-14, AC-20 |
 | T030 | | Migraciones D1: `events`, `interventions`, `alert_slots` | la migración se aplica limpia sobre una base local vacía y se puede volver a aplicar sin error | T005 | spec §5.6, §10 |
 | T031 | | (prueba) `Store.reserveSlot` atómico: 50 llamadas simultáneas ≤1 por visitante y ≤20 globales; ventana móvil | `npm test -- slots` falla | T030 | AC-07, AC-08, AC-32 |
