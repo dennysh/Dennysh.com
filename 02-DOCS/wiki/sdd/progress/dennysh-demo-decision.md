@@ -148,3 +148,8 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 
 ## T044 + T045 — 2026-10-30
 - status: T044 complete; T045 **no aplica** (D-IMPL-06). Fuentes: Cloudflare Email Service pricing y Telegram Bot FAQ (consultadas hoy). Telegram `retry_after` sigue sin verificar
+
+## T048 + T049 (orquestador) — 2026-10-30
+- status: orquestador complete; el cableado de `functions/api/simulate.js` se hace tras T051/T053 junto con T054
+- red: `Cannot find module server/simulate.js`; green: 31 pruebas (orden D-03 con espías, Bot/VerifierDown, cupos por visitante y global, interruptor 60 s, respaldo opcional sin segundo cupo, StoreDown cierra seguro, modo prueba)
+- files: server/simulate.js, tests/helpers/harness.js, tests/unit/simulate.test.js
