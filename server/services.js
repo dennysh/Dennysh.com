@@ -16,7 +16,7 @@ const DUMMY_TURNSTILE = /^[123]x0{10,}/ // claves de prueba de Cloudflare
 
 export async function buildServices(env) {
   for (const k of ['DB', 'TURNSTILE_SECRET', 'VISITOR_HMAC_KEY', 'EVENT_HMAC_KEY']) {
-    if (!env[k]) throw new Error('configuración incompleta')
+    if (!env[k]) throw new Error(`configuración incompleta, falta ${k}`) // solo el nombre de la variable, nunca su valor
   }
   const alertsRequested = env.ALERTS_ENABLED === 'true'
   // Sin el token o el chat de Telegram no hay envío posible: se degrada a modo prueba (sin gastar cupo ni decir "Entregada").

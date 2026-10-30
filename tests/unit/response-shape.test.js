@@ -106,7 +106,14 @@ describe('lista blanca de respuestas (S17, AC-11, AC-13)', () => {
 
   it('configuración incompleta (falta una clave) → 503 E_INTERNAL sin detalles ni cabeceras ausentes', async () => {
     const e = env(); delete e.EVENT_HMAC_KEY
-    const res = await call(simulate, post('/api/simulate', { lang: 'es', turnstileToken: 't' }), e)
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    let res
+    try {
+      res = await call(simulate, post('/api/simulate', { lang: 'es', turnstileToken: 't' }), e)
+      expect(spy.mock.calls.map((c) => String(c[0]))).toEqual(['api_error Error: configuración incompleta, falta EVENT_HMAC_KEY'])
+    } finally {
+      spy.mockRestore()
+    }
     expect(res.status).toBe(503); assertHeaders(res)
     expect(await res.json()).toEqual({ code: 'E_INTERNAL' })
   })
