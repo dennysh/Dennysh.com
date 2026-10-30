@@ -361,10 +361,10 @@ Convenciones de comandos (se concretan en T001/T004; son el contrato de verifica
 | T047 | ✅ | Implementar el esquema de validación compartido | T046 en verde | T046 | AC-12 |
 | T048 | ✅ | (prueba) `POST /api/simulate`: orden D-03 con espías; cupo agotado o interruptor abierto no llaman al notificador; `AlertView` por caso (incluido `Paused`); respaldo por correo cuando Telegram falla o vence, con estado propio y sin segundo cupo; modo prueba; fallo de D1 cierra seguro | `npm test -- simulate` falla | T036, T038, T041, T043, T047, T057, T068 | AC-03, AC-06, AC-07, AC-21, AC-22, D-03, D-06, spec §5.7 |
 | T049 | | Implementar `POST /api/simulate` (con respaldo y corte) | T048 en verde | T048, T066 | AC-03, D-03 |
-| T050 | | (prueba) `POST /api/intervene`: acciones válidas, `eventId` firmado, 409 al cuarto, Escalar con y sin mensaje | `npm test -- intervene` falla | T038, T049 | AC-09, AC-26, D-04 |
-| T051 | | Implementar `POST /api/intervene` | T050 en verde | T038, T050 | AC-09, AC-26 |
-| T052 | | (prueba) `GET /api/event/:id`: 404 uniforme para inexistente, caducado y firma inválida | `npm test -- event` falla | T038, T049 | AC-25, D-04 |
-| T053 | | Implementar `GET /api/event/:id` (usa `verifyEventId`) | T052 en verde | T052 | AC-25, D-04 |
+| T050 | ✅ | (prueba) `POST /api/intervene`: acciones válidas, `eventId` firmado, 409 al cuarto, Escalar con y sin mensaje | `npm test -- intervene` falla | T038, T049 | AC-09, AC-26, D-04 |
+| T051 | ✅ | Implementar `POST /api/intervene` | T050 en verde | T038, T050 | AC-09, AC-26 |
+| T052 | ✅ | (prueba) `GET /api/event/:id`: 404 uniforme para inexistente, caducado y firma inválida | `npm test -- event` falla | T038, T049 | AC-25, D-04 |
+| T053 | ✅ | Implementar `GET /api/event/:id` (usa `verifyEventId`) | T052 en verde | T052 | AC-25, D-04 |
 | T054 | | (prueba) Lista blanca de respuestas (S17): cada respuesta de la API, incluidos errores, contiene solo los campos de `AuditView`, `InputView`, `AlertView` y `Error` de §3; ninguno de los "nunca presentes" | `npm test -- response-shape` falla; además comprueba las cabeceras de AC-13 en las respuestas reales de los tres endpoints | T049, T051, T053 | S17, AC-11, AC-13 |
 | T055 | | Ajustar respuestas hasta cumplir la lista blanca | T054 en verde | T054 | S17 |
 | T056 | ✅ | (prueba) Hash de visitante: HMAC sin fecha, estable durante 24 h (el tope de 10 min no se reinicia a medianoche), IP en claro nunca llega a la base | `npm test -- visitor-hash` falla | T030 | AC-17, AC-32, D-05 |

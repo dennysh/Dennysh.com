@@ -153,3 +153,9 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - status: orquestador complete; el cableado de `functions/api/simulate.js` se hace tras T051/T053 junto con T054
 - red: `Cannot find module server/simulate.js`; green: 31 pruebas (orden D-03 con espías, Bot/VerifierDown, cupos por visitante y global, interruptor 60 s, respaldo opcional sin segundo cupo, StoreDown cierra seguro, modo prueba)
 - files: server/simulate.js, tests/helpers/harness.js, tests/unit/simulate.test.js
+
+## T050–T053 (intervene y event) — 2026-10-30
+- status: complete (lógica); el cableado Pages llega con T054/T055
+- red: `Cannot find module server/intervene.js` y `server/event.js`; green: 230 pruebas en total (Aprobar/Anular, 409 al cuarto, 404 uniforme, Escalar con/sin mensaje, edición fallida visible, el id de mensaje de Telegram nunca sale)
+- note: `AlertView.escalation` se persiste en `alertJson` (D-IMPL-07)
+- files: server/intervene.js, server/event.js, tests/unit/intervene.test.js, tests/unit/event.test.js
