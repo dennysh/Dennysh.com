@@ -21,3 +21,12 @@ export const swipeStep = (dx) => (dx <= -SWIPE_PX ? 1 : dx >= SWIPE_PX ? -1 : 0)
 
 // Tope en los extremos (sin dar la vuelta).
 export const wrap = (k, n) => (n > 0 ? Math.max(0, Math.min(n - 1, k)) : 0)
+
+// Posición de la foto flotante: a la derecha y debajo del cursor; si no cabe, a la izquierda o más arriba. Nunca fuera del viewport.
+export function floatPosition({ x, y, vw, vh, w, h, gap = 18, margin = 8 }) {
+  let px = x + gap
+  if (px + w > vw - margin) px = x - gap - w
+  let py = y + gap
+  if (py + h > vh - margin) py = vh - margin - h
+  return { x: Math.max(0, Math.min(px, vw - margin - w, vw)), y: Math.max(0, py) }
+}

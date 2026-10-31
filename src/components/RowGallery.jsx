@@ -1,20 +1,33 @@
 import React, { useEffect, useRef, useState } from 'react'
 import Txt from './Txt.jsx'
-import { isPending } from '../content/site.js'
-import { segmentIndex, isRealMove, swipeStep, wrap } from './gallery-logic.js'
+import { segmentIndex, isRealMove, swipeStep, wrap, floatPosition } from './gallery-logic.js'
 
 // Galería por fila (spec §5.1): componente aparte. El texto de cada fila es siempre visible; las fotos son opcionales.
+// Una fila solo es interactiva si tiene fotos reales (con `src`); sin ninguna, la galería no se muestra: ni pista, ni franja, ni marcadores.
 // Escritorio con puntero fino: la posición horizontal dentro de la fila decide la foto. Táctil: toque + ‹ › + deslizar.
 // Posiciones por CSSOM (element.style), nunca con atributos style (CSP sin unsafe-inline).
 const fmt = (t, vars) => t.replace(/\{(\w+)\}/g, (_m, k) => String(vars[k]))
 const pad = (n) => String(n).padStart(2, '0')
+const real = (p) => Boolean(p && typeof p.src === 'string' && p.src)
+const FLOAT_W = 250
+const FLOAT_H = 336 // 250×320 de la foto más el contador
 
-function Photo({ photo, ui, lang }) {
-  if (isPending(photo)) return <span className="g-ph"><Txt lang={lang} v={photo} /></span>
+function Photo({ photo }) {
   return <img src={photo.src} srcSet={photo.srcSet} alt={photo.alt ?? ''} loading="lazy" decoding="async" width={photo.width} height={photo.height} />
 }
 
-export default function RowGallery({ rows, ui, lang }) {
+const RowText = ({ r, ri, lang }) => (
+  <>
+    <span className="g-num">{pad(ri + 1)}</span>
+    <span className="g-title">{r.title}</span>
+    <span className="g-meta">{r.meta.map((m, i) => <React.Fragment key={i}>{i > 0 && ' · '}<Txt lang={lang} v={m} /></React.Fragment>)}</span>
+    <span className="g-desc">{r.text}</span>
+  </>
+)
+
+export default function RowGallery({ rows: allRows, ui, lang }) {
+  const rows = allRows.map((r) => ({ ...r, photos: (r.photos ?? []).filter(real) }))
+  const any = rows.some((r) => r.photos.length > 0)
   const [mode, setMode] = useState('none') // 'none' (sin JS aún) | 'fine' | 'touch'
   const [open, setOpen] = useState(null) // fila abierta (táctil)
   const [show, setShow] = useState(null) // { row, k } con la foto flotante visible
@@ -26,30 +39,32 @@ export default function RowGallery({ rows, ui, lang }) {
   const touchX = useRef(null)
 
   useEffect(() => {
+    if (!any) return undefined
     const fine = matchMedia('(hover: hover) and (pointer: fine)').matches
     reduced.current = matchMedia('(prefers-reduced-motion: reduce)').matches
     setMode(fine ? 'fine' : 'touch')
     const onScroll = () => { lastScroll.current = performance.now(); setShow(null) }
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [any])
 
   const place = (el, x, y, rowEl) => {
     if (!el) return
     if (reduced.current || x == null) {
       const r = rowEl.getBoundingClientRect()
-      el.style.transform = `translate(${Math.max(8, r.right - 270)}px, ${r.top + 8}px)`
+      el.style.transform = `translate(${Math.max(8, r.right - FLOAT_W - 20)}px, ${Math.max(8, Math.min(r.top + 8, innerHeight - FLOAT_H - 8))}px)`
     } else {
-      el.style.transform = `translate(${x + 18}px, ${y + 18}px)`
+      const p = floatPosition({ x, y, vw: innerWidth, vh: innerHeight, w: FLOAT_W, h: FLOAT_H })
+      el.style.transform = `translate(${p.x}px, ${p.y}px)`
     }
   }
 
   const onMove = (e, ri, n) => {
     if (mode !== 'fine' || e.pointerType === 'touch') return
     const next = { x: e.clientX, y: e.clientY }
-    const real = isRealMove(last.current, next, performance.now(), lastScroll.current)
+    const realMove = isRealMove(last.current, next, performance.now(), lastScroll.current)
     last.current = next
-    if (!real) return
+    if (!realMove) return
     const r = e.currentTarget.getBoundingClientRect()
     setShow({ row: ri, k: segmentIndex(e.clientX, r.left, r.width, n) })
     place(floatRef.current, e.clientX, e.clientY, e.currentTarget)
@@ -71,11 +86,12 @@ export default function RowGallery({ rows, ui, lang }) {
 
   const cur = show ? rows[show.row] : null
   return (
-    <div className="gallery" data-mode={mode}>
-      <p className="g-hint">{ui.hint}</p>
+    <div className="gallery" data-mode={any ? mode : 'none'}>
+      {any && <p className="g-hint">{ui.hint}</p>}
       <ol className="g-rows" aria-label={ui.list}>
         {rows.map((r, ri) => {
           const n = r.photos.length
+          if (n === 0) return <li key={r.id} className="g-row"><div className="g-plain"><RowText r={r} ri={ri} lang={lang} /></div></li>
           const isOpen = open === ri
           const k = inline[ri] ?? 0
           return (
@@ -84,7 +100,7 @@ export default function RowGallery({ rows, ui, lang }) {
                 type="button"
                 className="g-btn"
                 aria-expanded={mode === 'touch' ? isOpen : undefined}
-                aria-controls={mode === 'touch' ? `g-${r.id}` : undefined}
+                aria-controls={mode === 'touch' && isOpen ? `g-${r.id}` : undefined}
                 onPointerMove={(e) => onMove(e, ri, n)}
                 onPointerLeave={onLeave}
                 onFocus={(e) => onKeyFocus(e, ri)}
@@ -92,10 +108,7 @@ export default function RowGallery({ rows, ui, lang }) {
                 onKeyDown={(e) => onKey(e, ri, n)}
                 onClick={() => { if (mode === 'touch') setOpen(isOpen ? null : ri) }}
               >
-                <span className="g-num">{pad(ri + 1)}</span>
-                <span className="g-title">{r.title}</span>
-                <span className="g-meta">{r.meta.map((m, i) => <React.Fragment key={i}>{i > 0 && ' · '}<Txt lang={lang} v={m} /></React.Fragment>)}</span>
-                <span className="g-desc">{r.text}</span>
+                <RowText r={r} ri={ri} lang={lang} />
               </button>
               <div className="g-strip" aria-hidden="true">
                 {r.photos.map((_p, i) => <span key={i} className={show && show.row === ri && show.k === i ? 'on' : undefined} />)}
@@ -105,7 +118,7 @@ export default function RowGallery({ rows, ui, lang }) {
                   if (touchX.current == null) return
                   step(ri, n, swipeStep(e.changedTouches[0].clientX - touchX.current)); touchX.current = null
                 }}>
-                  <div className="g-frame"><Photo photo={r.photos[k]} ui={ui} lang={lang} /></div>
+                  <div className="g-frame"><Photo photo={r.photos[k]} /></div>
                   <div className="g-ctrl">
                     <button type="button" className="g-step" aria-label={ui.prev} disabled={k === 0} onClick={() => step(ri, n, -1)}>‹</button>
                     <span className="g-count">{fmt(ui.photoOf, { k: k + 1, n })}</span>
@@ -117,9 +130,11 @@ export default function RowGallery({ rows, ui, lang }) {
           )
         })}
       </ol>
-      <div ref={floatRef} className="g-float" data-on={show ? 'true' : undefined} aria-hidden="true">
-        {cur && <><div className="g-frame"><Photo photo={cur.photos[show.k]} ui={ui} lang={lang} /></div><span className="g-count">{show.k + 1}/{cur.photos.length}</span></>}
-      </div>
+      {any && (
+        <div ref={floatRef} className="g-float" data-on={show ? 'true' : undefined} aria-hidden="true">
+          {cur && <><div className="g-frame"><Photo photo={cur.photos[show.k]} /></div><span className="g-count">{show.k + 1}/{cur.photos.length}</span></>}
+        </div>
+      )}
     </div>
   )
 }

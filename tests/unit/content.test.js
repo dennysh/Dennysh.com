@@ -188,21 +188,21 @@ describe('marcadores pending (T080, K2)', () => {
     const html = readFileSync('dist/en/index.html', 'utf8')
     const visible = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ') // solo el texto visible, sin atributos ni JSON-LD
     expect(visible).toContain('to be confirmed')
-    const stripped = visible.replace(/\[[^\]]*P-(23|24|25|29)\s*\]/g, ' ') // los marcadores aún sin autorizar muestran su pista en desarrollo
-    expect(stripped).not.toMatch(/\bP-\d+\b|Public evidence of the factory|Location, time zone and availability/)
+    expect(visible).not.toMatch(/\bP-\d+\b|Public evidence of the factory|Location, time zone and availability/)
   })
-  it('Dennys autorizó publicar con P-04, P-06, P-09 y P-22 (2026-10-30)', () => {
-    expect([...AUTHORIZED_PENDING].sort()).toEqual(['P-04', 'P-06', 'P-09', 'P-22'])
+  it('Dennys autorizó publicar con P-04, P-06, P-09 y P-22 (2026-10-30) y P-29 mientras la galería esté oculta (2026-10-31)', () => {
+    expect([...AUTHORIZED_PENDING].sort()).toEqual(['P-04', 'P-06', 'P-09', 'P-22', 'P-29'])
   })
-  it('en producción falla mientras haya marcadores sin autorizar: P-23, P-24, P-25 y P-29 esperan a Dennys (TH26)', () => {
+  it('en producción pasa: no queda ningún marcador sin autorizar', () => {
     const r = gate('production')
-    expect(r.status).not.toBe(0)
-    const out = r.stdout + r.stderr
-    for (const id of ['P-23', 'P-24', 'P-25', 'P-29']) expect(out).toContain(id)
-    for (const id of ['P-04', 'P-06', 'P-09', 'P-22']) expect(out).not.toMatch(new RegExp(`sin autorizar[^\\n]*${id}`))
+    expect(r.status).toBe(0)
+    expect(r.stdout).toContain('autorizados')
   })
-  it('los marcadores sin autorizar son exactamente los de la primera pantalla', () => {
-    expect([...new Set(unauthorized(collectPending()).map((p) => p.id))].sort()).toEqual(['P-23', 'P-24', 'P-25', 'P-29'])
+  it('P-23, P-24 y P-25 se resolvieron (2026-10-31): ya no hay marcadores de ellas, y P-29 sigue registrado', () => {
+    const ids = new Set(collectPending().map((p) => p.id))
+    for (const id of ['P-23', 'P-24', 'P-25']) expect(ids.has(id)).toBe(false)
+    expect(ids.has('P-29')).toBe(true)
+    expect(unauthorized(collectPending())).toEqual([])
   })
   it('un marcador nuevo sin autorizar se detecta (rompería el build de producción)', () => {
     const list = [{ id: 'P-04' }, { id: 'P-99' }]
@@ -231,21 +231,34 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
     expect(site.es.home.tagline).toEqual(['7 años en fibra óptica', 'Remoto · UTC-5 · Español nativo · Inglés B1'])
     expect(site.en.home.tagline).toEqual(['7 years in fiber optics', 'Remote · UTC-5 · Spanish native · English B1'])
   })
-  it('Interés: jiu-jitsu confirmado y otros deportes como marcador P-23', () => {
+  it('Interés (P-23, respuesta de Dennys 2026-10-31): jiu-jitsu, y triatlón y pistas de obstáculos pocas veces, sin inflar', () => {
     for (const lang of ['en', 'es']) {
-      const sp = site[lang].home.panels.interest.sports
-      expect(sp[0]).toBe('jiu-jitsu')
-      expect(isPending(sp[1])).toBe(true)
-      expect(sp[1].id).toBe('P-23')
+      const i = site[lang].home.panels.interest
+      expect(i.sports).toEqual(['jiu-jitsu'])
+      expect(collectPending(i)).toEqual([])
+      expect(i.sportsMore).toMatch(lang === 'es' ? /triatlón/i : /triathlon/i)
+      expect(i.sportsMore).toMatch(lang === 'es' ? /pistas de obstáculos/i : /obstacle courses/i)
+      expect(i.sportsMore).toMatch(lang === 'es' ? /ciclismo, natación y pista/i : /cycling, swimming and track/i)
+      expect(i.sportsMore).toMatch(lang === 'es' ? /pocas veces, no de forma constante/i : /a few times, not consistently/i)
+      expect(JSON.stringify(i)).not.toMatch(/competid|compet(e|ing|itor)|campe[oó]n|champion|resultado|result|podio|podium|medall|medal|ranking|\d/i)
     }
   })
-  it('Proyectos y Trayectoria: lo confirmado más marcadores P-24 y P-25', () => {
+  it('Proyectos y Trayectoria (P-24, P-25): se quedan como están, sin marcadores ni sección extra', () => {
     for (const lang of ['en', 'es']) {
       const p = site[lang].projectsPage
       expect(p.ids).toEqual(['caja-cercana', 'super-gol-kids'])
       for (const id of p.ids) expect(site[lang].work.items.map((i) => i.id)).toContain(id)
-      expect(p.more.id).toBe('P-24')
-      expect(site[lang].journeyPage.more.id).toBe('P-25')
+      expect(p.more).toBeUndefined()
+      expect(site[lang].journeyPage.more).toBeUndefined()
+    }
+  })
+  it('cada página interior tiene su propia descripción (no la de la portada)', () => {
+    for (const lang of ['en', 'es']) {
+      const c = site[lang]
+      const d = [c.projectsPage.description, c.journeyPage.description, c.demo.description]
+      expect(new Set([...d, c.meta.description]).size).toBe(4)
+      for (const t of d) expect(t.length).toBeGreaterThan(40)
+      expect(c.journeyPage.description).not.toMatch(/demo/i)
     }
   })
   it('ni "1,719" ni "Ecuador" en ninguna parte del contenido (P-05 cerrada)', () => {
@@ -253,29 +266,28 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
   })
 })
 
-describe('galería por fila de Trayectoria (spec §5.1, P-H5 = P-29)', () => {
-  const COUNTS = [6, 4, 3, 5] // solo de ejemplo, como en el boceto
-  it('cuatro filas de ejemplo con N fotos distinto por fila, en los dos idiomas', () => {
+describe('galería por fila de Trayectoria (spec §5.1; P-29 resuelto por Dennys el 2026-10-31)', () => {
+  it('cuatro filas con su texto real; sin fotos entregadas todavía (llegan en unos días)', () => {
     for (const lang of ['en', 'es']) {
       const rows = site[lang].journeyPage.rows
       expect(rows.map((r) => r.id)).toEqual(['fibra', 'bot', 'supergol', 'ia'])
-      expect(rows.map((r) => r.photos.length)).toEqual(COUNTS)
+      for (const r of rows) { expect(r.photos).toEqual([]); expect(r.title.length).toBeGreaterThan(3); expect(r.text.length).toBeGreaterThan(20) }
     }
   })
-  it('ninguna foto está entregada: todas son marcadores P-29 y no hay rutas de imagen inventadas', () => {
+  it('P-29 queda registrado como pendiente, autorizado y sin rastro visible en las filas', () => {
     for (const lang of ['en', 'es']) {
-      for (const r of site[lang].journeyPage.rows) for (const ph of r.photos) { expect(isPending(ph)).toBe(true); expect(ph.id).toBe('P-29') }
-      expect(JSON.stringify(site[lang].journeyPage.rows)).not.toMatch(/\.(webp|jpe?g|png)|"src"/)
+      const j = site[lang].journeyPage
+      expect(isPending(j.photosPending)).toBe(true)
+      expect(j.photosPending.id).toBe('P-29')
+      expect(collectPending(j.rows)).toEqual([])
     }
   })
-  it('el nombre de la empresa de fibra queda como marcador; no se inventan roles ni empresas', () => {
+  it('no se nombra la empresa de fibra ni se inventan roles ni rutas de imagen', () => {
     for (const lang of ['en', 'es']) {
-      const meta = site[lang].journeyPage.rows[0].meta
-      expect(meta.some((m) => isPending(m) && m.id === 'P-29')).toBe(true)
-      expect(JSON.stringify(site[lang].journeyPage.rows)).not.toMatch(/técnic[oa] de telecom|telecom technician|ingenier|engineer|supervisor|gerente|manager|jefe/i)
+      const rows = JSON.stringify(site[lang].journeyPage.rows)
+      expect(site[lang].journeyPage.rows[0].meta).toEqual([lang === 'es' ? '7 años' : '7 years'])
+      expect(rows).not.toMatch(/técnic[oa] de telecom|telecom technician|ingenier|engineer|supervisor|gerente|manager|jefe|empresa por confirmar|company to be confirmed/i)
+      expect(rows).not.toMatch(/\.(webp|jpe?g|png)|"src"/)
     }
-  })
-  it('el texto de cada fila es real y está en el contenido (visible sin JavaScript)', () => {
-    for (const lang of ['en', 'es']) for (const r of site[lang].journeyPage.rows) { expect(r.title.length).toBeGreaterThan(3); expect(r.text.length).toBeGreaterThan(20) }
   })
 })

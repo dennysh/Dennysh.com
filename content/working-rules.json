@@ -2,7 +2,7 @@
   { "id": "W-01", "constitution": 6, "public": true, "es": "Primero la prueba, después el código.", "en": "Tests first, then code." },
   { "id": "W-02", "constitution": 8, "public": true, "es": "Nada se da por hecho sin evidencia: una salida, una prueba en verde.", "en": "Nothing is assumed without evidence: an output, a passing test." },
   { "id": "W-03", "constitution": 10, "public": true, "es": "Revisión adversarial de seguridad, pruebas y corrección antes de publicar.", "en": "Adversarial review of security, tests and correctness before publishing." },
-  { "id": "W-04", "constitution": 11, "public": true, "es": "Solo datos reales. Lo que no tengo queda marcado como pendiente; nunca cifras ni logros inventados.", "en": "Real data only. What I do not have is marked as pending; never invented figures or achievements." },
+  { "id": "W-04", "constitution": 11, "public": true, "es": "Solo datos reales. Lo que no tengo queda marcado como pendiente; nunca cifras ni logros inventados.", "en": "Real data only. What I do not have is marked as not yet confirmed; never invented figures or achievements." },
   { "id": "W-05", "constitution": 18, "public": true, "es": "Commit y publicación los autorizo yo. Ningún agente publica solo.", "en": "I authorize commits and publishing. No agent publishes on its own." },
   { "id": "W-06", "constitution": 35, "public": true, "es": "Cada decisión queda escrita: fecha, alternativas y motivo.", "en": "Every decision is written down: date, alternatives and reason." },
   { "id": "W-07", "constitution": 5, "public": true, "es": "Ningún flujo iniciado por un visitante llama a un modelo de IA.", "en": "No AI model call per visitor click." },

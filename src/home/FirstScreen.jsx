@@ -4,7 +4,7 @@ import Txt from '../components/Txt.jsx'
 import NodeIcon from './icons.jsx'
 import { codePanel } from './code-panel.js'
 import { peopleRules, machineRules } from './rules.js'
-import { startTyping, prefersReducedMotion } from './typewriter.js'
+import { startTyping, prefersReducedMotion, DURATION_MS } from './typewriter.js'
 import { pagePaths, alternateOf } from '../routes.js'
 import ruleset from '../../content/ruleset.v1.json'
 import staticExample from '../demo/static-example.json'
@@ -72,8 +72,13 @@ export default function FirstScreen({ lang }) {
   const [tab, setTab] = useState('people')
   const [runs, setRuns] = useState({})
   const [skip, setSkip] = useState(0)
-  const typing = useRef(false)
-  useEffect(() => setEnhanced(true), [])
+  const typingUntil = useRef(0) // instante hasta el que se está escribiendo el panel elegido (0 = nada que completar)
+  useEffect(() => {
+    setEnhanced(true)
+    // Un enlace con #p-<nodo> (clic antes de hidratar, recarga o enlace compartido) elige ese panel; después manda el estado, no :target.
+    const id = location.hash.startsWith('#p-') ? location.hash.slice(3) : null
+    if (id && ['code', 'how', 'interest'].includes(id)) { setActive(id); setSheet(true) }
+  }, [])
 
   const codeText = codePanel(ruleset, staticExample, lang).join('\n')
   const people = peopleRules(lang)
@@ -84,25 +89,31 @@ export default function FirstScreen({ lang }) {
     setActive(id)
     setSheet(true)
     setRuns((r) => ({ ...r, [id]: (r[id] ?? 0) + 1 }))
-    typing.current = !prefersReducedMotion() // con movimiento reducido el texto aparece completo: no hay nada que completar
-    setTimeout(() => { typing.current = false }, 1850)
+    // Solo los paneles con texto que se escribe (no "Cómo trabajo") y sin movimiento reducido tienen algo que completar.
+    typingUntil.current = id !== 'how' && !prefersReducedMotion() ? performance.now() + DURATION_MS : 0
+  }
+  const completeTyping = () => {
+    if (performance.now() >= typingUntil.current) return false
+    typingUntil.current = 0
+    setSkip((s) => s + 1)
+    return true
   }
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== 'Escape') return
-      if (typing.current) { setSkip((s) => s + 1); typing.current = false } else setSheet(false)
+      if (!completeTyping()) setSheet(false)
     }
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [])
-  const complete = () => { if (typing.current) { setSkip((s) => s + 1); typing.current = false } }
+  const complete = () => { completeTyping() }
 
   const hrefFor = (id) => (id === 'projects' || id === 'demo' || id === 'journey' ? pagePaths[lang][id] : `#p-${id}`)
   const run = (id) => runs[id]
   const is = (id) => active === id
 
   return (
-    <section id="inicio" className="first" aria-labelledby="hero-h">
+    <section id="inicio" className="first" data-js={enhanced ? 'true' : undefined} aria-labelledby="hero-h">
       <div className="canvas" data-sheet={sheet ? 'open' : undefined}>
         <FirstBar lang={lang} />
         <img
@@ -170,6 +181,7 @@ export default function FirstScreen({ lang }) {
           <Panel id="interest" active={is('interest')} onClick={complete}>
             <h2 id="p-interest-h">{h.panels.interest.title}</h2>
             <p className="sports"><strong>{h.panels.interest.sportsLabel}:</strong> {h.panels.interest.sports.map((s, i) => <React.Fragment key={i}>{i > 0 && ', '}<Txt lang={lang} v={s} /></React.Fragment>)}</p>
+            <p className="sports-more">{h.panels.interest.sportsMore}</p>
             <p className="card-text"><Typed text={h.panels.interest.thought} run={run('interest')} skip={skip} /></p>
             <p className="panel-links"><a href="#contact">{h.panels.interest.contact}</a></p>
           </Panel>

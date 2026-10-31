@@ -1,6 +1,5 @@
 import React from 'react'
 import { site } from '../content/site.js'
-import Txt from '../components/Txt.jsx'
 import Demo from '../demo/Demo.jsx'
 import RowGallery from '../components/RowGallery.jsx'
 import { Header, Footer, WorkCard } from '../Site.jsx'
@@ -24,7 +23,6 @@ export function ProjectsPage({ lang }) {
           <h1 id="page-h">{p.title}</h1>
           <p className="lead">{p.lead}</p>
           <div className="cards">{items.map((it) => <WorkCard key={it.id} lang={lang} it={it} />)}</div>
-          <p className="more"><Txt lang={lang} v={p.more} /></p>
           <p><a href={`/${lang}/`}>{p.back}</a></p>
         </div>
       </section>
@@ -58,7 +56,6 @@ export function JourneyPage({ lang }) {
           <h1 id="page-h">{p.title}</h1>
           <p className="lead">{p.lead}</p>
           <RowGallery rows={p.rows} ui={p.gallery} lang={lang} />
-          <p className="more"><Txt lang={lang} v={p.more} /></p>
           <p><a href={`/${lang}/`}>{p.back}</a></p>
         </div>
       </section>

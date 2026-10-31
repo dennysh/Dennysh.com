@@ -46,3 +46,10 @@ Origen: `docs/superpowers/specs/2026-10-31-primera-pantalla-design.md`. Mientras
 | P-27 | Retrato `dennys-portrait.webp` | **Entregado 2026-10-31** (900×1210, 87 KB, sin EXIF/XMP/ICC, verificado) | Retrato (TH23) |
 | P-28 | ¿Las URL en inglés de las páginas nuevas usan `projects`/`journey` o los mismos segmentos que en español? | `projects` y `journey` en `/en/`; `proyectos` y `trayectoria` en `/es/` | Rutas |
 | P-29 | Fotos de cada fila de la galería de Trayectoria (cuántas, cuáles, texto alternativo) y empresas que autorizas nombrar (p. ej. la de fibra óptica) | Ninguna foto hasta que las entregues; cada hueco queda como marcador | Trayectoria, Interés |
+
+**Respuestas de Dennys, 2026-10-31 (resueltas):**
+- **P-23** (otros deportes): además de jiu-jitsu, ha hecho triatlón y pistas de obstáculos (ciclismo, natación y pista), pocas veces, no de forma constante. Publicado así en el nodo Interés (ES y EN), sin "competidor", resultados ni frecuencia. Ya no es pendiente.
+- **P-24** (proyectos adicionales): no añadir más; se queda Caja Cercana y Super Gol Kids. Autorizado como está, sin marcador.
+- **P-25** (Trayectoria): se queda como está, sin añadir nada. Autorizado como está.
+- **P-26** y **P-28**: sin cambio (valores por defecto: las siete reglas del spec; URL `projects`/`journey` en inglés).
+- **P-29** (fotos de la galería): las fotos están en otra computadora y llegan en unos días. Hasta entonces la galería de Trayectoria queda oculta (cada fila muestra solo su texto), sin marcadores ni nombre de la empresa de fibra. P-29 sigue registrado como pendiente y autorizado a publicarse (no bloquea el build) mientras la galería esté oculta. Al añadir las fotos reales a `journeyPage.rows[].photos` (con `src`, `alt`, `width`, `height`), la galería se activa sola.

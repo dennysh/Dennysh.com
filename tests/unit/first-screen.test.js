@@ -62,8 +62,10 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       expect(out).toMatch(new RegExp(`<a[^>]*href="${pagePaths[lang].demo}"[^>]*>${esc(c.hero.tryDemo)}</a>`))
       expect(out).toContain('id="demo"')
     })
-    it(`(${lang}) un marcador pendiente en Interés se ve como tal`, () => {
-      expect(out).toContain('data-pending="P-23"')
+    it(`(${lang}) Interés trae los deportes de Dennys y ningún marcador`, () => {
+      const i = c.home.panels.interest
+      expect(out).toContain(esc(i.sportsMore))
+      expect(out).not.toContain('data-pending="P-23"')
     })
   }
 })

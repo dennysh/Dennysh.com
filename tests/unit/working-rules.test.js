@@ -37,4 +37,7 @@ describe('content/working-rules.json (TH01)', () => {
     const all = rules.filter((r) => r.public).map((r) => `${r.es} ${r.en}`).join(' ')
     expect(all).not.toMatch(/recomiend|recommend (this|the) candidate|hire|contrat(a|e) a/i)
   })
+  it('el texto público no usa la palabra "pending" (Dennys, 2026-10-31: ningún "pending" visible)', () => {
+    for (const r of rules.filter((x) => x.public)) expect(r.en).not.toMatch(/pending/i)
+  })
 })

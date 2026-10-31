@@ -15,11 +15,13 @@ export const profile = {
 }
 
 // Marcadores que Dennys autoriza a publicar como "por confirmar". Autorizados el 2026-10-30 para la primera publicación
-// (razón y alcance en 02-DOCS/wiki/sdd/decisions.md, D-IMPL-11). Cualquier marcador nuevo debe autorizarse aquí a propósito.
-export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-09', 'P-22']
+// (razón y alcance en 02-DOCS/wiki/sdd/decisions.md, D-IMPL-11; P-29 el 2026-10-31, D-H12: la galería de Trayectoria queda oculta mientras no haya fotos reales). Cualquier marcador nuevo debe autorizarse aquí a propósito.
+export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-09', 'P-22', 'P-29']
 
-// Fotos de la galería de Trayectoria: ninguna entregada todavía. Cada hueco es un marcador P-29, nunca una foto inventada.
-const slots = (n, hint, label) => Array.from({ length: n }, () => pending('P-29', hint, label))
+// Fotos de la galería de Trayectoria: Dennys las entrega en unos días (P-29). Mientras no haya fotos reales la galería no se muestra.
+// Solo la compilación de pruebas e2e (modo de Vite `e2e`) pone fotos de relleno para ejercitar el componente; nunca la de producción.
+const E2E_PHOTOS = import.meta.env?.MODE === 'e2e'
+const photos = (n) => (E2E_PHOTOS ? Array.from({ length: n }, () => ({ src: '/images/dennys-portrait-360.webp', alt: '', width: 360, height: 484 })) : [])
 
 export const unauthorized = (list, authorized = AUTHORIZED_PENDING) => list.filter((p) => !authorized.includes(p.id))
 
@@ -69,28 +71,33 @@ export const site = {
         how: { title: 'How I work', tabs: { people: 'People', machines: 'Machines' }, read: 'Read the rules →' },
         interest: {
           title: 'Interest', sportsLabel: 'Sports',
-          sports: ['jiu-jitsu', pending('P-23', 'Other sports besides jiu-jitsu', 'Other sports: to be confirmed')],
+          sports: ['jiu-jitsu'],
+          sportsMore: 'I have also done triathlon and obstacle courses (cycling, swimming and track), a few times, not consistently.',
           thought: 'What if, in a few years, we could connect the brain to AI and strengthen what is human? I do not know if it will be possible. I think so. (An idea, not a capability.)',
           contact: 'Contact →',
         },
       },
     },
     projectsPage: {
+      back: 'Back to the home screen',
       title: 'Projects', lead: 'What is confirmed so far, each item marked in production or in development.', ids: ['caja-cercana', 'super-gol-kids'],
-      more: pending('P-24', 'Additional projects for the Projects page', 'More projects: to be confirmed'), back: 'Back to the home screen',
+      description: 'Confirmed projects by Dennys Heras: a Telegram bot for ISP technicians and a football-championships site for a client, each marked in production or in development.',
     },
     journeyPage: {
+      back: 'Back to the home screen',
       title: 'Journey', lead: 'From fiber-optic fieldwork to building AI systems.',
-      gallery: { hint: 'Move the pointer along a row to see its photos. On touch screens, tap a row.', photoOf: 'Photo {k} of {n}', prev: 'Previous photo', next: 'Next photo', close: 'Close', photoPending: 'Photo to be confirmed', list: 'Places and projects' },
+      description: 'From fiber-optic fieldwork to building AI systems: the journey of Dennys Heras.',
+      photosPending: pending('P-29', 'Photos for the Journey gallery: Dennys delivers them in a few days (the gallery stays hidden until then)'),
+      gallery: { hint: 'Move the pointer along a row to see its photos. On touch screens, tap a row.', photoOf: 'Photo {k} of {n}', prev: 'Previous photo', next: 'Next photo', close: 'Close', list: 'Places and projects' },
       rows: [
-        { id: 'fibra', title: 'Fiber-optic networks', meta: ['7 years', pending('P-29', 'Company where Dennys worked (only if he confirms the name)', 'company to be confirmed')], text: '7 years in fiber-optic networks, where things have to work in the field.', photos: slots(6, 'Photo for the fiber-optic row (Dennys provides it)', 'Photo to be confirmed') },
-        { id: 'bot', title: 'Caja Cercana bot', meta: ['2025', 'In production'], text: 'Telegram bot for ISP technicians that finds the nearest network box to their location. Used internally at the company.', photos: slots(4, 'Photo for the Caja Cercana row (Dennys provides it)', 'Photo to be confirmed') },
-        { id: 'supergol', title: 'Super Gol Kids', meta: ['In production'], text: 'Platform for children\'s football championships. Public website for a client; I developed the site.', photos: slots(3, 'Photo for the Super Gol Kids row (Dennys provides it)', 'Photo to be confirmed') },
-        { id: 'ia', title: 'AI systems', meta: ['Now'], text: 'I build AI systems that explain themselves and can be audited.', photos: slots(5, 'Photo for the AI systems row (Dennys provides it)', 'Photo to be confirmed') },
+        { id: 'fibra', title: 'Fiber-optic networks', meta: ['7 years'], text: '7 years in fiber-optic networks, where things have to work in the field.', photos: photos(6) },
+        { id: 'bot', title: 'Caja Cercana bot', meta: ['2025', 'In production'], text: 'Telegram bot for ISP technicians that finds the nearest network box to their location. Used internally at the company.', photos: photos(4) },
+        { id: 'supergol', title: 'Super Gol Kids', meta: ['In production'], text: 'Platform for children\'s football championships. Public website for a client; I developed the site.', photos: photos(3) },
+        { id: 'ia', title: 'AI systems', meta: ['Now'], text: 'I build AI systems that explain themselves and can be audited.', photos: photos(5) },
       ],
-      more: pending('P-25', 'Shape of the Journey page and which data can be published', 'More of the journey: to be confirmed'), back: 'Back to the home screen',
     },
     demo: {
+      description: 'Live demo of an automated decision: the rule used, the explanation in plain language and its audit trail. A simulation with synthetic data.',
       title: 'Live demo: an automated decision, explained',
       lead: 'One click simulates a suspicious access. The system decides, explains why, shows the rule it used, keeps a full audit trail and lets you take control.',
       notice: 'Simulated test environment. Nothing real is attacked or blocked.',
@@ -207,28 +214,33 @@ export const site = {
         how: { title: 'Cómo trabajo', tabs: { people: 'Personas', machines: 'Máquinas' }, read: 'Leer las reglas →' },
         interest: {
           title: 'Interés', sportsLabel: 'Deportes',
-          sports: ['jiu-jitsu', pending('P-23', 'Otros deportes además de jiu-jitsu', 'Otros deportes: por confirmar')],
+          sports: ['jiu-jitsu'],
+          sportsMore: 'También he hecho triatlón y pistas de obstáculos (ciclismo, natación y pista), pocas veces, no de forma constante.',
           thought: '¿Y si dentro de unos años pudiéramos conectar el cerebro a la IA y potenciar lo humano? No sé si será posible. Creo que sí. (Una idea, no una capacidad.)',
           contact: 'Contacto →',
         },
       },
     },
     projectsPage: {
+      back: 'Volver a la primera pantalla',
       title: 'Proyectos', lead: 'Lo confirmado hasta ahora, cada ítem marcado en producción o en desarrollo.', ids: ['caja-cercana', 'super-gol-kids'],
-      more: pending('P-24', 'Proyectos adicionales para la página Proyectos', 'Más proyectos: por confirmar'), back: 'Volver a la primera pantalla',
+      description: 'Proyectos confirmados de Dennys Heras: un bot de Telegram para técnicos de un ISP y un sitio de campeonatos de fútbol para un cliente, cada uno marcado en producción o en desarrollo.',
     },
     journeyPage: {
+      back: 'Volver a la primera pantalla',
       title: 'Trayectoria', lead: 'Del trabajo de campo con fibra óptica a construir sistemas con IA.',
-      gallery: { hint: 'Mueve el puntero a lo largo de una fila para ver sus fotos. En pantallas táctiles, toca una fila.', photoOf: 'Foto {k} de {n}', prev: 'Foto anterior', next: 'Foto siguiente', close: 'Cerrar', photoPending: 'Foto por confirmar', list: 'Lugares y proyectos' },
+      description: 'Del trabajo de campo con fibra óptica a construir sistemas con IA: la trayectoria de Dennys Heras.',
+      photosPending: pending('P-29', 'Fotos de la galería de Trayectoria: Dennys las entrega en unos días (la galería queda oculta hasta entonces)'),
+      gallery: { hint: 'Mueve el puntero a lo largo de una fila para ver sus fotos. En pantallas táctiles, toca una fila.', photoOf: 'Foto {k} de {n}', prev: 'Foto anterior', next: 'Foto siguiente', close: 'Cerrar', list: 'Lugares y proyectos' },
       rows: [
-        { id: 'fibra', title: 'Redes de fibra óptica', meta: ['7 años', pending('P-29', 'Empresa donde trabajó Dennys (solo si confirma el nombre)', 'empresa por confirmar')], text: '7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', photos: slots(6, 'Foto de la fila de fibra óptica (la entrega Dennys)', 'Foto por confirmar') },
-        { id: 'bot', title: 'Bot Caja Cercana', meta: ['2025', 'En producción'], text: 'Bot de Telegram para técnicos de un ISP que encuentra la caja de red más cercana a su ubicación. Hoy se usa internamente en la empresa.', photos: slots(4, 'Foto de la fila Caja Cercana (la entrega Dennys)', 'Foto por confirmar') },
-        { id: 'supergol', title: 'Super Gol Kids', meta: ['En producción'], text: 'Plataforma de campeonatos de fútbol infantil. Sitio público de un cliente; yo desarrollé el sitio.', photos: slots(3, 'Foto de la fila Super Gol Kids (la entrega Dennys)', 'Foto por confirmar') },
-        { id: 'ia', title: 'Sistemas con IA', meta: ['Ahora'], text: 'Construyo sistemas con IA que se explican y se auditan.', photos: slots(5, 'Foto de la fila de sistemas con IA (la entrega Dennys)', 'Foto por confirmar') },
+        { id: 'fibra', title: 'Redes de fibra óptica', meta: ['7 años'], text: '7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', photos: photos(6) },
+        { id: 'bot', title: 'Bot Caja Cercana', meta: ['2025', 'En producción'], text: 'Bot de Telegram para técnicos de un ISP que encuentra la caja de red más cercana a su ubicación. Hoy se usa internamente en la empresa.', photos: photos(4) },
+        { id: 'supergol', title: 'Super Gol Kids', meta: ['En producción'], text: 'Plataforma de campeonatos de fútbol infantil. Sitio público de un cliente; yo desarrollé el sitio.', photos: photos(3) },
+        { id: 'ia', title: 'Sistemas con IA', meta: ['Ahora'], text: 'Construyo sistemas con IA que se explican y se auditan.', photos: photos(5) },
       ],
-      more: pending('P-25', 'Forma de la página Trayectoria y qué datos se pueden publicar', 'Más de la trayectoria: por confirmar'), back: 'Volver a la primera pantalla',
     },
     demo: {
+      description: 'Demo en vivo de una decisión automatizada: la regla usada, la explicación en lenguaje claro y su auditoría. Una simulación con datos sintéticos.',
       title: 'Demo en vivo: una decisión automatizada, explicada',
       lead: 'Un clic simula un acceso sospechoso. El sistema decide, explica por qué, muestra la regla que usó, guarda una pista de auditoría completa y te deja tomar el control.',
       notice: 'Entorno de prueba simulado. Nada real se ataca ni se bloquea.',

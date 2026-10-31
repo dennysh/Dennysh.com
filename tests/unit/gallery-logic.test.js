@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { segmentIndex, isRealMove, swipeStep, wrap, SCROLL_QUIET_MS, SWIPE_PX } from '../../src/components/gallery-logic.js'
+import { segmentIndex, isRealMove, swipeStep, wrap, floatPosition, SCROLL_QUIET_MS, SWIPE_PX } from '../../src/components/gallery-logic.js'
 
 // Galería por fila (spec §5.1, AC-H11, AC-H12): la lógica de decisión vive aparte y se prueba sin navegador.
 describe('segmentIndex: la posición horizontal decide la foto', () => {
@@ -42,5 +42,30 @@ describe('swipeStep y wrap (táctil)', () => {
     expect(wrap(4, 4)).toBe(3)
     expect(wrap(2, 4)).toBe(2)
     expect(wrap(3, 0)).toBe(0)
+  })
+})
+
+describe('floatPosition: la foto flotante nunca sale del viewport', () => {
+  const base = { vw: 1280, vh: 800, w: 250, h: 336, gap: 18, margin: 8 }
+  it('con espacio, va a la derecha y debajo del cursor', () => expect(floatPosition({ ...base, x: 300, y: 100 })).toEqual({ x: 318, y: 118 }))
+  it('en el borde derecho pasa a la izquierda del cursor', () => {
+    const p = floatPosition({ ...base, x: 1132, y: 100 })
+    expect(p.x + base.w).toBeLessThanOrEqual(1132)
+    expect(p.x).toBeGreaterThanOrEqual(8)
+  })
+  it('abajo se sube lo justo para que quepa entera', () => {
+    const p = floatPosition({ ...base, x: 300, y: 796 })
+    expect(p.y + base.h).toBeLessThanOrEqual(800 - 8)
+    expect(p.y).toBeGreaterThanOrEqual(8)
+  })
+  it('en una esquina cabe en las dos direcciones', () => {
+    const p = floatPosition({ ...base, x: 1279, y: 799 })
+    expect(p.x + base.w).toBeLessThanOrEqual(1280 - 8)
+    expect(p.y + base.h).toBeLessThanOrEqual(800 - 8)
+  })
+  it('un viewport más pequeño que la foto no da coordenadas negativas', () => {
+    const p = floatPosition({ ...base, vw: 200, vh: 300, x: 100, y: 100 })
+    expect(p.x).toBeGreaterThanOrEqual(0)
+    expect(p.y).toBeGreaterThanOrEqual(0)
   })
 })
