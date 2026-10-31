@@ -15,6 +15,7 @@ status: draft
 > Constitución: [../constitution.md](../constitution.md) — **v1.0.0 ratificada el 2026-10-29** (P-14). Las elecciones de pila siguen siendo *supuestos por confirmar* donde dependen de P-01 a P-21.
 > Estado: borrador, revisado tras `analyze` (F02–F05, F09–F14, F16–F18 corregidos; F01, F06–F08 y F15 con supuestos por confirmar) · Última actualización: 2026-10-29
 > Desvío del flujo estándar: la spec vive en `docs/superpowers/specs/` (ruta fijada por Dennys), no en `02-DOCS/wiki/sdd/specs/`. No se duplicó.
+> **2026-10-31:** el Hero de T082 lo reemplaza el plan [primera-pantalla](primera-pantalla.md) (borrador a la espera de Dennys). Nada más de este plan cambia.
 > Alcance de este turno: **solo documentos**. Sin código de producto, sin dependencias nuevas, sin commit ni push.
 
 ## 0. Global Constraints

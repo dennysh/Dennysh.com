@@ -229,3 +229,9 @@ Sin commits: P-13 no está autorizada (regla 18). El avance queda en el árbol d
 - causa: `import … with { type: 'json' }` en `server/services.js` (líneas 6-7); wrangler 3.114.17 (esbuild antiguo) lo rechaza: `Expected ";" but found "with"`. Reproducido con `npx wrangler@3.114.17 pages functions build`
 - red→green: la regla estática nueva falló primero sobre el ejemplo con `with {…}`/`assert {…}`; arreglo = JSON sin atributos
 - evidence: `npm run test:wrangler3` → "Compiled Worker successfully"; `wrangler@3.114.17 pages dev dist` responde 200 en `/api/simulate`; `verify` 0 (466 pruebas); e2e 32/32; `NODE_ENV=production npm run build` pasa
+
+## Primera pantalla y páginas nuevas — 2026-10-31 (plan primera-pantalla, TH01–TH22 y galería §5.1)
+- status: complete salvo TH24 (Lighthouse), TH26 (P-23, P-24, P-25, P-29: **[H]** Dennys) y TH27 (revisión adversarial); ver el informe final
+- red→green: cada módulo nació con su prueba fallando por falta del módulo (working-rules, code-panel, rules-outputs, markup, first-screen, typewriter, portrait, gallery-logic, content, site-static)
+- evidence: `bash scripts/verify.sh` → exit 0 (580 pruebas); Playwright mocked+real en verde; 360×640 y 390×844 sin desplazarse (e2e `first-screen.spec.js`)
+- note: el build de producción falla a propósito mientras P-23, P-24, P-25 y P-29 no estén autorizados (TH26)

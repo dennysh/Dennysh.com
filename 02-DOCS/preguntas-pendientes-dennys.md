@@ -32,3 +32,17 @@ Origen: diseño `docs/superpowers/specs/2026-10-29-dennysh-demo-decision-design.
 **Publicación 2026-10-30:** Dennys autorizó publicar con P-04, P-06, P-09 (parte pendiente) y P-22 como "por confirmar" y con las 4 plantillas sin revisar (D-IMPL-11). No están resueltas: siguen abiertas hasta que las respondas.
 
 **P-22 (Criden):** sigue pendiente; su sitio aún no está en producción (quizá este fin de semana). Se publica "Enlace próximamente".
+
+## Primera pantalla (2026-10-31)
+
+Origen: `docs/superpowers/specs/2026-10-31-primera-pantalla-design.md`. Mientras no respondas, el sitio las publica como "por confirmar" solo si las autorizas (el build de producción falla con marcadores sin autorizar).
+
+| ID | Pregunta | Recomendación por defecto | Afecta a |
+|---|---|---|---|
+| P-23 | ¿Qué otros deportes (además de jiu-jitsu) van en el nodo Interés? | Solo jiu-jitsu; el resto queda como marcador | Interés |
+| P-24 | ¿Qué proyectos adicionales van en la página Proyectos? | Solo Caja Cercana y Super Gol Kids (ya confirmados) | Proyectos |
+| P-25 | Trayectoria: ¿texto corto o línea de tiempo, y qué datos puedes publicar? | Texto corto y verdadero (7 años en fibra; paso a IA), sin cifras ni fechas sin respaldo | Trayectoria |
+| P-26 | ¿Qué reglas más quieres sumar a `content/working-rules.json`? | Las 6 del spec más "no hay llamada a un modelo por clic" | Cómo trabajo |
+| P-27 | Retrato `dennys-portrait.webp` | **Entregado 2026-10-31** (900×1210, 87 KB, sin EXIF/XMP/ICC, verificado) | Retrato (TH23) |
+| P-28 | ¿Las URL en inglés de las páginas nuevas usan `projects`/`journey` o los mismos segmentos que en español? | `projects` y `journey` en `/en/`; `proyectos` y `trayectoria` en `/es/` | Rutas |
+| P-29 | Fotos de cada fila de la galería de Trayectoria (cuántas, cuáles, texto alternativo) y empresas que autorizas nombrar (p. ej. la de fibra óptica) | Ninguna foto hasta que las entregues; cada hueco queda como marcador | Trayectoria, Interés |

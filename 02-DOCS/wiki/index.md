@@ -3,6 +3,8 @@
 ## sdd/
 - [Constitución v1.0.0 (ratificada 2026-10-29)](sdd/constitution.md)
 - [Plan y tareas — dennysh-demo-decision](sdd/plans/dennysh-demo-decision.md)
+- [Plan y tareas — primera pantalla (retrato y seis nodos)](sdd/plans/primera-pantalla.md) (borrador, espera aprobación de Dennys)
+- Spec: `docs/superpowers/specs/2026-10-31-primera-pantalla-design.md`
 - [Decisiones SDD](sdd/decisions.md)
 - [Análisis de consistencia — dennysh-demo-decision](sdd/analysis/dennysh-demo-decision.md) (GATE: PASS)
 - Spec: `docs/superpowers/specs/2026-10-29-dennysh-demo-decision-design.md`
