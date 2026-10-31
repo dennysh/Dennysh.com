@@ -28,6 +28,10 @@ describe('content/working-rules.json (TH01)', () => {
     const hidden = rules.filter((r) => !r.public).map((r) => r.constitution)
     expect(hidden).toEqual(expect.arrayContaining([17, 19, 33]))
   })
+  it('las reglas ocultas y las públicas son exactamente estas (cambiar una bandera no pasa inadvertido)', () => {
+    expect(rules.filter((r) => !r.public).map((r) => `${r.id}:${r.constitution}`)).toEqual(['W-90:17', 'W-91:19', 'W-92:20', 'W-93:33'])
+    expect(rules.filter((r) => r.public).map((r) => r.id)).toEqual(['W-01', 'W-02', 'W-03', 'W-04', 'W-05', 'W-06', 'W-07'])
+  })
   it('la regla "sin llamada a un modelo por clic" es pública y está en inglés como pide el spec', () => {
     const r = rules.find((x) => x.constitution === 5)
     expect(r.public).toBe(true)

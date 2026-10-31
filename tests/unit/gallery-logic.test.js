@@ -25,6 +25,13 @@ describe('isRealMove: solo el movimiento real cambia la foto', () => {
     expect(isRealMove({ x: 1, y: 1 }, { x: 9, y: 9 }, t0, t0 - 100)).toBe(false)
     expect(isRealMove({ x: 1, y: 1 }, { x: 9, y: 9 }, t0, t0 - SCROLL_QUIET_MS - 1)).toBe(true)
   })
+  it('justo a los 200 ms del scroll ya cuenta (la ventana es estricta)', () => {
+    expect(isRealMove({ x: 1, y: 1 }, { x: 9, y: 9 }, t0, t0 - 200)).toBe(true)
+    expect(isRealMove({ x: 1, y: 1 }, { x: 9, y: 9 }, t0, t0 - 199)).toBe(false)
+  })
+  it('un movimiento solo vertical también es real (cambia la coordenada y)', () => {
+    expect(isRealMove({ x: 5, y: 1 }, { x: 5, y: 9 }, t0, 0)).toBe(true)
+  })
   it('sin movimiento previo, el primero cuenta', () => expect(isRealMove(null, { x: 1, y: 1 }, t0, 0)).toBe(true))
   it('la ventana es de 200 ms', () => expect(SCROLL_QUIET_MS).toBe(200))
 })
@@ -36,6 +43,11 @@ describe('swipeStep y wrap (táctil)', () => {
     expect(swipeStep(31)).toBe(-1)
     expect(swipeStep(29)).toBe(0)
     expect(swipeStep(-30)).toBe(1)
+  })
+  it('el borde derecho del umbral también cuenta: +30 retrocede, +29 no', () => {
+    expect(swipeStep(30)).toBe(-1)
+    expect(swipeStep(29)).toBe(0)
+    expect(swipeStep(-29)).toBe(0)
   })
   it('las flechas no se pasan de los extremos (no dan la vuelta)', () => {
     expect(wrap(-1, 4)).toBe(0)

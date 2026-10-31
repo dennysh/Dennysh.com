@@ -109,6 +109,14 @@ test.describe('teclado', () => {
     await page.goto(PATH)
     await page.waitForFunction(() => document.querySelector('.gallery')?.dataset.mode === 'fine')
   })
+  test('← en la foto 1 no da la vuelta; → en la última tampoco (AC-H12)', async ({ page }) => {
+    await page.locator('.g-btn').first().focus()
+    await expect(counter(page)).toHaveText('1/6')
+    await page.keyboard.press('ArrowLeft')
+    await expect(counter(page)).toHaveText('1/6')
+    for (let i = 0; i < 8; i++) await page.keyboard.press('ArrowRight')
+    await expect(counter(page)).toHaveText('6/6')
+  })
   test('Tab muestra la foto 1; ← y → cambian de foto; al salir del foco se oculta (AC-H12)', async ({ page }) => {
     await page.locator('.g-btn').first().focus()
     await expect(counter(page)).toHaveText('1/6')
@@ -172,6 +180,14 @@ test.describe('táctil', () => {
     await expect(rows.first()).toHaveAttribute('aria-expanded', 'false')
     await expect(rows.nth(1)).toHaveAttribute('aria-expanded', 'true')
     await expect(page.locator('.g-inline')).toHaveCount(1)
+  })
+  test('volver a tocar la fila abierta la cierra (alterna, no solo abre)', async ({ page }) => {
+    const row = page.locator('.g-btn').first()
+    await row.tap()
+    await expect(row).toHaveAttribute('aria-expanded', 'true')
+    await row.tap()
+    await expect(row).toHaveAttribute('aria-expanded', 'false')
+    await expect(page.locator('.g-inline')).toHaveCount(0)
   })
   test('aria-controls nunca apunta a un id que no existe: ni cerrado ni con una fila abierta', async ({ page }) => {
     const dangling = () => page.evaluate(() => [...document.querySelectorAll('[aria-controls]')].filter((e) => !document.getElementById(e.getAttribute('aria-controls'))).length)

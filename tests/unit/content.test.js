@@ -96,6 +96,9 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
   })
   it('nada de técnico de telecomunicaciones ni de tono visionario fuera de Contacto', () => {
     for (const lang of ['es', 'en']) {
+      // El panel Interés puede decir "cerebro" (D-H5), pero el resto de reglas de tono sigue aplicando a todo, Interés incluido.
+      const everything = walk((({ contact, ...rest }) => rest)(site[lang])).join(' ')
+      expect(everything).not.toMatch(/técnic[oa] de telecom|telecom(munications)? technician|ingeniero de telecom|\bvisión\b|\bvision(ary)?\b|world-class|revolution|revolucion|cutting-edge|vanguardia|futuro de la|future of/i)
       const all = walk(nonInterest(site[lang])).join(' ')
       expect(all).not.toMatch(/técnic[oa] de telecom|telecom(munications)? technician|ingeniero de telecom/i)
       expect(all).not.toMatch(/cerebro|brain|\bvisión\b|\bvision(ary)?\b/i)

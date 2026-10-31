@@ -43,6 +43,50 @@ describe('lector de fragmentos WebP (RIFF)', () => {
   })
 })
 
+// Inyecta un fragmento y/o una bandera de VP8X (0x20 ICC, 0x04 XMP, 0x08 EXIF) para cada tipo de metadato.
+function inject(buf, { chunk, flag }) {
+  let out = Buffer.from(buf) // copia: no se debe tocar el buffer del llamador
+  if (chunk) {
+    const payload = Buffer.from('xxxxxx')
+    const head = Buffer.alloc(8)
+    head.write(chunk, 0, 'ascii')
+    head.writeUInt32LE(payload.length, 4)
+    out = Buffer.concat([buf, head, payload])
+    out.writeUInt32LE(out.length - 8, 4)
+  }
+  if (flag) out[20] |= flag
+  return out
+}
+
+describe('cada tipo de metadato se detecta y se quita (revisión de pruebas, hallazgo 3)', () => {
+  const clean = readFileSync('docs/design/dennys-portrait.webp')
+  const CASES = [['EXIF', 'EXIF', 0x08], ['XMP ', 'XMP', 0x04], ['ICCP', 'ICC', 0x20]]
+  for (const [chunk, name, flag] of CASES) {
+    it(`${name}: fragmento y bandera juntos → se marca`, () => expect(checkWebp('x.webp', inject(clean, { chunk, flag })).join(' ')).toMatch(new RegExp(name)))
+    it(`${name}: solo el fragmento (sin bandera) → se marca`, () => expect(checkWebp('x.webp', inject(clean, { chunk })).join(' ')).toMatch(new RegExp(name)))
+    it(`${name}: solo la bandera (sin fragmento) → se marca`, () => expect(checkWebp('x.webp', inject(clean, { flag })).join(' ')).toMatch(new RegExp(name)))
+    it(`${name}: webpInfo informa hasMetadata`, () => expect(webpInfo(inject(clean, { chunk, flag })).hasMetadata).toBe(true))
+    it(`${name}: stripMetadata lo quita y apaga su bandera, y queda idéntico al limpio`, () => {
+      const out = stripMetadata(inject(clean, { chunk, flag }))
+      expect(webpInfo(out).hasMetadata).toBe(false)
+      expect(out.equals(clean)).toBe(true)
+    })
+  }
+  it('los tres a la vez también se quitan', () => {
+    const all = inject(inject(inject(clean, { chunk: 'EXIF', flag: 0x08 }), { chunk: 'XMP ', flag: 0x04 }), { chunk: 'ICCP', flag: 0x20 })
+    expect(webpInfo(all).chunks).toEqual(expect.arrayContaining(['EXIF', 'XMP ', 'ICCP']))
+    expect(stripMetadata(all).equals(clean)).toBe(true)
+  })
+  it('el tope de 90 KB es exacto: 90 KB pasa y 90 KB + 1 byte no', () => {
+    const pad = (n) => { const b = Buffer.concat([clean, Buffer.alloc(n - clean.length)]); b.writeUInt32LE(b.length - 8, 4); return b }
+    // Se rellena con un fragmento desconocido para que el tamaño RIFF siga cuadrando.
+    const sized = (n) => { const extra = n - clean.length - 8; const head = Buffer.alloc(8); head.write('JUNK', 0, 'ascii'); head.writeUInt32LE(extra, 4); const b = Buffer.concat([clean, head, Buffer.alloc(extra)]); b.writeUInt32LE(b.length - 8, 4); return b }
+    expect(checkWebp('x.webp', sized(90 * 1024))).toEqual([])
+    expect(checkWebp('x.webp', sized(90 * 1024 + 2)).join(' ')).toMatch(/KB/)
+    void pad
+  })
+})
+
 describe('webpInfo con archivos rotos (hallazgo de la revisión)', () => {
   const full = readFileSync('docs/design/dennys-portrait.webp')
   it('ningún truncado lanza: devuelve null o un problema', () => {

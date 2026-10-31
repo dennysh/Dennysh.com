@@ -129,6 +129,15 @@ test.describe('escritura de los paneles (AC-H5), con movimiento normal', () => {
     await page.locator('#p-code').click()
     await expect(page.locator('#p-code .t-off')).toHaveText('', { timeout: 300 })
   })
+  for (const [node, panel] of [['Projects', 'projects'], ['Demo', 'demo'], ['Journey', 'journey'], ['Interest', 'interest']]) {
+    test(`un clic en el panel ${panel} lo completa al instante (AC-H5, los seis paneles)`, async ({ page }) => {
+      if (panel === 'demo') await page.getByRole('button', { name: 'Code' }).click({ force: true }) // Demo ya es el activo: se cambia antes para que se escriba
+      await page.getByRole('button', { name: node }).click({ force: true })
+      await expect(page.locator(`#p-${panel} .t-off`)).not.toHaveText('', { timeout: 500 })
+      await page.locator(`#p-${panel}`).click({ position: { x: 5, y: 5 } })
+      await expect(page.locator(`#p-${panel} .t-off`)).toHaveText('', { timeout: 300 })
+    })
+  }
   test('Esc lo completa al instante y no cambia de página', async ({ page }) => {
     await page.getByRole('button', { name: 'Interest' }).click({ force: true })
     await expect(page.locator('#p-interest .t-off')).not.toHaveText('', { timeout: 500 })
@@ -150,6 +159,20 @@ test('móvil bajo: la tarjeta se abre como hoja al pulsar un nodo y Esc la cierr
   await expect(page.locator('#summary')).toBeInViewport({ ratio: 1 }) // la hoja se superpone y no empuja el diseño
   await page.keyboard.press('Escape')
   await expect(page.locator('#p-interest')).toBeHidden()
+})
+
+test('móvil bajo: volver a pulsar el mismo nodo cierra la hoja, y axe no halla violaciones con la hoja abierta (AC-H6)', async ({ page }) => {
+  const { default: AxeBuilder } = await import('@axe-core/playwright')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 360, height: 640 })
+  await page.goto('/en/')
+  await page.waitForFunction(() => document.querySelector('.node-link')?.tagName === 'BUTTON')
+  await page.getByRole('button', { name: 'Code' }).click()
+  await expect(page.locator('#p-code')).toBeVisible()
+  const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()
+  expect(r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)).toEqual([])
+  await page.getByRole('button', { name: 'Code' }).click()
+  await expect(page.locator('#p-code')).toBeHidden()
 })
 
 test('móvil bajo: la hoja del panel Código no tapa la fila de nodos (se puede cambiar de nodo)', async ({ page }) => {

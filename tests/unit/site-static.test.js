@@ -29,6 +29,19 @@ describe('capa de máquinas (AC-15, AC-33)', () => {
   it('falla si falta hreflang x-default', () => {
     expect(checkMachine(reader({ ...files, 'en/index.html': files['en/index.html'].replace('hreflang="x-default"', 'hreflang="zz"') })).length).toBeGreaterThan(0)
   })
+  it('las páginas nuevas son exactamente estas tres, con estas rutas (no se derivan de la misma lista que se verifica)', () => {
+    expect(INNER_PAGES.map((p) => p.view)).toEqual(['projects', 'journey', 'demo'])
+    expect(pagePaths).toEqual({
+      en: { projects: '/en/projects/', journey: '/en/journey/', demo: '/en/demo/' },
+      es: { projects: '/es/proyectos/', journey: '/es/trayectoria/', demo: '/es/demo/' },
+    })
+    const locs = [...sitemapXml().matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].replace('https://dennysh.com', ''))
+    expect(locs).toEqual(['/en/', '/es/', '/en/projects/', '/es/proyectos/', '/en/journey/', '/es/trayectoria/', '/en/demo/', '/es/demo/'])
+  })
+  it('cada <url> del sitemap declara su x-default hacia la versión en inglés', () => {
+    const bad = sitemapXml().replace(/(<loc>https:\/\/dennysh\.com\/es\/<\/loc>[\s\S]*?hreflang="x-default" href=")[^"]*/, '$1https://dennysh.com/es/')
+    expect(checkMachine(reader({ ...files, 'sitemap.xml': bad })).join(' ')).toMatch(/x-default/)
+  })
   it('el sitemap lista el inicio y las tres páginas nuevas en los dos idiomas (AC-H8)', () => {
     const locs = [...sitemapXml().matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])
     expect(locs).toEqual(['https://dennysh.com/en/', 'https://dennysh.com/es/', ...INNER_PAGES.flatMap(({ view }) => ['en', 'es'].map((l) => `https://dennysh.com${pagePaths[l][view]}`))])

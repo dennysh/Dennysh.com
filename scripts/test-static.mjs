@@ -13,6 +13,7 @@ import { buildStaticExample } from './gen-static-example.mjs'
 import { loadRuleset } from '../core/ruleset.js'
 import { checkUnused } from './static/unused.mjs'
 import { checkWebp } from './static/webp-meta.mjs'
+import { codePanel } from '../src/home/code-panel.js'
 
 const SKIP = /\.(png|jpe?g|gif|webp|ico|svg|woff2?|glb|lock)$|package-lock\.json$|(^|\/)tests\/|scan-secrets/
 
@@ -136,6 +137,20 @@ const hiddenRules = onDist('hidden-rules', () => checkNoHiddenRules(
   JSON.parse(readFileSync('content/working-rules.json', 'utf8')),
 ))
 const markers = onDist('markers', () => checkVisibleMarkers(walk('dist').filter((f) => /\.html$/.test(f)).map((path) => ({ path, text: readFileSync(path, 'utf8') }))))
+// AC-H2 y AC-H3 sobre el HTML construido: el panel de Código sale de los archivos y los seis nodos están como enlaces sin JavaScript.
+const home = onDist('home', () => {
+  const ruleset = JSON.parse(readFileSync('content/ruleset.v1.json', 'utf8'))
+  const audit = JSON.parse(readFileSync('src/demo/static-example.json', 'utf8'))
+  const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#x27;')
+  const problems = []
+  for (const lang of ['en', 'es']) {
+    const html = distRead(`${lang}/index.html`) ?? ''
+    for (const line of codePanel(ruleset, audit, lang)) if (line.trim() && !html.includes(esc(line))) problems.push(`${lang}/index.html: falta en el panel de Código la línea "${line}"`)
+    if ((html.match(/data-node="/g) ?? []).length !== 6) problems.push(`${lang}/index.html: se esperaban 6 nodos`)
+    if ((html.match(/<a\b[^>]*data-node=/g) ?? []).length !== 6) problems.push(`${lang}/index.html: los seis nodos deben ser enlaces en el HTML prerenderizado`)
+  }
+  return problems
+})
 const budgets = onDist('budgets', () => checkBudget(distRead, distBuf))
 const staticExample = async () => {
   const problems = onDistProblems(checkStaticExample(distRead))
@@ -160,10 +175,10 @@ const rulesetPublic = async () => {
   return problems.length === 0
 }
 
-// AC-H9 y AC-H13: el retrato y las fotos de la galería no llevan EXIF/XMP/ICC y pesan ≤ 90 KB (fuentes y copia en dist/).
+// AC-H9 y AC-H13: todo WebP publicado (retrato, fotos de la galería, cualquier otro; sin depender del nombre) no lleva EXIF/XMP/ICC y pesan ≤ 90 KB (fuentes y copia en dist/).
 const images = () => {
   const roots = ['public/images', 'dist/images']
-  const files = roots.flatMap((r) => walk(r)).filter((f) => /(dennys-portrait[^/]*|gallery\/[^/]+)\.webp$/.test(f))
+  const files = roots.flatMap((r) => walk(r)).filter((f) => /\.webp$/.test(f))
   const problems = files.flatMap((f) => checkWebp(f, readFileSync(f)))
   if (!files.some((f) => f.startsWith('public/') && f.includes('dennys-portrait'))) problems.push('falta el retrato en public/images')
   for (const p of problems) console.error(`images: ${p}`)
@@ -194,7 +209,7 @@ async function content() {
   return true
 }
 
-const CHECKS = { secrets, unused, images, headers, content, prerender, machine, legal, svg, fonts, markup, 'hidden-rules': hiddenRules, markers, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
+const CHECKS = { secrets, unused, images, headers, content, prerender, machine, legal, svg, fonts, markup, 'hidden-rules': hiddenRules, markers, home, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
 const wanted = process.argv.slice(2).filter((a) => a in CHECKS)
 const results = []
 for (const k of wanted.length ? wanted : Object.keys(CHECKS)) results.push(await CHECKS[k]())

@@ -64,6 +64,14 @@ export function checkMachine(read) {
   const map = need(read, 'sitemap.xml', problems)
   if (map) {
     const locs = [...map.matchAll(/<loc>([^<]+)<\/loc>/g)].map((x) => x[1])
+    // Cada <url> declara en/es/x-default coherentes con su pareja (x-default = la versión en inglés).
+    for (const pair of sitemapPaths()) {
+      for (const l of ['en', 'es']) {
+        const block = new RegExp(`<url>\\s*<loc>${SITE_URL}${pair[l]}</loc>([\\s\\S]*?)</url>`).exec(map)?.[1] ?? ''
+        if (!block.includes(`hreflang="x-default" href="${SITE_URL}${pair.en}"`)) problems.push(`sitemap.xml: ${pair[l]} debe declarar x-default hacia ${pair.en}`)
+        for (const k of ['en', 'es']) if (!block.includes(`hreflang="${k}" href="${SITE_URL}${pair[k]}"`)) problems.push(`sitemap.xml: ${pair[l]} sin hreflang ${k}`)
+      }
+    }
     const expected = sitemapPaths().flatMap((pair) => [`${SITE_URL}${pair.en}`, `${SITE_URL}${pair.es}`])
     if (JSON.stringify(locs) !== JSON.stringify(expected)) problems.push(`sitemap.xml debe listar el inicio y las páginas nuevas en en/es (hay: ${locs.join(', ')})`)
   }
