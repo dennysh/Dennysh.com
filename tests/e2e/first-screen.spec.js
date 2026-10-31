@@ -152,6 +152,94 @@ test('móvil bajo: la tarjeta se abre como hoja al pulsar un nodo y Esc la cierr
   await expect(page.locator('#p-interest')).toBeHidden()
 })
 
+test('móvil bajo: la hoja del panel Código no tapa la fila de nodos (se puede cambiar de nodo)', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 360, height: 640 })
+  await page.goto('/en/')
+  await page.waitForFunction(() => document.querySelector('.node-link')?.tagName === 'BUTTON')
+  await page.getByRole('button', { name: 'Code' }).click()
+  const sheet = await page.locator('#p-code').boundingBox()
+  const nodes = await page.locator('.nodes').boundingBox()
+  expect(sheet.y).toBeGreaterThanOrEqual(nodes.y + nodes.height)
+  await page.getByRole('button', { name: 'Interest' }).click() // sin force: el clic llega al nodo
+  await expect(page.locator('#p-interest')).toBeVisible()
+})
+
+test.describe('Esc, hash y 404 (revisión adversarial, 2026-10-31)', () => {
+  test.use({ reducedMotion: 'no-preference' })
+  const hydrated = (page) => page.waitForFunction(() => document.querySelector('.node-link')?.tagName === 'BUTTON')
+
+  test('Esc justo después de "Cómo trabajo" (sin escritura) cierra la hoja a la primera', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 640 })
+    await page.goto('/en/')
+    await hydrated(page)
+    await page.getByRole('button', { name: 'How I work' }).click({ force: true })
+    await expect(page.locator('#p-how')).toBeVisible()
+    await page.keyboard.press('Escape')
+    await expect(page.locator('#p-how')).toBeHidden()
+  })
+
+  test('cambiar de nodo con la escritura a medias: Esc completa el nuevo texto y no cierra la hoja (temporizador viejo)', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 640 })
+    await page.goto('/en/')
+    await hydrated(page)
+    await page.getByRole('button', { name: 'Code' }).click({ force: true })
+    await page.waitForTimeout(1200)
+    await page.getByRole('button', { name: 'Demo' }).click({ force: true })
+    await expect(page.locator('#p-demo .t-off')).not.toHaveText('')
+    await page.waitForTimeout(700) // ya pasaron ~1,9 s desde el primer clic: el temporizador viejo habría desactivado la guarda
+    await page.keyboard.press('Escape')
+    await expect(page.locator('#p-demo .t-off')).toHaveText('', { timeout: 300 })
+    await expect(page.locator('#p-demo')).toBeVisible() // completó el texto; la hoja sigue abierta
+    await page.keyboard.press('Escape')
+    await expect(page.locator('#p-demo')).toBeHidden()
+  })
+
+  for (const [w, h, label] of [[1180, 800, 'escritorio'], [360, 640, 'móvil bajo']]) {
+    test(`con #p-code en la URL (${label}) elegir otro nodo sí cambia el panel; un hash viejo no lo deja pegado`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h })
+      await page.goto('/en/#p-code')
+      await hydrated(page)
+      await expect(page.locator('#p-code')).toBeVisible()
+      await expect(page.getByRole('button', { name: 'Code' })).toHaveAttribute('aria-pressed', 'true')
+      await page.getByRole('button', { name: 'Interest' }).click({ force: true })
+      await expect(page.locator('#p-interest')).toBeVisible()
+      await expect(page.locator('#p-code')).toBeHidden()
+      if (w < 400) {
+        await page.keyboard.press('Escape')
+        await page.keyboard.press('Escape')
+        await expect(page.locator('#p-interest')).toBeHidden() // y la hoja se puede cerrar
+      }
+    })
+  }
+
+  test('la 404 se hidrata como 404: sin errores de React ni cambio a la portada', async ({ page }) => {
+    const errors = []
+    page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()) })
+    page.on('pageerror', (e) => errors.push(String(e)))
+    await page.goto('/404.html')
+    await page.waitForTimeout(800)
+    await expect(page.locator('h1')).not.toContainText('I build AI systems')
+    await expect(page.locator('.first')).toHaveCount(0)
+    expect(errors).toEqual([])
+  })
+
+  test('el enlace antiguo /es/?evento=… redirige a la página de la demo conservando el evento', async ({ page }) => {
+    await page.goto('/es/?evento=ab.cd')
+    await page.waitForURL(/\/es\/demo\/\?evento=ab\.cd$/)
+  })
+
+  test('los enlaces de la barra superior miden al menos 24×24 px en móvil (WCAG 2.5.8)', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 640 })
+    await page.goto('/es/')
+    for (const a of await page.locator('.bar a:not(.skip)').all()) {
+      const b = await a.boundingBox()
+      expect(b.width).toBeGreaterThanOrEqual(24)
+      expect(b.height).toBeGreaterThanOrEqual(24)
+    }
+  })
+})
+
 test.describe('sin JavaScript (AC-H2)', () => {
   test.use({ javaScriptEnabled: false })
   test('los seis nodos son enlaces, los textos de los paneles están y :target elige el panel', async ({ page }) => {
@@ -177,10 +265,10 @@ test.describe('páginas nuevas', () => {
       await expect(page.locator('main a', { hasText: /home screen|primera pantalla/ })).toHaveAttribute('href', path.startsWith('/es') ? '/es/' : '/en/')
     })
   }
-  test('Proyectos muestra Caja Cercana y Super Gol Kids, en producción, más el marcador P-24', async ({ page }) => {
+  test('Proyectos muestra solo Caja Cercana y Super Gol Kids, en producción, sin marcadores (P-24)', async ({ page }) => {
     await page.goto('/en/projects/')
     await expect(page.locator('.card')).toHaveCount(2)
     await expect(page.locator('.card .badge-production')).toHaveCount(2)
-    await expect(page.locator('[data-pending="P-24"]')).toHaveCount(1)
+    await expect(page.locator('[data-pending]:not([data-pending="P-06"])')).toHaveCount(0) // solo queda la etiqueta autorizada del repositorio del bot (P-06)
   })
 })

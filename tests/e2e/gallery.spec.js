@@ -75,14 +75,31 @@ test.describe('ratón', () => {
     await expect(counter(page)).toHaveText('4/6')
   })
 
-  test('el texto de cada fila es visible y la foto pendiente se rotula, nunca se inventa una foto (AC-H13)', async ({ page }) => {
+  test('el texto de cada fila es visible y la foto flotante muestra una imagen (AC-H13)', async ({ page }) => {
     await expect(page.locator('.g-desc')).toHaveCount(4)
     for (const t of await page.locator('.g-desc').all()) await expect(t).toBeVisible()
     const b = await rowBox(page, 1)
     await page.mouse.move(b.x + 2, b.y + 20)
     await page.mouse.move(b.x + 30, b.y + 20)
-    await expect(page.locator('.g-float .g-ph [data-pending="P-29"]')).toHaveCount(1) // marcador visible mientras Dennys no entregue la foto
-    await expect(page.locator('.g-float img')).toHaveCount(0)
+    await expect(page.locator('.g-float img')).toHaveCount(1)
+    await expect(page.locator('.g-float .g-ph')).toHaveCount(0)
+  })
+
+  test('la foto flotante nunca sale del viewport, ni en el borde derecho ni abajo', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 440 })
+    await page.goto(PATH)
+    await page.waitForFunction(() => document.querySelector('.gallery')?.dataset.mode === 'fine')
+    const b = await rowBox(page, 0)
+    for (const [x, y] of [[b.x + b.width - 3, b.y + 10], [b.x + b.width - 3, Math.min(b.y + b.height - 3, 436)], [b.x + 5, Math.min(b.y + b.height - 3, 436)]]) {
+      await page.mouse.move(b.x + 2, b.y + 5)
+      await page.mouse.move(x, y)
+      await expect(page.locator('.g-float')).toHaveAttribute('data-on', 'true')
+      const r = await page.locator('.g-float').boundingBox()
+      expect(r.x, 'izquierda').toBeGreaterThanOrEqual(0)
+      expect(r.y, 'arriba').toBeGreaterThanOrEqual(0)
+      expect(r.x + r.width, 'derecha').toBeLessThanOrEqual(1280)
+      expect(r.y + r.height, 'abajo').toBeLessThanOrEqual(440)
+    }
   })
 })
 
@@ -155,6 +172,12 @@ test.describe('táctil', () => {
     await expect(rows.first()).toHaveAttribute('aria-expanded', 'false')
     await expect(rows.nth(1)).toHaveAttribute('aria-expanded', 'true')
     await expect(page.locator('.g-inline')).toHaveCount(1)
+  })
+  test('aria-controls nunca apunta a un id que no existe: ni cerrado ni con una fila abierta', async ({ page }) => {
+    const dangling = () => page.evaluate(() => [...document.querySelectorAll('[aria-controls]')].filter((e) => !document.getElementById(e.getAttribute('aria-controls'))).length)
+    expect(await dangling()).toBe(0)
+    await page.locator('.g-btn').first().tap()
+    expect(await dangling()).toBe(0)
   })
   test('deslizar el dedo 30 px o más cambia de foto; menos no (AC-H12)', async ({ page }) => {
     await page.locator('.g-btn').first().tap()

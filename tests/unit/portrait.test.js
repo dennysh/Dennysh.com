@@ -43,6 +43,22 @@ describe('lector de fragmentos WebP (RIFF)', () => {
   })
 })
 
+describe('webpInfo con archivos rotos (hallazgo de la revisión)', () => {
+  const full = readFileSync('docs/design/dennys-portrait.webp')
+  it('ningún truncado lanza: devuelve null o un problema', () => {
+    for (let n = 0; n < 200; n += 1) {
+      const cut = full.subarray(0, n)
+      expect(() => webpInfo(cut), `n=${n}`).not.toThrow()
+      expect(() => checkWebp('x.webp', cut), `n=${n}`).not.toThrow()
+      expect(() => { try { stripMetadata(cut) } catch (e) { if (!/WebP/.test(e.message)) throw e } }, `n=${n}`).not.toThrow()
+    }
+  })
+  it('un retrato cortado en mitad de la imagen no pasa la compuerta (el tamaño RIFF no cuadra)', () => {
+    expect(checkWebp('x.webp', full.subarray(0, full.length - 5000)).join(' ')).toMatch(/truncado|tamaño/i)
+  })
+  it('el archivo bueno sigue pasando', () => expect(checkWebp('x.webp', full)).toEqual([]))
+})
+
 describe('stripMetadata', () => {
   it('quita EXIF/XMP/ICC y deja intactos los fragmentos de imagen', () => {
     const clean = readFileSync('docs/design/dennys-portrait.webp')

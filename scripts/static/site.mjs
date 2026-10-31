@@ -163,6 +163,20 @@ export function checkMarkup(files) {
   return problems
 }
 
+// Las reglas de trabajo `public: false` no pueden aparecer en nada de lo publicado (JS, HTML, llms.txt, dennys.json).
+export function checkNoHiddenRules(files, rules) {
+  const hidden = rules.filter((r) => !r.public)
+  const problems = []
+  for (const { path, text } of files) {
+    for (const r of hidden) {
+      for (const t of [r.es, r.en]) if (text.includes(t)) problems.push(`${path}: contiene el texto de la regla interna ${r.id}`)
+      if (new RegExp(`(?<![\\w-])${r.id}(?![\\w-])`).test(text)) problems.push(`${path}: contiene el id de la regla interna ${r.id}`)
+    }
+    if (/public:\s*!1|"public"\s*:\s*false/.test(text)) problems.push(`${path}: contiene una bandera public:false`)
+  }
+  return problems
+}
+
 // Los seis nodos de la primera pantalla llevan icono SVG en línea, oculto a lectores de pantalla, con trazo de 1,5 px.
 export function checkNodeIcons(rel, html) {
   const icons = [...html.matchAll(/<svg\b[^>]*class="node-icon"[^>]*>/g)].map((m) => m[0])
@@ -171,6 +185,20 @@ export function checkNodeIcons(rel, html) {
   for (const i of icons) {
     if (!/aria-hidden="true"/.test(i)) problems.push(`${rel}: un icono de nodo no es aria-hidden`)
     if (!/stroke-width="1\.5"/.test(i)) problems.push(`${rel}: un icono de nodo no tiene trazo de 1,5`)
+  }
+  return problems
+}
+
+// Nada de marcadores a la vista del visitante: ni ids P-<n>, ni "TU FOTO"/"EMPRESA", ni la palabra "pending", ni pistas internas [... · P-n].
+// El JSON-LD y los atributos (data-pending) no son texto visible. Las etiquetas autorizadas ("por confirmar") sí pueden verse.
+export function checkVisibleMarkers(files) {
+  const problems = []
+  for (const { path, text } of files) {
+    const visible = text.replace(/<script\b[\s\S]*?<\/script>/g, ' ').replace(/<[^>]+>/g, ' ')
+    if (/\bP-\d+\b/.test(visible)) problems.push(`${path}: se ve un id de marcador (P-<n>)`)
+    if (/TU FOTO|EMPRESA/.test(visible)) problems.push(`${path}: se ve un marcador de foto o de empresa`)
+    // "pending review" es el rótulo honesto de las plantillas sin revisar (AC-23), no un marcador.
+    if (/\bpending\b(?!\s+(human\s+)?review)/i.test(visible)) problems.push(`${path}: se ve la palabra "pending"`)
   }
   return problems
 }

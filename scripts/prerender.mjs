@@ -28,7 +28,8 @@ const write = (rel, text) => {
 const page = ({ lang, head, body }) =>
   template.replace('<html lang="en">', `<html lang="${lang}">`).replace('<!--head-->', head).replace('<!--app-->', body)
 
-const vite = await createServer({ appType: 'custom', server: { middlewareMode: true }, logLevel: 'error' })
+// PRERENDER_MODE=e2e hace que el HTML lleve las mismas fotos de relleno que el cliente de la compilación e2e (si no, la hidratación no coincidiría).
+const vite = await createServer({ mode: process.env.PRERENDER_MODE || undefined, appType: 'custom', server: { middlewareMode: true }, logLevel: 'error' })
 try {
   const { renderSite, renderLegal, renderNotFound, renderPage } = await vite.ssrLoadModule('/src/entry-server.jsx')
 
@@ -52,10 +53,11 @@ try {
     const alternates = { en: pagePaths.en[view], es: pagePaths.es[view] }
     for (const lang of ['en', 'es']) {
       const c = site[lang]
-      const title = view === 'demo' ? c.demo.title : c[`${view === 'projects' ? 'projectsPage' : 'journeyPage'}`].title
+      const src = view === 'demo' ? c.demo : c[view === 'projects' ? 'projectsPage' : 'journeyPage']
+      const title = src.title
       write(`${pagePaths[lang][view].slice(1)}index.html`, page({
         lang,
-        head: headHtml({ lang, path: pagePaths[lang][view], title: `${title} — Dennys Heras`, description: c.meta.description, alternates }),
+        head: headHtml({ lang, path: pagePaths[lang][view], title: `${title} — Dennys Heras`, description: src.description, alternates }),
         body: renderPage(lang, view),
       }))
     }

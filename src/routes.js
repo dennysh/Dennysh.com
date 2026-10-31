@@ -7,15 +7,24 @@ export const legalPaths = { en: { privacy: '/en/privacy/', terms: '/en/terms/' }
 
 const norm = (p) => (p.endsWith('/') ? p : `${p}/`)
 
-// pathname → { lang, view }. Cualquier cosa desconocida cae en el inicio de su idioma.
+const HOMES = { '/': 'en', '/index.html/': 'en', '/en/': 'en', '/es/': 'es' }
+
+// pathname → { lang, view }. Una ruta desconocida es la 404, que se prerenderiza en inglés: se hidrata igual para no mezclar árboles.
 export function resolveView(pathname) {
   const path = norm(pathname)
-  const lang = path.startsWith('/es/') ? 'es' : 'en'
+  if (HOMES[path]) return { lang: HOMES[path], view: 'home' }
   for (const l of ['en', 'es']) {
     for (const [view, p] of Object.entries(pagePaths[l])) if (p === path) return { lang: l, view }
     for (const [view, p] of Object.entries(legalPaths[l])) if (p === path) return { lang: l, view }
   }
-  return { lang, view: 'home' }
+  return { lang: 'en', view: 'notfound' }
+}
+
+// Los mensajes de Telegram enviados antes de mover la demo apuntan a /es/?evento=…: se reenvían a la página de la demo.
+export function legacyEventTarget(pathname, search) {
+  const { lang, view } = resolveView(pathname)
+  if (view !== 'home' || !new URLSearchParams(search).has('evento')) return null
+  return `${pagePaths[lang].demo}${search}`
 }
 
 // Misma página en el otro idioma (para el enlace de idioma y los hreflang).

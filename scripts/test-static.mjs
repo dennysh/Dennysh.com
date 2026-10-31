@@ -8,7 +8,7 @@ import { renderHeadersFile, checkHeadersFile } from './static/headers.mjs'
 import { checkViteEnv, scanPatchAdditions } from './static/secrets.mjs'
 import { checkSourceRules } from './static/rules.mjs'
 import { checkSurface } from './static/no-ai-routes.mjs'
-import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget, checkMarkup, checkNodeIcons } from './static/site.mjs'
+import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget, checkMarkup, checkNodeIcons, checkNoHiddenRules, checkVisibleMarkers } from './static/site.mjs'
 import { buildStaticExample } from './gen-static-example.mjs'
 import { loadRuleset } from '../core/ruleset.js'
 import { checkUnused } from './static/unused.mjs'
@@ -131,6 +131,11 @@ const markup = onDist('markup', () => [
   ...checkMarkup(walk('dist').filter((f) => /\.html$/.test(f)).map((path) => ({ path, text: readFileSync(path, 'utf8') }))),
   ...['index.html', 'en/index.html', 'es/index.html'].flatMap((rel) => checkNodeIcons(rel, distRead(rel) ?? '')),
 ])
+const hiddenRules = onDist('hidden-rules', () => checkNoHiddenRules(
+  walk('dist').filter((f) => /\.(html|js|json|txt)$/.test(f)).map((path) => ({ path, text: readFileSync(path, 'utf8') })),
+  JSON.parse(readFileSync('content/working-rules.json', 'utf8')),
+))
+const markers = onDist('markers', () => checkVisibleMarkers(walk('dist').filter((f) => /\.html$/.test(f)).map((path) => ({ path, text: readFileSync(path, 'utf8') }))))
 const budgets = onDist('budgets', () => checkBudget(distRead, distBuf))
 const staticExample = async () => {
   const problems = onDistProblems(checkStaticExample(distRead))
@@ -189,7 +194,7 @@ async function content() {
   return true
 }
 
-const CHECKS = { secrets, unused, images, headers, content, prerender, machine, legal, svg, fonts, markup, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
+const CHECKS = { secrets, unused, images, headers, content, prerender, machine, legal, svg, fonts, markup, 'hidden-rules': hiddenRules, markers, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
 const wanted = process.argv.slice(2).filter((a) => a in CHECKS)
 const results = []
 for (const k of wanted.length ? wanted : Object.keys(CHECKS)) results.push(await CHECKS[k]())
