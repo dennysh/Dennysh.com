@@ -8,12 +8,13 @@ import { renderHeadersFile, checkHeadersFile } from './static/headers.mjs'
 import { checkViteEnv, scanPatchAdditions } from './static/secrets.mjs'
 import { checkSourceRules } from './static/rules.mjs'
 import { checkSurface } from './static/no-ai-routes.mjs'
-import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget, checkMarkup, checkNodeIcons, checkNoHiddenRules, checkVisibleMarkers } from './static/site.mjs'
+import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget, checkMarkup, checkNodeIcons, checkNoHiddenRules, checkVisibleMarkers, checkNoPendingHints } from './static/site.mjs'
 import { buildStaticExample } from './gen-static-example.mjs'
 import { loadRuleset } from '../core/ruleset.js'
 import { checkUnused } from './static/unused.mjs'
 import { checkWebp } from './static/webp-meta.mjs'
 import { codePanel } from '../src/home/code-panel.js'
+import { collectPending as collectPendingNow } from '../src/content/site.js'
 
 const SKIP = /\.(png|jpe?g|gif|webp|ico|svg|woff2?|glb|lock)$|package-lock\.json$|(^|\/)tests\/|scan-secrets/
 
@@ -136,6 +137,10 @@ const hiddenRules = onDist('hidden-rules', () => checkNoHiddenRules(
   walk('dist').filter((f) => /\.(html|js|json|txt)$/.test(f)).map((path) => ({ path, text: readFileSync(path, 'utf8') })),
   JSON.parse(readFileSync('content/working-rules.json', 'utf8')),
 ))
+const pendingHints = onDist('pending-hints', () => checkNoPendingHints(
+  walk('dist').filter((f) => /\.(html|js|json|txt)$/.test(f)).map((path) => ({ path, text: readFileSync(path, 'utf8') })),
+  collectPendingNow(),
+))
 const markers = onDist('markers', () => checkVisibleMarkers(walk('dist').filter((f) => /\.html$/.test(f)).map((path) => ({ path, text: readFileSync(path, 'utf8') }))))
 // AC-H2 y AC-H3 sobre el HTML construido: el panel de Código sale de los archivos y los seis nodos están como enlaces sin JavaScript.
 const home = onDist('home', () => {
@@ -209,7 +214,7 @@ async function content() {
   return true
 }
 
-const CHECKS = { secrets, unused, images, headers, content, prerender, machine, legal, svg, fonts, markup, 'hidden-rules': hiddenRules, markers, home, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
+const CHECKS = { secrets, unused, images, headers, content, prerender, machine, legal, svg, fonts, markup, 'hidden-rules': hiddenRules, 'pending-hints': pendingHints, markers, home, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
 const wanted = process.argv.slice(2).filter((a) => a in CHECKS)
 const results = []
 for (const k of wanted.length ? wanted : Object.keys(CHECKS)) results.push(await CHECKS[k]())

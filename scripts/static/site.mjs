@@ -210,3 +210,22 @@ export function checkVisibleMarkers(files) {
   }
   return problems
 }
+
+// Las pistas internas de los marcadores (P-<n>) no pueden aparecer en nada de lo publicado: solo el id y el estado (revisión 2026-10-31).
+// Una pista cuenta solo cuando va como pista de marcador (propiedad hint, llamada pending('P-n', 'pista') o [pista · P-n]); una palabra
+// igual en un texto legítimo ("Disponibilidad" en los Términos) no es una fuga.
+const reEscape = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+export function checkNoPendingHints(files, pendings) {
+  const problems = []
+  const seen = new Set()
+  for (const { id, hint } of pendings) {
+    if (!hint || seen.has(`${id}|${hint}`)) continue
+    seen.add(`${id}|${hint}`)
+    const forms = [JSON.stringify(hint), `'${hint.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`].map(reEscape)
+    const quoted = `(?:${forms.join('|')})`
+    const idq = `['"]${reEscape(id)}['"]`
+    const patterns = [new RegExp(`\\bhint\\s*:\\s*${quoted}`), new RegExp(`${idq}\\s*,\\s*${quoted}`), new RegExp(`\\[\\s*${reEscape(hint)}\\s*·\\s*${reEscape(id)}\\s*\\]`)]
+    for (const { path, text } of files) if (patterns.some((re) => re.test(text))) problems.push(`${path}: contiene la pista interna del marcador ${id}`)
+  }
+  return problems
+}
