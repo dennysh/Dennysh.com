@@ -31,7 +31,7 @@ describe('renderAlert: instantáneas (D-02)', () => {
         'Decisión: LIMITAR (15 min)',
         'Regla: R-02',
         'Hora: 02:41:17 (Guayaquil, UTC-5)',
-        'Evento: https://dennysh.com/es/?evento=ev_test-123',
+        'Evento: https://dennysh.com/es/demo/?evento=ev_test-123',
       ].join('\n'),
     )
   })
@@ -44,7 +44,7 @@ describe('renderAlert: instantáneas (D-02)', () => {
         'Decisión: BLOQUEAR',
         'Regla: R-01',
         'Hora: 02:41:17 (Guayaquil, UTC-5)',
-        'Evento: https://dennysh.com/es/?evento=ev_test-123',
+        'Evento: https://dennysh.com/es/demo/?evento=ev_test-123',
       ].join('\n'),
     )
   })
@@ -57,7 +57,7 @@ describe('renderAlert: instantáneas (D-02)', () => {
         'Decisión: ALERTAR',
         'Regla: R-03',
         'Hora: 02:41:17 (Guayaquil, UTC-5)',
-        'Evento: https://dennysh.com/es/?evento=ev_test-123',
+        'Evento: https://dennysh.com/es/demo/?evento=ev_test-123',
       ].join('\n'),
     )
   })

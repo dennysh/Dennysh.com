@@ -1,12 +1,15 @@
 import React from 'react'
 import { site, links } from './content/site.js'
 import Txt from './components/Txt.jsx'
-import Demo from './demo/Demo.jsx'
+import FirstScreen from './home/FirstScreen.jsx'
+import { peopleRules } from './home/rules.js'
+import { pagePaths, legalPaths, alternateOf } from './routes.js'
 import './styles/tokens.css'
 import './styles/site.css'
+import './styles/home.css'
 
 const base = (lang) => `/${lang}/`
-export const legalPaths = { en: { privacy: '/en/privacy/', terms: '/en/terms/' }, es: { privacy: '/es/privacidad/', terms: '/es/terminos/' } }
+export { legalPaths }
 
 export function FactoryDiagram({ c }) {
   const w = 160
@@ -30,26 +33,26 @@ export function FactoryDiagram({ c }) {
   )
 }
 
-export function Header({ lang }) {
+// Cabecera de las páginas interiores (legales, Proyectos, Trayectoria, Demo): los anclajes apuntan al inicio y el idioma a la misma página.
+export function Header({ lang, view = 'home' }) {
   const n = site[lang].nav
   const other = lang === 'es' ? 'en' : 'es'
+  const home = (id) => `${base(lang)}#${id}`
   return (
     <header className="topbar">
       <a className="skip" href="#main">{n.skip}</a>
       <div className="wrap">
-        <a className="brand" href={`${base(lang)}#inicio`}>Dennys Heras</a>
+        <a className="brand" href={base(lang)}>Dennys Heras</a>
         <nav aria-label={n.menu}>
           <ul>
-            <li><a href="#demo">{n.demo}</a></li>
-            <li><a href="#factory">{n.factory}</a></li>
-            <li><a href="#governance">{n.governance}</a></li>
-            <li><a href="#work">{n.work}</a></li>
-            <li><a href="#skills">{n.skills}</a></li>
-            <li><a href="#journey">{n.journey}</a></li>
-            <li><a href="#contact">{n.contact}</a></li>
+            <li><a href={pagePaths[lang].demo}>{n.demo}</a></li>
+            <li><a href={pagePaths[lang].projects}>{n.work}</a></li>
+            <li><a href={pagePaths[lang].journey}>{n.journey}</a></li>
+            <li><a href={home('governance')}>{n.governance}</a></li>
+            <li><a href={home('contact')}>{n.contact}</a></li>
           </ul>
         </nav>
-        <a className="langlink" href={base(other)} hrefLang={other} lang={other}>{n.lang}</a>
+        <a className="langlink" href={alternateOf(lang, view)} hrefLang={other} lang={other}>{n.lang}</a>
       </div>
     </header>
   )
@@ -69,32 +72,18 @@ export function Footer({ lang }) {
   )
 }
 
-export default function Site({ lang = 'en', demoClient }) {
+export default function Site({ lang = 'en' }) {
   const c = site[lang]
   return (
     <>
-      <Header lang={lang} />
       <main id="main">
-        <section id="inicio" className="hero" aria-labelledby="hero-h">
-          <div className="wrap">
-            <h1 id="hero-h">{c.hero.thesis}</h1>
-            <p className="who">{c.hero.who.map((w, i) => <span key={i}><Txt lang={lang} v={w} /></span>)}</p>
-            <div className="cta">
-              <a className="btn btn-primary" href="#demo">{c.hero.tryDemo}</a>
-              <a className="btn btn-secondary" href="#contact">{c.hero.contact}</a>
-            </div>
-            <aside className="summary" aria-labelledby="sum-h" id="summary">
-              <h2 id="sum-h">{c.hero.summaryTitle}</h2>
-              <ol>{c.hero.summary.map((s) => <li key={s}>{s}</li>)}</ol>
-            </aside>
-          </div>
-        </section>
+        <FirstScreen lang={lang} />
 
         <section id="demo" className="block" aria-labelledby="demo-h">
           <div className="wrap">
             <h2 id="demo-h">{c.demo.title}</h2>
             <p className="lead">{c.demo.lead}</p>
-            <Demo lang={lang} client={demoClient} />
+            <a className="btn btn-primary btn-xl" href={pagePaths[lang].demo}>{c.hero.tryDemo}</a>
           </div>
         </section>
 
@@ -112,7 +101,7 @@ export default function Site({ lang = 'en', demoClient }) {
           <div className="wrap">
             <h2 id="gov-h">{c.governance.title}</h2>
             <p className="lead">{c.governance.lead}</p>
-            <ul className="rules">{c.governance.rules.map((r) => <li key={r.title}><strong>{r.title}</strong>{r.text}</li>)}</ul>
+            <ol className="rules">{peopleRules(lang).map((t) => <li key={t}>{t}</li>)}</ol>
             <p className="method">{c.governance.method}</p>
           </div>
         </section>
@@ -183,5 +172,18 @@ export default function Site({ lang = 'en', demoClient }) {
       </main>
       <Footer lang={lang} />
     </>
+  )
+}
+
+export function WorkCard({ lang, it }) {
+  const c = site[lang]
+  return (
+    <article className="card">
+      <span className={`badge badge-${it.status}`}>{c.work.status[it.status]}</span>
+      <h3>{it.title}</h3>
+      <p>{it.text}</p>
+      {it.url && <p><a href={it.url} rel="noopener noreferrer">{c.work.visit}</a></p>}
+      {it.repo && <p>{typeof it.repo === 'string' ? <a href={it.repo} rel="noopener noreferrer">{c.work.repo}</a> : <><span>{c.work.repo}: </span><Txt lang={lang} v={it.repo} /></>}</p>}
+    </article>
   )
 }

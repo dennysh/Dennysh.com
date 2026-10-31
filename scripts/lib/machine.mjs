@@ -1,8 +1,12 @@
 // Capa de máquinas (AC-15, AC-33): JSON-LD, llms.txt, dennys.json, robots.txt, sitemap.xml y <head> por página.
 // Solo usa datos de src/content/site.js (reales o confirmados); nada inventado.
 import { site, links, isPending, profile } from '../../src/content/site.js'
+import { publicRulesFor } from './rules.mjs'
+import { pagePaths } from '../../src/routes.js'
 
 export const SITE_URL = 'https://dennysh.com'
+// Páginas interiores nuevas (spec primera pantalla §5): una por idioma, con su equivalente en el otro.
+export const INNER_PAGES = [{ view: 'projects' }, { view: 'journey' }, { view: 'demo' }]
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const items = (lang) => site[lang].work.items
 const repos = (lang) => items(lang).filter((i) => typeof i.repo === 'string')
@@ -48,7 +52,7 @@ export function jsonLd(lang) {
   return { '@context': 'https://schema.org', '@graph': [person, page, ...code, ...sites] }
 }
 
-export function headHtml({ lang, path, title, description, canonical, indexable = true, withAlternates = false, ld = false }) {
+export function headHtml({ lang, path, title, description, canonical, indexable = true, withAlternates = false, alternates, ld = false }) {
   const url = `${SITE_URL}${canonical ?? path}`
   const lines = [
     `<title>${esc(title)}</title>`,
@@ -62,7 +66,9 @@ export function headHtml({ lang, path, title, description, canonical, indexable 
     `<meta property="og:locale" content="${lang === 'es' ? 'es_EC' : 'en_US'}" />`,
     `<meta name="twitter:card" content="summary" />`,
   ]
-  if (withAlternates) {
+  if (alternates) {
+    lines.push(`<link rel="alternate" hreflang="en" href="${SITE_URL}${alternates.en}" />`, `<link rel="alternate" hreflang="es" href="${SITE_URL}${alternates.es}" />`, `<link rel="alternate" hreflang="x-default" href="${SITE_URL}${alternates.en}" />`)
+  } else if (withAlternates) {
     lines.push(`<link rel="alternate" hreflang="en" href="${SITE_URL}/en/" />`, `<link rel="alternate" hreflang="es" href="${SITE_URL}/es/" />`, `<link rel="alternate" hreflang="x-default" href="${SITE_URL}/en/" />`)
   }
   if (ld) lines.push(`<script type="application/ld+json">${JSON.stringify(jsonLd(lang)).replace(/</g, '\\u003c')}</script>`)
@@ -87,12 +93,15 @@ export function llmsTxt() {
     '## Best links',
     `- [Site (English)](${SITE_URL}/en/)`,
     `- [Sitio (Español)](${SITE_URL}/es/)`,
-    `- [Live demo: automated decision, explained](${SITE_URL}/en/#demo)`,
+    `- [Live demo: automated decision, explained](${SITE_URL}/en/demo/)`,
     `- [Public ruleset (JSON, with hash)](${SITE_URL}/demo/ruleset.v1.json)`,
     `- [Explanation templates (JSON)](${SITE_URL}/demo/explanations.v1.json)`,
     `- [LinkedIn](${links.linkedin})`,
     `- [GitHub](${links.github})`,
     `- [CV (PDF)](${SITE_URL}${links.cv})`,
+    '',
+    '## Working rules',
+    ...publicRulesFor('en').map((t) => `- ${t}`),
     '',
     '## Work and its status',
     ...items('en').map((r) => (linkOf(r) ? `- ${r.title} (${en.work.status[r.status]}): ${linkOf(r)}` : `- ${r.title} (${en.work.status[r.status]})`)),
@@ -117,6 +126,7 @@ export function resumeJson() {
       profiles: [{ network: 'LinkedIn', url: links.linkedin }, { network: 'GitHub', url: links.github }],
     },
     languages: profile.languages.map((l) => ({ language: l.name, fluency: l.fluency })),
+    workingRules: { en: publicRulesFor('en'), es: publicRulesFor('es') },
     projects: items('en').map((r) => ({ name: r.title, description: r.text, ...(linkOf(r) ? { url: linkOf(r) } : {}), status: r.status })),
     skills: en.skills.groups.map((g) => ({ name: g.title, keywords: [...g.shown, ...g.declared], shown: g.shown })),
   }
@@ -132,9 +142,15 @@ export const robotsTxt = () =>
     '',
   ].join('\n')
 
+export const sitemapPaths = () => [
+  { en: '/en/', es: '/es/' },
+  ...INNER_PAGES.map(({ view }) => ({ en: pagePaths.en[view], es: pagePaths.es[view] })),
+]
 export function sitemapXml() {
-  const alt = (l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${SITE_URL}/${l}/" />`
-  const entry = (l) => `  <url>\n    <loc>${SITE_URL}/${l}/</loc>\n${alt('en')}\n${alt('es')}\n    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}/en/" />\n  </url>`
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${entry('en')}\n${entry('es')}\n</urlset>\n`
+  const alt = (l, p) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${SITE_URL}${p}" />`
+  const entry = (pair, l) => `  <url>\n    <loc>${SITE_URL}${pair[l]}</loc>\n${alt('en', pair.en)}\n${alt('es', pair.es)}\n    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${pair.en}" />\n  </url>`
+  // Orden: inicio en/es, luego cada página nueva en/es.
+  const urls = sitemapPaths().flatMap((pair) => [entry(pair, 'en'), entry(pair, 'es')])
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>\n`
 }
 export { isPending }

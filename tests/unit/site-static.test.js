@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget, SECTION_IDS } from '../../scripts/static/site.mjs'
-import { sitemapXml, llmsTxt, headHtml } from '../../scripts/lib/machine.mjs'
+import { sitemapXml, llmsTxt, headHtml, INNER_PAGES } from '../../scripts/lib/machine.mjs'
+import { pagePaths } from '../../src/routes.js'
 import { site } from '../../src/content/site.js'
 
 const reader = (files) => (rel) => files[rel] ?? null
@@ -17,6 +18,7 @@ describe('capa de máquinas (AC-15, AC-33)', () => {
   const page = (lang, canonical) => `<html>${headHtml({ lang, path: `/${lang}/`, canonical, title: 't', description: 'd', withAlternates: true, ld: true })}</html>`
   const files = {
     'index.html': page('en', '/en/'), 'en/index.html': page('en', '/en/'), 'es/index.html': page('es', '/es/'),
+    ...Object.fromEntries(INNER_PAGES.flatMap(({ view }) => ['en', 'es'].map((lang) => [`${pagePaths[lang][view].slice(1)}index.html`, `<html>${headHtml({ lang, path: pagePaths[lang][view], title: 't', description: 'd', alternates: { en: pagePaths.en[view], es: pagePaths.es[view] } })}<h1>x</h1></html>`]))),
     'llms.txt': llmsTxt(), 'dennys.json': JSON.stringify({ basics: { email: 'dennys@dennysh.com' } }),
     'robots.txt': 'Sitemap: https://dennysh.com/sitemap.xml', 'sitemap.xml': sitemapXml(),
   }
@@ -27,7 +29,18 @@ describe('capa de máquinas (AC-15, AC-33)', () => {
   it('falla si falta hreflang x-default', () => {
     expect(checkMachine(reader({ ...files, 'en/index.html': files['en/index.html'].replace('hreflang="x-default"', 'hreflang="zz"') })).length).toBeGreaterThan(0)
   })
-  it('falla si el sitemap lista algo más que /en/ y /es/', () => {
+  it('el sitemap lista el inicio y las tres páginas nuevas en los dos idiomas (AC-H8)', () => {
+    const locs = [...sitemapXml().matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])
+    expect(locs).toEqual(['https://dennysh.com/en/', 'https://dennysh.com/es/', ...INNER_PAGES.flatMap(({ view }) => ['en', 'es'].map((l) => `https://dennysh.com${pagePaths[l][view]}`))])
+  })
+  it('falla si una página nueva no existe, no tiene canonical propio o no apunta su x-default a la versión en inglés', () => {
+    const k = `${pagePaths.es.projects.slice(1)}index.html`
+    const { [k]: _gone, ...rest } = files
+    expect(checkMachine(reader(rest))).toContainEqual(expect.stringContaining('falta'))
+    expect(checkMachine(reader({ ...files, [k]: files[k].replace(/<link rel="canonical"[^>]*>/, '<link rel="canonical" href="https://dennysh.com/es/" />') }))).toContainEqual(expect.stringContaining('canonical'))
+    expect(checkMachine(reader({ ...files, [k]: files[k].replace('hreflang="x-default"', 'hreflang="zz"') })).length).toBeGreaterThan(0)
+  })
+  it('falla si el sitemap lista algo fuera de la lista esperada', () => {
     expect(checkMachine(reader({ ...files, 'sitemap.xml': sitemapXml().replace('</urlset>', '<url><loc>https://dennysh.com/</loc></url></urlset>') })).length).toBeGreaterThan(0)
   })
   it('falla con JSON-LD roto o con otro correo', () => {
@@ -61,11 +74,11 @@ describe('legales (AC-31)', () => {
 describe('ejemplo estático (AC-29) y SVG', () => {
   const ex = (label, extra = '') => `<noscript>${label} ${extra}</noscript>`
   it('pasa etiquetado y sin entrega', () => {
-    expect(checkStaticExample(reader({ 'en/index.html': ex('Static example, not a real send'), 'es/index.html': ex('Ejemplo estático, no es un envío real') }))).toEqual([])
+    expect(checkStaticExample(reader({ 'en/demo/index.html': ex('Static example, not a real send'), 'es/demo/index.html': ex('Ejemplo estático, no es un envío real') }))).toEqual([])
   })
   it('falla si afirma entrega o no está etiquetado', () => {
-    expect(checkStaticExample(reader({ 'en/index.html': ex('Static example, not a real send', 'Delivered to Telegram'), 'es/index.html': ex('Ejemplo estático, no es un envío real') })).length).toBe(1)
-    expect(checkStaticExample(reader({ 'en/index.html': ex('hola'), 'es/index.html': ex('Ejemplo estático, no es un envío real') })).length).toBe(1)
+    expect(checkStaticExample(reader({ 'en/demo/index.html': ex('Static example, not a real send', 'Delivered to Telegram'), 'es/demo/index.html': ex('Ejemplo estático, no es un envío real') })).length).toBe(1)
+    expect(checkStaticExample(reader({ 'en/demo/index.html': ex('hola'), 'es/demo/index.html': ex('Ejemplo estático, no es un envío real') })).length).toBe(1)
   })
   const svg = (inner) => `<svg class="diagram" role="img" aria-labelledby="a b">${inner}</svg>`
   it('SVG con título y descripción pasa; sin ellos o con cifras falla', () => {

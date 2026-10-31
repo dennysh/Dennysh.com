@@ -22,10 +22,6 @@ section.block { padding-block: var(--space-7); border-top: 1px solid var(--line)
 section.block > .wrap > h2 { margin: 0 0 var(--space-3); font-size: clamp(1.5rem, 3.4vw, 2.1rem); line-height: 1.2; }
 .lead { margin: 0 0 var(--space-5); color: var(--muted); max-width: 46rem; font-size: 1.05rem; }
 
-.hero { padding-block: var(--space-6) var(--space-7); }
-.hero h1 { margin: 0 0 var(--space-4); font-size: clamp(1.9rem, 6vw, 3.4rem); line-height: 1.1; max-width: 22ch; }
-.who { margin: 0 0 var(--space-5); color: var(--muted); display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
-.who span + span::before { content: '·'; margin-right: var(--space-4); }
 .cta { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-bottom: var(--space-5); }
 .summary { border: 1px solid var(--line); border-radius: var(--radius); padding: var(--space-4) var(--space-5); background: var(--surface); }
 .summary h2 { margin: 0 0 var(--space-2); font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
@@ -82,11 +78,6 @@ footer.site a { color: var(--muted); }
   .topbar nav { order: 3; width: 100%; overflow-x: auto; }
   .topbar nav ul { flex-wrap: nowrap; white-space: nowrap; gap: var(--space-4); }
   .topbar nav a { padding: var(--space-1) 0; }
-  .hero { padding-block: var(--space-4) var(--space-5); }
-  .hero h1 { font-size: 1.4rem; margin-bottom: var(--space-2); }
-  .who { font-size: .85rem; margin-bottom: var(--space-3); }
-  .who span + span::before { margin-right: var(--space-2); }
-  .who { gap: 0 var(--space-2); }
   .cta { margin-bottom: var(--space-3); gap: var(--space-2); }
   .cta .btn { padding: 0 var(--space-4); }
   .summary { padding: var(--space-3); }

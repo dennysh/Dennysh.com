@@ -5,7 +5,8 @@ import { join, dirname } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { createServer } from 'vite'
 import { site } from '../src/content/site.js'
-import { headHtml, llmsTxt, resumeJson, robotsTxt, sitemapXml } from './lib/machine.mjs'
+import { headHtml, llmsTxt, resumeJson, robotsTxt, sitemapXml, INNER_PAGES } from './lib/machine.mjs'
+import { pagePaths } from '../src/routes.js'
 
 // En producción el build se niega a continuar si fallan las compuertas de publicación (marcadores pending y plantillas sin revisar).
 if (process.env.NODE_ENV === 'production') {
@@ -29,7 +30,7 @@ const page = ({ lang, head, body }) =>
 
 const vite = await createServer({ appType: 'custom', server: { middlewareMode: true }, logLevel: 'error' })
 try {
-  const { renderSite, renderLegal, renderNotFound } = await vite.ssrLoadModule('/src/entry-server.jsx')
+  const { renderSite, renderLegal, renderNotFound, renderPage } = await vite.ssrLoadModule('/src/entry-server.jsx')
 
   for (const lang of ['en', 'es']) {
     const m = site[lang].meta
@@ -43,6 +44,19 @@ try {
         lang,
         head: headHtml({ lang, path, title: `${label} — Dennys Heras`, description: m.description }),
         body: renderLegal(lang, kind),
+      }))
+    }
+  }
+  // Páginas interiores nuevas: Proyectos, Trayectoria y Demo (D-H1), con canonical propio y hreflang en/es/x-default.
+  for (const { view } of INNER_PAGES) {
+    const alternates = { en: pagePaths.en[view], es: pagePaths.es[view] }
+    for (const lang of ['en', 'es']) {
+      const c = site[lang]
+      const title = view === 'demo' ? c.demo.title : c[`${view === 'projects' ? 'projectsPage' : 'journeyPage'}`].title
+      write(`${pagePaths[lang][view].slice(1)}index.html`, page({
+        lang,
+        head: headHtml({ lang, path: pagePaths[lang][view], title: `${title} — Dennys Heras`, description: c.meta.description, alternates }),
+        body: renderPage(lang, view),
       }))
     }
   }
@@ -69,4 +83,4 @@ write('sitemap.xml', sitemapXml())
 mkdirSync(join(DIST, 'demo'), { recursive: true })
 copyFileSync('content/ruleset.v1.json', join(DIST, 'demo/ruleset.v1.json'))
 copyFileSync('content/explanations/v1.json', join(DIST, 'demo/explanations.v1.json'))
-console.log('prerender OK — /, /en/, /es/, legales, 404 y capa de máquinas')
+console.log('prerender OK — /, /en/, /es/, Proyectos, Trayectoria, Demo, legales, 404 y capa de máquinas')

@@ -12,7 +12,7 @@ test('solo salen peticiones a estáticos, Turnstile y /api con el cuerpo permiti
   page.on('console', (m) => { if (m.type() === 'error' || /content security policy/i.test(m.text())) consoleErrors.push(m.text()) })
   await stubTurnstile(page)
 
-  await page.goto('/es/')
+  await page.goto('/es/demo/')
   await page.getByTestId('run').click()
   await page.getByTestId('show-all').click()
   await page.getByTestId('act-approve').click()
@@ -36,7 +36,7 @@ test('solo salen peticiones a estáticos, Turnstile y /api con el cuerpo permiti
 
 test('lo único guardado en el navegador es el eventId en sessionStorage (sin localStorage)', async ({ page }) => {
   await stubTurnstile(page)
-  await page.goto('/en/')
+  await page.goto('/en/demo/')
   await page.getByTestId('run').click()
   await page.getByTestId('show-all').click()
   const store = await page.evaluate(() => ({ local: Object.keys(localStorage), session: Object.keys(sessionStorage) }))

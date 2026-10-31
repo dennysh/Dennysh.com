@@ -18,6 +18,9 @@ export const profile = {
 // (razón y alcance en 02-DOCS/wiki/sdd/decisions.md, D-IMPL-11). Cualquier marcador nuevo debe autorizarse aquí a propósito.
 export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-09', 'P-22']
 
+// Fotos de la galería de Trayectoria: ninguna entregada todavía. Cada hueco es un marcador P-29, nunca una foto inventada.
+const slots = (n, hint, label) => Array.from({ length: n }, () => pending('P-29', hint, label))
+
 export const unauthorized = (list, authorized = AUTHORIZED_PENDING) => list.filter((p) => !authorized.includes(p.id))
 
 const EMAIL = 'dennys@dennysh.com'
@@ -48,6 +51,45 @@ export const site = {
         'Contact: dennys@dennysh.com, LinkedIn and GitHub (dennysh).',
       ],
     },
+    home: {
+      tagline: ['7 years in fiber optics', 'Remote · UTC-5 · Spanish native · English B1'],
+      bar: { cv: 'CV', contact: 'Contact' },
+      portraitAlt: 'Portrait of Dennys Heras',
+      hint: 'Scroll',
+      nodesLabel: 'Explore',
+      nodes: [
+        { id: 'code', label: 'Code' }, { id: 'projects', label: 'Projects' }, { id: 'demo', label: 'Demo' },
+        { id: 'journey', label: 'Journey' }, { id: 'how', label: 'How I work' }, { id: 'interest', label: 'Interest' },
+      ],
+      panels: {
+        code: { title: 'Code', note: 'Real data from the demo: the public ruleset and the static audit example.', github: 'View on GitHub ↗', projects: 'View projects →' },
+        projects: { title: 'Work in production', text: 'Telegram bot for ISP technicians. A children\'s football championships site for a client.', opens: 'opens a new page', go: 'Open Projects →' },
+        demo: { title: 'Live demo', text: 'An automated decision, with the rule used, the explanation and its audit.', opens: 'opens a new page', go: 'Open the demo →' },
+        journey: { title: 'From fiber to AI', text: 'Seven years in fiber-optic networks, where things have to work in the field.', opens: 'opens a new page', go: 'Open Journey →' },
+        how: { title: 'How I work', tabs: { people: 'People', machines: 'Machines' }, read: 'Read the rules →' },
+        interest: {
+          title: 'Interest', sportsLabel: 'Sports',
+          sports: ['jiu-jitsu', pending('P-23', 'Other sports besides jiu-jitsu', 'Other sports: to be confirmed')],
+          thought: 'What if, in a few years, we could connect the brain to AI and strengthen what is human? I do not know if it will be possible. I think so. (An idea, not a capability.)',
+          contact: 'Contact →',
+        },
+      },
+    },
+    projectsPage: {
+      title: 'Projects', lead: 'What is confirmed so far, each item marked in production or in development.', ids: ['caja-cercana', 'super-gol-kids'],
+      more: pending('P-24', 'Additional projects for the Projects page', 'More projects: to be confirmed'), back: 'Back to the home screen',
+    },
+    journeyPage: {
+      title: 'Journey', lead: 'From fiber-optic fieldwork to building AI systems.',
+      gallery: { hint: 'Move the pointer along a row to see its photos. On touch screens, tap a row.', photoOf: 'Photo {k} of {n}', prev: 'Previous photo', next: 'Next photo', close: 'Close', photoPending: 'Photo to be confirmed', list: 'Places and projects' },
+      rows: [
+        { id: 'fibra', title: 'Fiber-optic networks', meta: ['7 years', pending('P-29', 'Company where Dennys worked (only if he confirms the name)', 'company to be confirmed')], text: '7 years in fiber-optic networks, where things have to work in the field.', photos: slots(6, 'Photo for the fiber-optic row (Dennys provides it)', 'Photo to be confirmed') },
+        { id: 'bot', title: 'Caja Cercana bot', meta: ['2025', 'In production'], text: 'Telegram bot for ISP technicians that finds the nearest network box to their location. Used internally at the company.', photos: slots(4, 'Photo for the Caja Cercana row (Dennys provides it)', 'Photo to be confirmed') },
+        { id: 'supergol', title: 'Super Gol Kids', meta: ['In production'], text: 'Platform for children\'s football championships. Public website for a client; I developed the site.', photos: slots(3, 'Photo for the Super Gol Kids row (Dennys provides it)', 'Photo to be confirmed') },
+        { id: 'ia', title: 'AI systems', meta: ['Now'], text: 'I build AI systems that explain themselves and can be audited.', photos: slots(5, 'Photo for the AI systems row (Dennys provides it)', 'Photo to be confirmed') },
+      ],
+      more: pending('P-25', 'Shape of the Journey page and which data can be published', 'More of the journey: to be confirmed'), back: 'Back to the home screen',
+    },
     demo: {
       title: 'Live demo: an automated decision, explained',
       lead: 'One click simulates a suspicious access. The system decides, explains why, shows the rule it used, keeps a full audit trail and lets you take control.',
@@ -70,13 +112,6 @@ export const site = {
     governance: {
       title: 'How I work with AI',
       lead: 'Using AI is not the point. Governing it is. These are the working rules, short and checkable.',
-      rules: [
-        { title: 'Limits per task', text: 'Every delegated task states what it may change. Anything outside is not done.' },
-        { title: 'Review before accepting', text: 'No result is accepted before an automatic review has read it.' },
-        { title: 'A person verifies', text: 'What an agent reports is checked by a person; the report alone is not evidence.' },
-        { title: 'Traceability', text: 'Decisions and changes leave a record: what, why, when and under which rule.' },
-        { title: 'Controlled cost', text: 'Nothing runs a paid model per visitor click; limits are set before launch.' },
-      ],
       method: 'This site was designed spec-first. The design, plan and decision log are written down before the code.',
     },
     work: {
@@ -154,6 +189,45 @@ export const site = {
         'Contacto: dennys@dennysh.com, LinkedIn y GitHub (dennysh).',
       ],
     },
+    home: {
+      tagline: ['7 años en fibra óptica', 'Remoto · UTC-5 · Español nativo · Inglés B1'],
+      bar: { cv: 'CV', contact: 'Contacto' },
+      portraitAlt: 'Retrato de Dennys Heras',
+      hint: 'Desliza',
+      nodesLabel: 'Explorar',
+      nodes: [
+        { id: 'code', label: 'Código' }, { id: 'projects', label: 'Proyectos' }, { id: 'demo', label: 'Demo' },
+        { id: 'journey', label: 'Trayectoria' }, { id: 'how', label: 'Cómo trabajo' }, { id: 'interest', label: 'Interés' },
+      ],
+      panels: {
+        code: { title: 'Código', note: 'Datos reales de la demo: el conjunto de reglas público y el ejemplo de auditoría estático.', github: 'Ver en GitHub ↗', projects: 'Ver proyectos →' },
+        projects: { title: 'Trabajo en producción', text: 'Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente.', opens: 'abre una página nueva', go: 'Abrir Proyectos →' },
+        demo: { title: 'Demo en vivo', text: 'Una decisión automatizada, con la regla usada, la explicación y su auditoría.', opens: 'abre una página nueva', go: 'Abrir la demo →' },
+        journey: { title: 'De la fibra a la IA', text: 'Siete años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', opens: 'abre una página nueva', go: 'Abrir Trayectoria →' },
+        how: { title: 'Cómo trabajo', tabs: { people: 'Personas', machines: 'Máquinas' }, read: 'Leer las reglas →' },
+        interest: {
+          title: 'Interés', sportsLabel: 'Deportes',
+          sports: ['jiu-jitsu', pending('P-23', 'Otros deportes además de jiu-jitsu', 'Otros deportes: por confirmar')],
+          thought: '¿Y si dentro de unos años pudiéramos conectar el cerebro a la IA y potenciar lo humano? No sé si será posible. Creo que sí. (Una idea, no una capacidad.)',
+          contact: 'Contacto →',
+        },
+      },
+    },
+    projectsPage: {
+      title: 'Proyectos', lead: 'Lo confirmado hasta ahora, cada ítem marcado en producción o en desarrollo.', ids: ['caja-cercana', 'super-gol-kids'],
+      more: pending('P-24', 'Proyectos adicionales para la página Proyectos', 'Más proyectos: por confirmar'), back: 'Volver a la primera pantalla',
+    },
+    journeyPage: {
+      title: 'Trayectoria', lead: 'Del trabajo de campo con fibra óptica a construir sistemas con IA.',
+      gallery: { hint: 'Mueve el puntero a lo largo de una fila para ver sus fotos. En pantallas táctiles, toca una fila.', photoOf: 'Foto {k} de {n}', prev: 'Foto anterior', next: 'Foto siguiente', close: 'Cerrar', photoPending: 'Foto por confirmar', list: 'Lugares y proyectos' },
+      rows: [
+        { id: 'fibra', title: 'Redes de fibra óptica', meta: ['7 años', pending('P-29', 'Empresa donde trabajó Dennys (solo si confirma el nombre)', 'empresa por confirmar')], text: '7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', photos: slots(6, 'Foto de la fila de fibra óptica (la entrega Dennys)', 'Foto por confirmar') },
+        { id: 'bot', title: 'Bot Caja Cercana', meta: ['2025', 'En producción'], text: 'Bot de Telegram para técnicos de un ISP que encuentra la caja de red más cercana a su ubicación. Hoy se usa internamente en la empresa.', photos: slots(4, 'Foto de la fila Caja Cercana (la entrega Dennys)', 'Foto por confirmar') },
+        { id: 'supergol', title: 'Super Gol Kids', meta: ['En producción'], text: 'Plataforma de campeonatos de fútbol infantil. Sitio público de un cliente; yo desarrollé el sitio.', photos: slots(3, 'Foto de la fila Super Gol Kids (la entrega Dennys)', 'Foto por confirmar') },
+        { id: 'ia', title: 'Sistemas con IA', meta: ['Ahora'], text: 'Construyo sistemas con IA que se explican y se auditan.', photos: slots(5, 'Foto de la fila de sistemas con IA (la entrega Dennys)', 'Foto por confirmar') },
+      ],
+      more: pending('P-25', 'Forma de la página Trayectoria y qué datos se pueden publicar', 'Más de la trayectoria: por confirmar'), back: 'Volver a la primera pantalla',
+    },
     demo: {
       title: 'Demo en vivo: una decisión automatizada, explicada',
       lead: 'Un clic simula un acceso sospechoso. El sistema decide, explica por qué, muestra la regla que usó, guarda una pista de auditoría completa y te deja tomar el control.',
@@ -176,13 +250,6 @@ export const site = {
     governance: {
       title: 'Cómo trabajo con IA',
       lead: 'Lo importante no es usar IA, sino gobernarla. Estas son las reglas con las que trabajo, cortas y comprobables.',
-      rules: [
-        { title: 'Límites por tarea', text: 'Cada tarea delegada dice qué puede cambiar. Lo que queda fuera no se hace.' },
-        { title: 'Revisión antes de aceptar', text: 'Ningún resultado se acepta antes de que una revisión automática lo haya leído.' },
-        { title: 'Una persona verifica', text: 'Lo que un agente reporta lo comprueba una persona; el informe solo no es evidencia.' },
-        { title: 'Trazabilidad', text: 'Las decisiones y los cambios dejan registro: qué, por qué, cuándo y bajo qué regla.' },
-        { title: 'Costo controlado', text: 'Nada llama a un modelo de pago por cada clic de un visitante; los límites se fijan antes de publicar.' },
-      ],
       method: 'Este sitio se diseñó primero como especificación. El diseño, el plan y el registro de decisiones están escritos antes del código.',
     },
     work: {

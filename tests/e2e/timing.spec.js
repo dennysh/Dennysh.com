@@ -19,7 +19,7 @@ async function setup(page) {
       if (t && window.__live[window.__live.length - 1] !== t) window.__live.push(t)
     }).observe(document, { subtree: true, childList: true, characterData: true })
   })
-  await page.goto('/es/')
+  await page.goto('/es/demo/')
 }
 
 test('la reproducción completa cabe en 30 s y se anuncian solo 4 cambios (AC-03, AC-30)', async ({ page }) => {

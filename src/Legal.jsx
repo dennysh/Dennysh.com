@@ -62,7 +62,7 @@ export function LegalPage({ lang, kind }) {
   const t = TEXT[lang][kind]
   return (
     <>
-      <Header lang={lang} />
+      <Header lang={lang} view={kind} />
       <main id="main">
         <section className="block" aria-labelledby="legal-h">
           <div className="wrap">

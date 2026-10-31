@@ -13,7 +13,7 @@ async function runAndShow(page, id = 'run') {
 
 test('flujo completo: tres escenarios, tope, Anular, Escalar y fallo de Telegram (AC-03..AC-09, AC-21, AC-27)', async ({ page, request }) => {
   await stubTurnstile(page)
-  await page.goto('/en/')
+  await page.goto('/en/demo/')
 
   // 1.ª ejecución: gasta el cupo del visitante; el envío a Telegram falla y se dice.
   await runAndShow(page)

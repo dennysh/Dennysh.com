@@ -7,7 +7,7 @@ const RULES = ['R-01', 'R-02', 'R-03']
 const SAFE_ID = /^[A-Za-z0-9_.-]{1,128}$/
 const ZONE_OFFSET_MS = -5 * 3600 * 1000 // America/Guayaquil (supuesto P-15)
 
-export const EVENT_LINK_BASE = 'https://dennysh.com/es/?evento='
+export const EVENT_LINK_BASE = 'https://dennysh.com/es/demo/?evento='
 
 export function renderAlert(audit) {
   const has = (o, k) => typeof k === 'string' && Object.hasOwn(o, k)

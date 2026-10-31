@@ -1,27 +1,23 @@
-/* Dirección visual PROVISIONAL (T081 pendiente de Dennys): "editorial técnico sereno", oscuro por defecto, un acento ámbar.
-   Todo el color y el espacio salen de estas variables: cambiar de dirección es cambiar este archivo. */
+/* Atmósfera única, clara y cálida (spec primera pantalla §2; no hay modo oscuro). Todo el color y el espacio salen de estas variables.
+   Los textos usan --accent (contraste AA sobre papel); --accent-line es solo para trazos y bordes decorativos. */
 :root {
-  color-scheme: dark light;
-  --bg: #101214;
-  --surface: #171a1d;
-  --text: #e9e7e2;
-  --muted: #a3a8ad;
-  --line: #2c3136;
-  --accent: #f2b04a;
-  --accent-ink: #1a1305;
-  --accent-soft: rgba(242, 176, 74, 0.14);
-  --ok: #6fcf97;
-  --warn: #f2b04a;
-  --danger: #ff7a70;
+  color-scheme: light;
+  --bg: #f6f3ee;
+  --surface: #ede7dc;
+  --text: #1b1a17;
+  --muted: #5f5a52;
+  --line: #d3cbbd;
+  --accent: #b3301d;
+  --accent-line: #e5432d;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(179, 48, 29, 0.1);
+  --amber: #d9822b;
+  --olive: #a9c58f;
+  --ok: #1d6b3d;
+  --warn: #8a5400;
+  --danger: #b3261e;
   --radius: 10px;
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 40px; --space-7: 72px;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-}
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg: #fbfaf7; --surface: #ffffff; --text: #1b1d1f; --muted: #555b61; --line: #d9d6cf;
-    --accent: #8a5400; --accent-ink: #ffffff; --accent-soft: rgba(138, 84, 0, 0.1);
-    --ok: #1d6b3d; --warn: #8a5400; --danger: #b3261e;
-  }
 }

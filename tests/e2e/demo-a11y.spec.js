@@ -8,13 +8,15 @@ async function ready(page) {
   const audit = await fixtureAudit()
   await stubTurnstile(page)
   await mockApi(page, { 'POST /api/simulate': () => ({ body: { eventId: audit.eventId, audit } }) })
-  await page.goto('/es/')
+  await page.goto('/es/demo/')
   return audit
 }
 async function runAll(page) {
   await page.getByTestId('run').click()
   await page.getByTestId('show-all').click()
   await expect(page.getByTestId('stage-oversight')).toBeVisible()
+  // axe mide el contraste con la opacidad actual: espera a que acaben los fundidos de entrada para medir el estado final.
+  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished.catch(() => {}))))
 }
 
 test('la auditoría muestra todos los campos con hora UTC y hora local (UTC-5)', async ({ page }) => {

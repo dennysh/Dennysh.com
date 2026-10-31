@@ -8,10 +8,11 @@ import { renderHeadersFile, checkHeadersFile } from './static/headers.mjs'
 import { checkViteEnv, scanPatchAdditions } from './static/secrets.mjs'
 import { checkSourceRules } from './static/rules.mjs'
 import { checkSurface } from './static/no-ai-routes.mjs'
-import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget } from './static/site.mjs'
+import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget, checkMarkup, checkNodeIcons } from './static/site.mjs'
 import { buildStaticExample } from './gen-static-example.mjs'
 import { loadRuleset } from '../core/ruleset.js'
 import { checkUnused } from './static/unused.mjs'
+import { checkWebp } from './static/webp-meta.mjs'
 
 const SKIP = /\.(png|jpe?g|gif|webp|ico|svg|woff2?|glb|lock)$|package-lock\.json$|(^|\/)tests\/|scan-secrets/
 
@@ -126,6 +127,10 @@ const machine = onDist('machine', () => checkMachine(distRead))
 const legal = onDist('legal', () => checkLegal(distRead))
 const svg = onDist('svg', () => checkSvg(distRead))
 const fonts = onDist('fonts', () => checkFonts(walk('dist').filter((f) => /\.(html|css|js)$/.test(f)).map((path) => ({ path, text: readFileSync(path, 'utf8') }))))
+const markup = onDist('markup', () => [
+  ...checkMarkup(walk('dist').filter((f) => /\.html$/.test(f)).map((path) => ({ path, text: readFileSync(path, 'utf8') }))),
+  ...['index.html', 'en/index.html', 'es/index.html'].flatMap((rel) => checkNodeIcons(rel, distRead(rel) ?? '')),
+])
 const budgets = onDist('budgets', () => checkBudget(distRead, distBuf))
 const staticExample = async () => {
   const problems = onDistProblems(checkStaticExample(distRead))
@@ -147,6 +152,17 @@ const rulesetPublic = async () => {
   }
   for (const p of problems) console.error(`ruleset-public: ${p}`)
   if (!problems.length) console.log('ruleset-public OK — el hash público coincide con la auditoría')
+  return problems.length === 0
+}
+
+// AC-H9 y AC-H13: el retrato y las fotos de la galería no llevan EXIF/XMP/ICC y pesan ≤ 90 KB (fuentes y copia en dist/).
+const images = () => {
+  const roots = ['public/images', 'dist/images']
+  const files = roots.flatMap((r) => walk(r)).filter((f) => /(dennys-portrait[^/]*|gallery\/[^/]+)\.webp$/.test(f))
+  const problems = files.flatMap((f) => checkWebp(f, readFileSync(f)))
+  if (!files.some((f) => f.startsWith('public/') && f.includes('dennys-portrait'))) problems.push('falta el retrato en public/images')
+  for (const p of problems) console.error(`images: ${p}`)
+  if (!problems.length) console.log(`images OK — ${files.length} archivos WebP sin metadatos y ≤ 90 KB`)
   return problems.length === 0
 }
 
@@ -173,7 +189,7 @@ async function content() {
   return true
 }
 
-const CHECKS = { secrets, unused, headers, content, prerender, machine, legal, svg, fonts, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
+const CHECKS = { secrets, unused, images, headers, content, prerender, machine, legal, svg, fonts, markup, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
 const wanted = process.argv.slice(2).filter((a) => a in CHECKS)
 const results = []
 for (const k of wanted.length ? wanted : Object.keys(CHECKS)) results.push(await CHECKS[k]())

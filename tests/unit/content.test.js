@@ -9,6 +9,7 @@ const walk = (n, out = []) => {
   else if (n && typeof n === 'object' && !isPending(n)) Object.values(n).forEach((v) => walk(v, out))
   return out
 }
+const nonInterest = (c) => { const { contact, ...rest } = c; return { ...rest, home: { ...rest.home, panels: { ...rest.home.panels, interest: undefined } } } }
 const shape = (n) => (Array.isArray(n) ? n.map(shape) : n && typeof n === 'object' && !isPending(n) ? Object.fromEntries(Object.entries(n).map(([k, v]) => [k, shape(v)])) : isPending(n) ? 'P' : typeof n)
 
 describe('contenido bilingüe (spec §3, §9)', () => {
@@ -95,8 +96,7 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
   })
   it('nada de técnico de telecomunicaciones ni de tono visionario fuera de Contacto', () => {
     for (const lang of ['es', 'en']) {
-      const { contact, ...rest } = site[lang]
-      const all = walk(rest).join(' ')
+      const all = walk(nonInterest(site[lang])).join(' ')
       expect(all).not.toMatch(/técnic[oa] de telecom|telecom(munications)? technician|ingeniero de telecom/i)
       expect(all).not.toMatch(/cerebro|brain|\bvisión\b|\bvision(ary)?\b/i)
       expect(all).not.toMatch(/world-class|revolution|revolucion|cutting-edge|vanguardia|futuro de la|future of/i)
@@ -118,10 +118,13 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
     expect(resumeJson().projects.map((p) => p.name).join(' ')).toMatch(/Super Gol Kids/)
     expect(resumeJson().projects.map((p) => p.name).join(' ')).toMatch(/Naunturia/)
   })
-  it('la frase IA y cerebro solo vive en Contacto, corta, como interés', () => {
+  it('la frase IA y cerebro solo vive en Contacto y en el nodo Interés (D-H5, spec 2026-10-31), como interés', () => {
     for (const lang of ['es', 'en']) {
-      const { contact, ...rest } = site[lang]
-      expect(walk(rest).join(' ')).not.toMatch(/cerebro|brain/i)
+      const { contact } = site[lang]
+      expect(walk(nonInterest(site[lang])).join(' ')).not.toMatch(/cerebro|brain/i)
+      const th = site[lang].home.panels.interest.thought
+      expect(th).toMatch(/cerebro|brain/i)
+      expect(th).toMatch(lang === 'es' ? /una idea, no una capacidad/i : /an idea, not a capability/i)
       const i = contact.interest
       expect(i).toMatch(/cerebro|brain/i)
       expect(i).toMatch(lang === 'es' ? /interés/i : /interest/i)
@@ -185,19 +188,94 @@ describe('marcadores pending (T080, K2)', () => {
     const html = readFileSync('dist/en/index.html', 'utf8')
     const visible = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ') // solo el texto visible, sin atributos ni JSON-LD
     expect(visible).toContain('to be confirmed')
-    expect(visible).not.toMatch(/\bP-\d+\b|Public evidence of the factory|Location, time zone and availability/)
+    const stripped = visible.replace(/\[[^\]]*P-(23|24|25|29)\s*\]/g, ' ') // los marcadores aún sin autorizar muestran su pista en desarrollo
+    expect(stripped).not.toMatch(/\bP-\d+\b|Public evidence of the factory|Location, time zone and availability/)
   })
   it('Dennys autorizó publicar con P-04, P-06, P-09 y P-22 (2026-10-30)', () => {
     expect([...AUTHORIZED_PENDING].sort()).toEqual(['P-04', 'P-06', 'P-09', 'P-22'])
   })
-  it('en producción pasa con todos los pending autorizados', () => {
+  it('en producción falla mientras haya marcadores sin autorizar: P-23, P-24, P-25 y P-29 esperan a Dennys (TH26)', () => {
     const r = gate('production')
-    expect(r.status).toBe(0)
-    expect(r.stdout).toContain('autorizados')
+    expect(r.status).not.toBe(0)
+    const out = r.stdout + r.stderr
+    for (const id of ['P-23', 'P-24', 'P-25', 'P-29']) expect(out).toContain(id)
+    for (const id of ['P-04', 'P-06', 'P-09', 'P-22']) expect(out).not.toMatch(new RegExp(`sin autorizar[^\\n]*${id}`))
+  })
+  it('los marcadores sin autorizar son exactamente los de la primera pantalla', () => {
+    expect([...new Set(unauthorized(collectPending()).map((p) => p.id))].sort()).toEqual(['P-23', 'P-24', 'P-25', 'P-29'])
   })
   it('un marcador nuevo sin autorizar se detecta (rompería el build de producción)', () => {
     const list = [{ id: 'P-04' }, { id: 'P-99' }]
     expect(unauthorized(list).map((p) => p.id)).toEqual(['P-99'])
-    expect(unauthorized(collectPending())).toEqual([])
+  })
+})
+
+describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
+  const IDS = ['code', 'projects', 'demo', 'journey', 'how', 'interest']
+  it('seis nodos, mismo orden e ids en los dos idiomas', () => {
+    for (const lang of ['en', 'es']) expect(site[lang].home.nodes.map((n) => n.id)).toEqual(IDS)
+  })
+  it('hay un panel por nodo', () => {
+    for (const lang of ['en', 'es']) expect(Object.keys(site[lang].home.panels).sort()).toEqual([...IDS].sort())
+  })
+  it('las tarjetas de Proyectos, Demo y Trayectoria llevan los textos aprobados del spec', () => {
+    const es = site.es.home.panels
+    expect(es.projects.title).toBe('Trabajo en producción')
+    expect(es.projects.text).toBe('Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente.')
+    expect(es.demo.title).toBe('Demo en vivo')
+    expect(es.demo.text).toBe('Una decisión automatizada, con la regla usada, la explicación y su auditoría.')
+    expect(es.journey.title).toBe('De la fibra a la IA')
+    expect(es.journey.text).toBe('Siete años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.')
+  })
+  it('las líneas mono del Hero: 7 años en fibra óptica y perfil confirmado', () => {
+    expect(site.es.home.tagline).toEqual(['7 años en fibra óptica', 'Remoto · UTC-5 · Español nativo · Inglés B1'])
+    expect(site.en.home.tagline).toEqual(['7 years in fiber optics', 'Remote · UTC-5 · Spanish native · English B1'])
+  })
+  it('Interés: jiu-jitsu confirmado y otros deportes como marcador P-23', () => {
+    for (const lang of ['en', 'es']) {
+      const sp = site[lang].home.panels.interest.sports
+      expect(sp[0]).toBe('jiu-jitsu')
+      expect(isPending(sp[1])).toBe(true)
+      expect(sp[1].id).toBe('P-23')
+    }
+  })
+  it('Proyectos y Trayectoria: lo confirmado más marcadores P-24 y P-25', () => {
+    for (const lang of ['en', 'es']) {
+      const p = site[lang].projectsPage
+      expect(p.ids).toEqual(['caja-cercana', 'super-gol-kids'])
+      for (const id of p.ids) expect(site[lang].work.items.map((i) => i.id)).toContain(id)
+      expect(p.more.id).toBe('P-24')
+      expect(site[lang].journeyPage.more.id).toBe('P-25')
+    }
+  })
+  it('ni "1,719" ni "Ecuador" en ninguna parte del contenido (P-05 cerrada)', () => {
+    expect(walk(site).join(' ')).not.toMatch(/1[,.]?719|ecuador/i)
+  })
+})
+
+describe('galería por fila de Trayectoria (spec §5.1, P-H5 = P-29)', () => {
+  const COUNTS = [6, 4, 3, 5] // solo de ejemplo, como en el boceto
+  it('cuatro filas de ejemplo con N fotos distinto por fila, en los dos idiomas', () => {
+    for (const lang of ['en', 'es']) {
+      const rows = site[lang].journeyPage.rows
+      expect(rows.map((r) => r.id)).toEqual(['fibra', 'bot', 'supergol', 'ia'])
+      expect(rows.map((r) => r.photos.length)).toEqual(COUNTS)
+    }
+  })
+  it('ninguna foto está entregada: todas son marcadores P-29 y no hay rutas de imagen inventadas', () => {
+    for (const lang of ['en', 'es']) {
+      for (const r of site[lang].journeyPage.rows) for (const ph of r.photos) { expect(isPending(ph)).toBe(true); expect(ph.id).toBe('P-29') }
+      expect(JSON.stringify(site[lang].journeyPage.rows)).not.toMatch(/\.(webp|jpe?g|png)|"src"/)
+    }
+  })
+  it('el nombre de la empresa de fibra queda como marcador; no se inventan roles ni empresas', () => {
+    for (const lang of ['en', 'es']) {
+      const meta = site[lang].journeyPage.rows[0].meta
+      expect(meta.some((m) => isPending(m) && m.id === 'P-29')).toBe(true)
+      expect(JSON.stringify(site[lang].journeyPage.rows)).not.toMatch(/técnic[oa] de telecom|telecom technician|ingenier|engineer|supervisor|gerente|manager|jefe/i)
+    }
+  })
+  it('el texto de cada fila es real y está en el contenido (visible sin JavaScript)', () => {
+    for (const lang of ['en', 'es']) for (const r of site[lang].journeyPage.rows) { expect(r.title.length).toBeGreaterThan(3); expect(r.text.length).toBeGreaterThan(20) }
   })
 })

@@ -1,7 +1,8 @@
 // Comprobaciones sobre el sitio construido (dist/). Cada una recibe un lector `read(rel) -> string|null` y devuelve problemas.
 import { gzipSync } from 'node:zlib'
 import { site, links } from '../../src/content/site.js'
-import { SITE_URL } from '../lib/machine.mjs'
+import { SITE_URL, INNER_PAGES, sitemapPaths } from '../lib/machine.mjs'
+import { pagePaths } from '../../src/routes.js'
 
 export const SECTION_IDS = ['inicio', 'demo', 'factory', 'governance', 'work', 'skills', 'journey', 'criden', 'contact', 'footer']
 const need = (read, rel, problems) => {
@@ -63,7 +64,21 @@ export function checkMachine(read) {
   const map = need(read, 'sitemap.xml', problems)
   if (map) {
     const locs = [...map.matchAll(/<loc>([^<]+)<\/loc>/g)].map((x) => x[1])
-    if (JSON.stringify(locs) !== JSON.stringify([`${SITE_URL}/en/`, `${SITE_URL}/es/`])) problems.push(`sitemap.xml debe listar solo /en/ y /es/ (hay: ${locs.join(', ')})`)
+    const expected = sitemapPaths().flatMap((pair) => [`${SITE_URL}${pair.en}`, `${SITE_URL}${pair.es}`])
+    if (JSON.stringify(locs) !== JSON.stringify(expected)) problems.push(`sitemap.xml debe listar el inicio y las páginas nuevas en en/es (hay: ${locs.join(', ')})`)
+  }
+  // Páginas interiores: canonical propio, hreflang en/es/x-default (x-default = inglés) y contenido en el HTML.
+  for (const { view } of INNER_PAGES) {
+    for (const lang of ['en', 'es']) {
+      const path = pagePaths[lang][view]
+      const rel = `${path.slice(1)}index.html`
+      const html = need(read, rel, problems)
+      if (html == null) continue
+      if (!html.includes(`<link rel="canonical" href="${SITE_URL}${path}" />`)) problems.push(`${rel}: canonical debe ser ${path}`)
+      for (const l of ['en', 'es']) if (!html.includes(`hreflang="${l}" href="${SITE_URL}${pagePaths[l][view]}"`)) problems.push(`${rel}: falta hreflang ${l}`)
+      if (!html.includes(`hreflang="x-default" href="${SITE_URL}${pagePaths.en[view]}"`)) problems.push(`${rel}: x-default debe apuntar a ${pagePaths.en[view]}`)
+      if (!/<h1\b/.test(html)) problems.push(`${rel}: sin contenido (falta el h1)`)
+    }
   }
   return problems
 }
@@ -86,7 +101,7 @@ export function checkLegal(read) {
 
 export function checkStaticExample(read) {
   const problems = []
-  for (const [rel, label] of [['en/index.html', 'not a real send'], ['es/index.html', 'no es un envío real']]) {
+  for (const [rel, label] of [[`${pagePaths.en.demo.slice(1)}index.html`, 'not a real send'], [`${pagePaths.es.demo.slice(1)}index.html`, 'no es un envío real']]) {
     const html = need(read, rel, problems)
     if (html == null) continue
     const m = /<noscript>([\s\S]*?)<\/noscript>/.exec(html)
@@ -132,5 +147,30 @@ export function checkBudget(read, readBuffer) {
   }
   if (!scripts.length) problems.push('no se encontró el script inicial')
   if (total > JS_BUDGET_GZIP) problems.push(`JS inicial ${(total / 1024).toFixed(1)} KB gzip supera 150 KB`)
+  return problems
+}
+
+// CSP sin 'unsafe-inline' (regla 24): nada de style="…" ni de <script> en línea (el JSON-LD es un bloque de datos y no cuenta),
+// y ningún dominio externo de fuentes o iconos (reglas 24 y 25).
+const withoutScripts = (html) => html.replace(/<script\b[\s\S]*?<\/script>/g, '')
+export function checkMarkup(files) {
+  const problems = []
+  for (const { path, text } of files) {
+    if (/\sstyle\s*=\s*["']/i.test(withoutScripts(text))) problems.push(`${path}: atributo style en línea (la CSP lo bloquea)`)
+    if (/<script\b(?![^>]*\bsrc=)(?![^>]*type="application\/ld\+json")[^>]*>/i.test(text)) problems.push(`${path}: <script> en línea (la CSP lo bloquea)`)
+    if (/fonts\.googleapis\.com|fonts\.gstatic\.com|material-?symbols|fontawesome|typekit/i.test(text)) problems.push(`${path}: dominio externo de fuentes o iconos`)
+  }
+  return problems
+}
+
+// Los seis nodos de la primera pantalla llevan icono SVG en línea, oculto a lectores de pantalla, con trazo de 1,5 px.
+export function checkNodeIcons(rel, html) {
+  const icons = [...html.matchAll(/<svg\b[^>]*class="node-icon"[^>]*>/g)].map((m) => m[0])
+  const problems = []
+  if (icons.length !== 6) problems.push(`${rel}: se esperaban 6 iconos de nodo y hay ${icons.length}`)
+  for (const i of icons) {
+    if (!/aria-hidden="true"/.test(i)) problems.push(`${rel}: un icono de nodo no es aria-hidden`)
+    if (!/stroke-width="1\.5"/.test(i)) problems.push(`${rel}: un icono de nodo no tiene trazo de 1,5`)
+  }
   return problems
 }
