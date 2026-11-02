@@ -102,7 +102,9 @@ describe('panel de vista previa: la acción "Abrir" siempre se ve (critica-impec
       const footers = out.match(/<div class="panel-open"><p class="opens">[^<]+<\/p><a class="btn btn-primary" href="[^"]+">[^<]+<\/a><\/div>/g) ?? []
       expect(footers).toHaveLength(6)
     }
-    expect(css).toMatch(/\.panel-open \{[^}]*position: sticky;[^}]*bottom: -14px/)
+    expect(css).toMatch(/\.panel-open \{[^}]*position: sticky;[^}]*bottom: calc\(-1 \* var\(--panel-pad-y\)\)/)
+    expect(css).toMatch(/\.panel \{ --panel-pad-y: 14px;/)
+    expect(css).toMatch(/\.panel \{ --panel-pad-y: 10px;/) // el pie compensa el relleno de cada tamaño: sin scroll sobrante en móvil
   })
   it('hay un solo scroll en el panel: el bloque de código no tiene el suyo propio', () => {
     expect(css).not.toMatch(/\.panel \.code \{[^}]*(max-height|overflow)/)

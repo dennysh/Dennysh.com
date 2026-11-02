@@ -26,7 +26,7 @@ const Page = ({ lang, view, id, title, lead, back, children }) => (
         <h1 id="page-h">{title}</h1>
         {lead && <p className="lead">{lead}</p>}
         {children}
-        <p><a href={`/${lang}/`}>{back}</a></p>
+        <p className="back"><a href={`/${lang}/`}>{back}</a></p>
       </div>
     </section>
   </Shell>

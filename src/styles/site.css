@@ -6,13 +6,13 @@ img, svg { max-width: 100%; }
 a { color: var(--accent); text-underline-offset: 3px; }
 a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-.skip { position: absolute; left: var(--space-4); top: -60px; background: var(--accent); color: var(--accent-ink); padding: var(--space-2) var(--space-4); border-radius: 6px; z-index: 20; }
+.skip { position: absolute; left: var(--space-4); top: -60px; background: var(--accent); color: var(--accent-ink); padding: var(--space-3) var(--space-4); border-radius: 6px; z-index: 20; min-height: 44px; display: inline-flex; align-items: center; }
 .skip:focus { top: var(--space-3); }
 .wrap { width: min(100% - 2 * var(--space-4), 62rem); margin-inline: auto; }
 
 .topbar { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
 .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); min-height: 56px; flex-wrap: wrap; }
-.brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.brand { font-weight: 700; color: var(--text); text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
 .topbar nav ul { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); list-style: none; margin: 0; padding: 0; }
 .topbar nav a { display: inline-block; padding: var(--space-2) 0; color: var(--text); text-decoration: none; min-height: 24px; }
 .topbar nav a:hover { color: var(--accent); }
@@ -75,14 +75,20 @@ section.block > .wrap > h2 { margin: 0 0 var(--space-3); font-size: clamp(1.5rem
 footer.site { border-top: 1px solid var(--line); padding-block: var(--space-5); color: var(--muted); }
 footer.site .foot-contact { flex: 1 1 18rem; }
 footer.site .wrap { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); justify-content: space-between; }
-footer.site a { color: var(--muted); }
+footer.site a { color: var(--muted); display: inline-flex; align-items: center; justify-content: center; min-height: 28px; min-width: 28px; }
+.back a, .card p > a, .contact-list a { display: inline-flex; align-items: center; min-height: 28px; }
+.back { margin: var(--space-4) 0 0; }
 
 @media (max-width: 600px) {
   .topbar .wrap { min-height: 0; gap: 0 var(--space-3); padding-block: var(--space-1); }
   .topbar nav { order: 3; width: 100%; overflow-x: auto; }
   .topbar nav ul { flex-wrap: nowrap; white-space: nowrap; gap: var(--space-4); }
+  /* Borde derecho difuminado: indica que la barra sigue; el relleno final deja el último enlace fuera del difuminado. */
+  .topbar nav { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+  .topbar nav ul { padding-right: 32px; }
   .theme-toggle { min-width: 44px; }
-  .topbar nav a { padding: var(--space-1) 0; }
+  .topbar nav a { padding: 0; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
+  footer.site a, .back a, .card p > a, .contact-list a { min-height: 44px; min-width: 44px; }
         }
 
 /* Bots para Telegram (D2): <details> sin saltos bruscos de layout. */
@@ -97,7 +103,7 @@ footer.site a { color: var(--muted); }
 .bots > summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 .bots-list { margin: var(--space-2) 0 0; padding-left: 1.2rem; display: grid; gap: var(--space-2); }
 .bots-list li { display: grid; gap: 2px; justify-items: start; }
-.bots-list .badge { font-size: .72rem; }
+.bots-list .badge { font-size: .75rem; }
 .bots-list .bot-text { color: var(--muted); font-size: .9rem; }
 .card-bots { align-content: start; }
 

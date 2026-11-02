@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { site, links, isPending } from './content/site.js'
 import Txt from './components/Txt.jsx'
 import ThemeToggle from './components/ThemeToggle.jsx'
@@ -38,12 +38,19 @@ export function FactoryDiagram({ c }) {
 export function Header({ lang, view = 'home' }) {
   const n = site[lang].nav
   const other = lang === 'es' ? 'en' : 'es'
+  const nav = useRef(null)
+  // En móvil la barra se desplaza: la página actual queda a la vista al cargar (sin mover la página, solo la barra).
+  useEffect(() => {
+    const el = nav.current
+    const cur = el?.querySelector('[aria-current="page"]')
+    if (el && cur && el.scrollWidth > el.clientWidth) el.scrollLeft = Math.max(0, cur.offsetLeft - (el.clientWidth - cur.offsetWidth) / 2)
+  }, [view])
   return (
     <header className="topbar">
       <a className="skip" href="#main">{n.skip}</a>
       <div className="wrap">
         <a className="brand" href={base(lang)}>Dennys Heras</a>
-        <nav aria-label={n.menu}>
+        <nav aria-label={n.menu} ref={nav}>
           <ul>
             {['code', 'projects', 'demo', 'journey', 'how', 'interest', 'contact'].map((id) => (
               <li key={id}><a href={pagePaths[lang][id]} aria-current={view === id ? 'page' : undefined}>{n[id]}</a></li>
