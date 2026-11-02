@@ -53,3 +53,29 @@ Origen: `docs/superpowers/specs/2026-10-31-primera-pantalla-design.md`. Mientras
 - **P-25** (Trayectoria): se queda como está, sin añadir nada. Autorizado como está.
 - **P-26** y **P-28**: sin cambio (valores por defecto: las siete reglas del spec; URL `projects`/`journey` en inglés).
 - **P-29** (fotos de la galería): las fotos están en otra computadora y llegan en unos días. Hasta entonces la galería de Trayectoria queda oculta (cada fila muestra solo su texto), sin marcadores ni nombre de la empresa de fibra. P-29 sigue registrado como pendiente y autorizado a publicarse (no bloquea el build) mientras la galería esté oculta. Al añadir las fotos reales a `journeyPage.rows[].photos` (con `src`, `alt`, `width`, `height`), la galería se activa sola.
+
+## Correcciones 1 (2026-11-01)
+
+Origen: `docs/superpowers/specs/2026-10-31-correcciones-1.md`. Dennys no estaba disponible durante la implementación: cada punto se resolvió con el valor por defecto indicado y queda aquí para que lo confirme o cambie. Detalle en `02-DOCS/informe-correcciones-1.md`.
+
+| ID | Pregunta | Valor usado mientras tanto | Afecta a |
+|---|---|---|---|
+| P-30 | Criden: ¿cuál es su estado real (producción o desarrollo) y su dirección? El spec lo manda en "Trabajo en producción" pero solo hay un texto y el enlace sigue pendiente (P-22) | Tarjeta sin insignia de estado, con el texto del sitio y "Enlace próximamente"; sin dirección inventada | Proyectos, panel de la portada |
+| P-31 | ¿Se añaden a la página Proyectos el Bot de reportes de telecom y el Bot Registry ("en funcionamiento", versión anterior de C7)? La actualización del spec solo pide quitar tres y añadir Criden | No se añaden; siguen en `llms.txt` y `dennys.json` como "en desarrollo", como antes | Proyectos |
+| P-32 | ¿Naunturia puede aparecer en `llms.txt` y `dennys.json`? C6 dice que no se menciona (no aprobada) y C7 pide quitar solo tres proyectos | Se deja como estaba (no sale en la web; sí en los datos de máquina) | llms.txt, dennys.json |
+| P-33 | El asistente de atención al cliente de un ISP: ¿se construyó o solo se planeó? | Texto del spec: "asistente conversacional con acceso de solo lectura a datos de clientes (prototipo, sin producción)", declarado | Código (capacidades) |
+| P-34 | `<title>` y descripción para buscadores: ¿conservar "Sistemas con IA que se explican y se auditan"? No es texto visible en la portada | Se conservan | Metadatos, JSON-LD |
+| P-35 | Ruta de Cómo trabajo en inglés: `how-i-work` (Dennys escribió "howiwork") | `/en/how-i-work/`; se puede cambiar con redirección | Rutas |
+| P-36 | Sin pie en el inicio, los enlaces de Privacidad y Términos no se alcanzan desde la portada, solo desde las otras páginas | Se deja así (C4: "sin pie ni contacto") | Portada, legales |
+| P-37 | En pantallas altas de móvil queda espacio libre bajo la tarjeta (el inicio es una sola pantalla) | Se deja el diseño medido sin rellenar | Portada móvil |
+| P-38 | "Aprender de forma continua" como rasgo personal (Cómo trabajo o Interés): ¿se pone? | No se pone | Cómo trabajo, Interés |
+
+**Respuestas de Dennys, 2026-11-01 (correcciones 2):** P-30 Criden está en producción y todavía sin enlace; P-31 los bots de Telegram van agrupados en "Bots para Telegram" (registro de cajas, caja más cercana, reportes, planificación); P-32 Naunturia se queda como está; la nota sobre el formulario: lo quiere, adaptativo.
+
+| ID | Pregunta | Valor usado mientras tanto | Afecta a |
+|---|---|---|---|
+| P-39 | ¿Cuál es el estado real (en producción o no) de los bots de registro de cajas, reportes y planificación? | Sin estado (solo Caja Cercana lo declara); planificación solo con el nombre | Proyectos |
+| P-40 | ¿"Bot Registry" es el mismo bot que "registro de cajas"? | Sí, no se añade aparte | Proyectos |
+| P-41 | ¿Con qué proveedor se envía el correo del formulario a dennys@dennysh.com (o prefieres Telegram)? | Formulario desactivado en producción; construido y probado con un doble | Contacto |
+| P-42 | ¿Aplicas la migración `0002_contact.sql` en D1 y activas `CONTACT_ENABLED=true` cuando haya entrega? | Pendiente (lo ejecutas tú) | Contacto |
+| P-43 | ¿Rangos de presupuesto y topes de envío (3/hora por IP, 2/día por correo, 40/día total) definitivos? | Los indicados | Contacto |
