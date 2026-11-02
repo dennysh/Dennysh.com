@@ -13,6 +13,7 @@ test.describe('panel de vista previa (C-03)', () => {
     for (const name of ['Código', 'Cómo trabajo']) {
       await page.getByRole('link', { name, exact: true }).hover()
       const panel = page.locator('.panel[data-active="true"]')
+      await expect(panel.locator('h2')).toHaveText(name) // el panel ya es el de este nodo (sin carrera con el hover)
       await expect(panel.locator('.panel-open')).toHaveCSS('position', 'sticky')
       await panel.evaluate((p) => { p.scrollTop = p.scrollHeight })
       const btn = await panel.locator('.panel-open .btn').boundingBox()
@@ -73,19 +74,27 @@ test('Contacto sin JavaScript: un solo botón de correo en el cuerpo de la pági
 })
 
 for (const [label, vp, min] of [['móvil 390×844', { width: 390, height: 844 }, 44], ['escritorio 1440×900', { width: 1440, height: 900 }, 24]]) {
-  test(`objetivos táctiles (${label}): ningún control que no esté dentro de una frase mide menos de ${min} px (C-07)`, async ({ page }) => {
-    await page.setViewportSize(vp)
-    const bad = []
-    for (const path of PAGES) {
-      await page.goto(path)
-      await page.waitForLoadState('networkidle')
-      const found = await page.evaluate((m) => [...document.querySelectorAll('a[href], button, summary, input:not([type=hidden]), select, textarea')]
-        .filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).display !== 'inline' && (r.width < m || r.height < m) })
-        .map((e) => `${e.tagName.toLowerCase()}.${e.className || ''}[${(e.textContent || '').trim().slice(0, 18)}] ${Math.round(e.getBoundingClientRect().width)}×${Math.round(e.getBoundingClientRect().height)}`), min)
-      bad.push(...found.map((f) => `${path} ${f}`))
-    }
-    expect(bad).toEqual([])
-  })
+  for (const enabled of [false, true]) {
+    test(`objetivos táctiles (${label}, formulario ${enabled ? 'activo' : 'apagado'}): ningún control que no esté dentro de una frase mide menos de ${min} px (C-07)`, async ({ page }) => {
+      // Estado fijo del formulario: sin esto el resultado dependía de si la API de la vista previa respondía a tiempo.
+      await page.route('**/api/contact', (route) => route.fulfill({ contentType: 'application/json', body: JSON.stringify({ enabled }) }))
+      await page.route('https://challenges.cloudflare.com/**', (route) => route.abort())
+      await page.setViewportSize(vp)
+      const bad = []
+      for (const path of PAGES) {
+        await page.goto(path)
+        await page.waitForLoadState('networkidle')
+        if (path.includes('contact')) await expect(page.locator(enabled ? 'form[data-contact-form]' : '[data-contact-form="disabled"]')).toBeVisible()
+        const found = await page.evaluate((m) => [...document.querySelectorAll('a[href], button, summary, input:not([type=hidden]), select, textarea')]
+          // radios y casillas: el objetivo es la etiqueta que los envuelve, no el círculo de 20 px
+          .map((e) => (e.matches('input[type=radio], input[type=checkbox]') && e.closest('label') ? e.closest('label') : e))
+          .filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).display !== 'inline' && (r.width < m || r.height < m) })
+          .map((e) => `${e.tagName.toLowerCase()}.${e.className || ''}[${(e.textContent || '').trim().slice(0, 18)}] ${Math.round(e.getBoundingClientRect().width)}×${Math.round(e.getBoundingClientRect().height)}`), min)
+        bad.push(...found.map((f) => `${path} ${f}`))
+      }
+      expect(bad).toEqual([])
+    })
+  }
 }
 
 test('el enlace de salto del inicio tiene contraste suficiente con foco, en claro y oscuro (C-05)', async ({ browser }) => {
@@ -147,3 +156,78 @@ for (const width of [390, 320]) {
     }
   })
 }
+
+// ---------- medidas de lo que antes solo se fijaba por texto de CSS (hallazgos del refutador de pruebas) ----------
+test('Cómo trabajo: los cinco pasos se reparten 3 + 2 en pantalla ancha, el diagrama se ve en escritorio y se oculta en móvil (C-11, C-26)', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.goto('/es/como-trabajo/')
+  await expect(page.locator('.diagram')).toBeVisible()
+  const ys = await page.locator('.steps > li').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().y)))
+  expect(ys).toHaveLength(5)
+  const rows = [...new Set(ys)]
+  expect(rows).toHaveLength(2)
+  expect(ys.filter((y) => y === rows[0])).toHaveLength(3)
+  expect(ys.filter((y) => y === rows[1])).toHaveLength(2)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.locator('.diagram')).toBeHidden()
+  await expect(page.locator('.steps > li')).toHaveCount(5) // la lista sigue ahí: el diagrama no era el único portador de la información
+})
+
+test('las reglas no tienen pestaña lateral y un aviso "por confirmar" no parece un error (C-14, C-17)', async ({ page }) => {
+  await page.goto('/es/como-trabajo/')
+  const r = await page.locator('.rules li').first().evaluate((e) => { const c = getComputedStyle(e); return [c.borderLeftWidth, c.borderRightWidth, c.borderTopWidth] })
+  expect(new Set(r).size).toBe(1) // el borde izquierdo mide lo mismo que los demás
+  await page.goto('/es/contacto/')
+  const pend = await page.locator('.pending').first().evaluate((e) => { const c = getComputedStyle(e); return { style: c.borderTopStyle, bg: c.backgroundColor, bottom: c.borderBottomStyle } })
+  expect(pend.style).not.toBe('dashed')
+  expect(pend.bottom).not.toBe('dashed')
+  expect(pend.bg).toBe('rgba(0, 0, 0, 0)')
+})
+
+test('texto visible de 12 px como mínimo en todas las páginas, salvo las etiquetas de los nodos en móvil (C-08)', async ({ page }) => {
+  const bad = []
+  for (const [vp, allowNodes] of [[{ width: 390, height: 844 }, true], [{ width: 1440, height: 900 }, false]]) {
+    await page.setViewportSize(vp)
+    for (const path of PAGES) {
+      await page.goto(path)
+      await page.waitForLoadState('networkidle')
+      const small = await page.evaluate((allow) => {
+        const out = []
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+        for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+          if (!t.textContent.trim()) continue
+          const e = t.parentElement
+          if (['SCRIPT', 'STYLE', 'NOSCRIPT', 'TITLE'].includes(e.tagName)) continue
+          const r = e.getBoundingClientRect(); const c = getComputedStyle(e)
+          if (r.width === 0 || r.height === 0 || c.visibility === 'hidden') continue
+          if (allow && e.closest('.node-link')) continue
+          const px = parseFloat(c.fontSize)
+          if (px < 12) out.push(`${e.tagName.toLowerCase()}.${e.className || ''} ${px}px "${t.textContent.trim().slice(0, 20)}"`)
+        }
+        return out
+      }, allowNodes)
+      bad.push(...[...new Set(small)].map((x) => `${vp.width} ${path} ${x}`))
+    }
+  }
+  expect(bad).toEqual([])
+})
+
+test('los nodos dejan de flotar al apuntarlos y al enfocarlos (con movimiento permitido) y no flotan en móvil (C-24)', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('/es/')
+  await hydrated(page)
+  const play = (name) => page.getByRole('link', { name, exact: true }).evaluate((e) => getComputedStyle(e).animationPlayState)
+  expect(await play('Demo')).toBe('running')
+  await page.getByRole('link', { name: 'Demo', exact: true }).focus()
+  expect(await play('Demo')).toBe('paused')
+  await page.setViewportSize({ width: 390, height: 844 })
+  expect(await page.getByRole('link', { name: 'Demo', exact: true }).evaluate((e) => getComputedStyle(e).animationName)).toBe('none')
+})
+
+test('móvil: la barra del inicio mantiene su altura aunque sus enlaces midan 44 px (C-07)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/es/')
+  await hydrated(page)
+  expect((await page.locator('.bar').boundingBox()).height).toBeLessThanOrEqual(48)
+  for (const name of ['CV', 'EN']) expect((await page.locator('.bar').getByRole('link', { name, exact: true }).boundingBox()).height).toBeGreaterThanOrEqual(44)
+})
