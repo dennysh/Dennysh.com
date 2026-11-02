@@ -93,3 +93,19 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
     })
   }
 })
+
+describe('panel de vista previa: la acción "Abrir" siempre se ve (critica-impeccable-1, C-03)', () => {
+  const css = readFileSync('src/styles/home.css', 'utf8')
+  it('cada panel termina en un pie "etiqueta + Abrir" que queda pegado abajo al hacer scroll', () => {
+    for (const lang of ['en', 'es']) {
+      const out = html(lang)
+      const footers = out.match(/<div class="panel-open"><p class="opens">[^<]+<\/p><a class="btn btn-primary" href="[^"]+">[^<]+<\/a><\/div>/g) ?? []
+      expect(footers).toHaveLength(6)
+    }
+    expect(css).toMatch(/\.panel-open \{[^}]*position: sticky;[^}]*bottom: -14px/)
+  })
+  it('hay un solo scroll en el panel: el bloque de código no tiene el suyo propio', () => {
+    expect(css).not.toMatch(/\.panel \.code \{[^}]*(max-height|overflow)/)
+    expect(css).toMatch(/\.panel \{ max-height: 100%; overflow: auto; \}/)
+  })
+})

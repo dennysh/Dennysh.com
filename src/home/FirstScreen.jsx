@@ -55,7 +55,8 @@ function Panel({ id, active, children, onClick, onEnter, onLeave, className = ''
 
 const Open = ({ lang, id }) => {
   const p = site[lang].home.panels[id]
-  return <><p className="opens">{p.opens}</p><a className="btn btn-primary" href={pagePaths[lang][id]}>{p.go}</a></>
+  // Pie del panel: se queda pegado abajo (position: sticky) para que "Abrir" se vea aunque el contenido haga scroll.
+  return <div className="panel-open"><p className="opens">{p.opens}</p><a className="btn btn-primary" href={pagePaths[lang][id]}>{p.go}</a></div>
 }
 
 const PageCard = ({ lang, id, run, skip, ...rest }) => {

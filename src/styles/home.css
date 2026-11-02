@@ -36,6 +36,8 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; }
 .panel p { margin: 0 0 var(--space-2); }
 .panel .bots { margin-bottom: var(--space-2); }
 .panel .bots-list { font-size: .95em; }
+.panel-open { position: sticky; bottom: -14px; background: var(--surface); padding: var(--space-2) 0 14px; margin-bottom: -14px; }
+.panel-open p { margin-bottom: var(--space-1); }
 .panel .opens { font: 11px/1.2 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .panel-links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin-bottom: 0 !important; }
 .panel-links a, .panel .btn { min-height: 32px; display: inline-flex; align-items: center; }
@@ -77,8 +79,7 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; }
   .tagline { margin: 1.2cqw 0 0; font-size: max(11px, 1cqw); }
   /* El panel nunca sube hasta la fila de nodos (su techo es el 43 % del lienzo, bajo la etiqueta de Interés): si el contenido no cabe, el panel se desplaza. */
   .panels { position: absolute; right: 3.2%; top: 43%; bottom: 6%; width: 27%; font-size: max(12px, 1.05cqw); display: flex; flex-direction: column; justify-content: flex-end; }
-  .panel { max-height: 100%; overflow: auto; }
-  .panel .code { max-height: 14em; overflow: auto; }
+  .panel { max-height: 100%; overflow: auto; } /* un solo scroll: el del panel (el pie con "Abrir" queda fijo) */
   .panels:has(.has-pre[data-active="true"]) { width: 30%; }
 }
 
