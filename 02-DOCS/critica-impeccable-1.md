@@ -116,3 +116,16 @@ Leyenda de acción: **Aplicar** (crítico/alto o barato y seguro) · **Aplazar**
 ## Orden de aplicación esta noche
 
 1. Contacto (C-01) · 2. Proyectos (C-02, C-06) · 3. Panel de vista previa (C-03) · 4. Accesibilidad (C-05, C-07, C-08, C-09, C-24) · 5. Identidad de interiores (C-04 parte, C-14, C-17, C-19, C-20, C-26, C-11) · 6. Aplazado: C-10, C-12, C-13, C-15, C-16, C-22, C-23.
+
+## Estado de aplicación (actualizado la noche del 2026-11-02)
+
+| Hallazgo | Estado | Commit |
+|---|---|---|
+| C-01 Contacto apagado | Aplicado | `4465c14` |
+| C-02 Tarjeta de Bots, C-06 saltos de encabezado | Aplicado (la tarjeta sigue cerrada al cargar, con la pista "Ver los N bots"; ver A-05) | `a9e52a1` |
+| C-03 Panel de vista previa | Aplicado | `a955939` |
+| C-05, C-07, C-08, C-09, C-24 Accesibilidad | Aplicado (la etiqueta de nodo móvil sigue en 10 px; ver A-06) | `949f30a`, `e37c2fb` |
+| C-04 Identidad de interiores | Aplicado en parte: marca en mono y brillo; sin fuente nueva ni retrato en cabecera (A-07) | `a0d0080` |
+| C-11, C-14, C-17, C-19, C-20, C-26 | Aplicado | `a0d0080` |
+| C-10, C-12, C-13, C-15, C-16, C-22, C-23 | Aplazado: decide Dennys | n/a |
+| C-18, C-25 | Cerrado (decisión previa) | n/a |
