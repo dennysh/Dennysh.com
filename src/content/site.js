@@ -128,6 +128,7 @@ export const site = {
       status: { production: 'In production', development: 'In development' },
       repo: 'Repository',
       visit: 'Visit the site',
+      seeBots: 'See the {n} bots',
       items: [
         {
           id: 'telegram-bots', title: 'Telegram bots',
@@ -408,6 +409,7 @@ export const site = {
       status: { production: 'En producción', development: 'En desarrollo' },
       repo: 'Repositorio',
       visit: 'Visitar el sitio',
+      seeBots: 'Ver los {n} bots',
       items: [
         {
           id: 'telegram-bots', title: 'Bots para Telegram',

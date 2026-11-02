@@ -62,7 +62,7 @@ test('Código trae el panel real y las capacidades; Agentes de IA acotado, sin b
 test('Proyectos: Bots para Telegram (desplegable), Super Gol Kids y Criden en producción; nada de contable, Football Manager ni HARDLOCK', async ({ page }) => {
   await page.goto('/es/proyectos/')
   await expect(page.locator('.card')).toHaveCount(3)
-  await expect(page.locator('.card h3')).toHaveText(['Bots para Telegram', 'Super Gol Kids', 'Criden'])
+  await expect(page.locator('.card h2')).toHaveText(['Bots para Telegram', 'Super Gol Kids', 'Criden'])
   await expect(page.locator('.card:not(.card-bots) .badge-production')).toHaveCount(2)
   await expect(page.locator('.card', { hasText: 'Criden' }).locator('a')).toHaveCount(0) // en producción, todavía sin enlace
   await expect(page.locator('main')).not.toContainText(/contable|football manager|f[uú]tbol manager|hardlock|pr[óo]ximamente/i)

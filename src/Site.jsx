@@ -92,7 +92,7 @@ export function WorkCard({ lang, it }) {
   return (
     <article className="card">
       {it.status && <span className={`badge badge-${it.status}`}>{c.work.status[it.status]}</span>}
-      <h3>{it.title}</h3>
+      <h2>{it.title}</h2>
       <p>{it.text}</p>
       {it.link && !isPending(it.link) && <p><Txt lang={lang} v={it.link} /></p>}
       {it.url && <p><a href={it.url} rel="noopener noreferrer">{c.work.visit}</a></p>}

@@ -5,10 +5,10 @@ import { site } from '../content/site.js'
 // de pantalla. Lista en el orden del spec; una línea por bot y solo el estado que consta (los que no lo tienen no muestran ninguno).
 export default function TelegramBots({ lang, group, heading = false }) {
   const w = site[lang].work
-  const title = heading ? <h3>{group.title}</h3> : group.title
+  const title = heading ? <h2>{group.title}</h2> : group.title
   return (
     <details className="bots" data-bots={group.id}>
-      <summary>{title}</summary>
+      <summary>{title}<span className="bots-hint">{w.seeBots.replace('{n}', group.bots.length)}</span></summary>
       <ol className="bots-list">
         {group.bots.map((b) => (
           <li key={b.id} data-bot={b.id}>

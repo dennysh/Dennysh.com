@@ -220,7 +220,7 @@ test.describe('vista previa al pasar el mouse (C3)', () => {
     await node(page, 'Projects').hover()
     await expect(page.locator('#p-projects h2')).toHaveText('Work in production')
     await expect(page.locator('#p-projects')).toContainText('Criden')
-    await expect(page.locator('#p-projects summary')).toHaveText('Telegram bots')
+    await expect(page.locator('#p-projects summary')).toHaveText('Telegram botsSee the 4 bots')
     await expect(page.locator('#p-code pre')).toBeHidden()
   })
   test('el panel de Código muestra datos reales y no trae enlace a Contacto', async ({ page }) => {

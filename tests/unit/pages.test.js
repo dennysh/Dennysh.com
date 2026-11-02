@@ -20,6 +20,10 @@ describe('cada nodo es una página propia (C2) con barra, Volver, un h1 y pie co
         expect(out).toContain(esc(site[lang][`${view}Page`].title))
         expect(out).toContain(`<a href="/${lang}/">${esc(site[lang][`${view}Page`].back)}</a>`)
       })
+      it(`(${lang}) ${view}: los encabezados no saltan de nivel (h1 → h2 → h3…)`, () => {
+        const levels = [...out.matchAll(/<h([1-6])\b/g)].map((m) => Number(m[1]))
+        levels.reduce((prev, n) => { expect(n - prev, `salto de h${prev} a h${n}`).toBeLessThanOrEqual(1); return n }, 0)
+      })
       it(`(${lang}) ${view}: barra con las siete páginas, la actual marcada, interruptor de tema e idioma hacia la misma página`, () => {
         const header = /<header[\s\S]*?<\/header>/.exec(out)[0]
         for (const id of ['code', 'projects', 'demo', 'journey', 'how', 'interest', 'contact']) expect(header).toContain(`href="${pagePaths[lang][id]}"`)
@@ -69,7 +73,7 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       const out = render(ProjectsPage, lang)
       const cards = [...out.matchAll(/<article class="card[^"]*">[\s\S]*?<\/article>/g)].map((m) => m[0])
       expect(cards).toHaveLength(3)
-      expect(cards.map((x) => /<h3>([^<]+)<\/h3>/.exec(x)[1])).toEqual([esc(c.work.items[0].title), 'Super Gol Kids', 'Criden'])
+      expect(cards.map((x) => /<h2>([^<]+)<\/h2>/.exec(x)[1])).toEqual([esc(c.work.items[0].title), 'Super Gol Kids', 'Criden'])
       const criden = cards[2]
       expect(criden).toContain(`badge-production">${esc(c.work.status.production)}`)
       expect(criden).not.toContain('href=')
@@ -82,7 +86,7 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       const out = render(ProjectsPage, lang)
       const d = /<details class="bots"[\s\S]*?<\/details>/.exec(out)[0]
       expect(d).not.toMatch(/<details[^>]*\sopen/)
-      expect(d).toMatch(/<summary><h3>[^<]+<\/h3><\/summary>/)
+      expect(d).toMatch(/<summary><h2>[^<]+<\/h2><span class="bots-hint">[^<]+<\/span><\/summary>/)
       const titles = [...d.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])
       expect(titles).toEqual(c.work.items[0].bots.map((b) => esc(b.title)))
       expect(d.match(/badge-production/g)).toHaveLength(1) // solo Caja Cercana
