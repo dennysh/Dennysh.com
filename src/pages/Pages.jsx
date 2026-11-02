@@ -123,18 +123,17 @@ export function ContactPage({ lang }) {
   const k = c.contact
   const p = c.contactPage
   return (
-    <Page lang={lang} view="contact" id="contact" title={p.title} lead={c.contactForm.lead} back={p.back}>
+    <Page lang={lang} view="contact" id="contact" title={p.title} back={p.back}>
       <ContactForm lang={lang} />
       <h2>{k.otherWays}</h2>
       <ul className="contact-list">
-        <li>{k.email}: <a href={links.email}>{links.emailAddress}</a></li>
         <li><a href={links.linkedin} rel="noopener noreferrer">{k.linkedin}</a> · <a href={links.github} rel="noopener noreferrer">{k.github}</a></li>
         <li><a href={links.cv}>{k.cv}</a></li>
         <li>{k.role}</li>
         <li>{k.interest}</li>
         <li>{k.location} · {k.timezone}</li>
         <li>{k.languages}</li>
-        <li><Txt lang={lang} v={k.availability} /></li>
+        <li>{k.availabilityLabel}: <Txt lang={lang} v={k.availability} /></li>
       </ul>
     </Page>
   )

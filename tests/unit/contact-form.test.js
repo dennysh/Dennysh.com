@@ -209,6 +209,22 @@ describe('envío y respuestas del servidor', () => {
       if (kind === 'unavailable') expect(c.container.querySelector(`.cf-error a[href="${links.email}"]`)).not.toBeNull()
     })
   }
+  it('apagado: el texto no promete pasos y el correo es un único botón principal; encendido: sí lleva el texto de pasos', async () => {
+    for (const lang of ['es', 'en']) {
+      const off = await mount(lang, { enabled: false })
+      const text = off.c.container.textContent
+      expect(text).toContain(site[lang].contactForm.leadOff)
+      expect(text).not.toContain(site[lang].contactForm.lead)
+      const cta = off.c.container.querySelectorAll('a.btn.btn-primary[href^="mailto:"]')
+      expect(cta).toHaveLength(1)
+      expect(off.c.container.querySelectorAll('a[href^="mailto:"]')).toHaveLength(1)
+      cleanup()
+      const on = await mount(lang)
+      expect(on.c.container.textContent).toContain(site[lang].contactForm.lead)
+      expect(on.c.container.textContent).not.toContain(site[lang].contactForm.leadOff)
+      cleanup()
+    }
+  })
   it('si el servidor responde "desactivado" pasa al enlace de correo', async () => {
     const { c } = await toSend('en', { result: { ok: false, kind: 'disabled' } })
     await act(async () => { next(c) })

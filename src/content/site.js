@@ -171,6 +171,7 @@ export const site = {
       title: 'Contact',
       email: 'Email', linkedin: 'LinkedIn', github: 'GitHub', cv: 'Download CV (PDF)', otherWays: 'Other ways to reach me',
       location: 'Remote, from anywhere in the world.',
+      availabilityLabel: 'When I can start',
       availability: pending('P-09', 'Availability'),
       role: 'I look for work with artificial intelligence: designing and building systems under human control.',
       interest: 'Long-term interest: how AI relates to the human brain. An interest, not a demonstrated skill.',
@@ -178,6 +179,7 @@ export const site = {
     },
     contactForm: {
       "lead": "Tell me what you need in a few short steps. The questions change with what you choose.",
+      "leadOff": "The most direct way to reach me is email.",
       "fallback": "Write to me by email:",
       "disabled": "The form is not available right now. Write to me by email:",
       "loading": "Checking whether the form is available…",
@@ -449,6 +451,7 @@ export const site = {
       title: 'Contacto',
       email: 'Correo', linkedin: 'LinkedIn', github: 'GitHub', cv: 'Descargar CV (PDF)', otherWays: 'Otras formas de contactarme',
       location: 'Remoto, desde cualquier parte del mundo.',
+      availabilityLabel: 'Cuándo puedo empezar',
       availability: pending('P-09', 'Disponibilidad'),
       role: 'Busco trabajar con inteligencia artificial: diseñar y construir sistemas con control humano.',
       interest: 'Interés a largo plazo: cómo se relaciona la IA con el cerebro humano. Es un interés, no una capacidad demostrada.',
@@ -456,6 +459,7 @@ export const site = {
     },
     contactForm: {
       "lead": "Cuéntame qué necesitas en unos pasos cortos. Las preguntas cambian según lo que elijas.",
+      "leadOff": "La forma más directa de contactarme es el correo.",
       "fallback": "Escríbeme por correo:",
       "disabled": "El formulario no está disponible por ahora. Escríbeme por correo:",
       "loading": "Comprobando si el formulario está disponible…",

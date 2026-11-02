@@ -81,9 +81,13 @@ export default function ContactForm({ lang, client, getToken, sitekey = import.m
 
   if (phase === 'pending' || phase === 'disabled') {
     return (
-      <p className="cf-fallback" data-contact-form={phase}>
-        {phase === 'disabled' ? t.disabled : t.fallback} <a href={links.email}>{links.emailAddress}</a>
-      </p>
+      <>
+        <p className="lead">{t.leadOff}</p>
+        <div className="cf-fallback" data-contact-form={phase}>
+          <p>{phase === 'disabled' ? t.disabled : t.fallback}</p>
+          <a className="btn btn-primary btn-xl" href={links.email}>{links.emailAddress}</a>
+        </div>
+      </>
     )
   }
   if (phase === 'sent') {
@@ -148,6 +152,8 @@ export default function ContactForm({ lang, client, getToken, sitekey = import.m
   }
 
   return (
+    <>
+    <p className="lead">{t.lead}</p>
     <form className="cf" noValidate onSubmit={onSubmit} data-contact-form="form" data-step={stepId}>
       <p className="cf-progress-text" id="cf-progress-text">{fill(t.progress, { k: idx + 1, n: total })}</p>
       <progress className="cf-progress" max={total} value={idx + 1} aria-labelledby="cf-progress-text" />
@@ -162,5 +168,6 @@ export default function ContactForm({ lang, client, getToken, sitekey = import.m
           : <button type="submit" className="btn btn-primary">{t.next}</button>}
       </div>
     </form>
+    </>
   )
 }

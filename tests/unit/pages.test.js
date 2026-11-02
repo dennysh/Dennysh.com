@@ -111,6 +111,9 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       expect(out).toContain(`${esc(k.location)} · ${k.timezone}`)
       expect(out).toContain(`href="${links.email}"`)
       expect(out).toContain('data-pending="P-09"')
+      expect(out).toContain(`${esc(k.availabilityLabel)}: <span class="pending" data-pending="P-09"`) // el aviso "por confirmar" lleva su etiqueta
+      expect(out).toContain(esc(c.contactForm.leadOff)) // sin JS el formulario no está: no se promete
+      expect(out).not.toContain(esc(c.contactForm.lead))
     })
   }
 })

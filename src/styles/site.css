@@ -124,5 +124,6 @@ footer.site a { color: var(--muted); }
 .cf-summary-title { margin: 0 0 var(--space-2); font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .cf-consent { display: flex; gap: var(--space-3); align-items: flex-start; margin-bottom: var(--space-2); }
 .cf-nav { display: flex; gap: var(--space-3); }
+.cf-fallback p { margin: 0 0 var(--space-3); }
 .cf-fallback, .cf-done { max-width: 36rem; padding: var(--space-4) var(--space-5); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 @media (prefers-reduced-motion: no-preference) { .cf-progress { transition: none; } }
