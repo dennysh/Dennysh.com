@@ -97,7 +97,7 @@ footer.site a { color: var(--muted); display: inline-flex; align-items: center; 
   .topbar nav ul { flex-wrap: nowrap; white-space: nowrap; gap: var(--space-4); }
   /* Borde derecho difuminado: indica que la barra sigue; el relleno final deja el último enlace fuera del difuminado. */
   .topbar nav { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
-  .topbar nav ul { padding-right: 32px; }
+  .topbar nav ul { width: max-content; padding-right: 32px; }
   .theme-toggle { min-width: 44px; }
   .topbar nav a { padding: 0; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px; }
   footer.site a, .back a, .card p > a, .contact-list a { min-height: 44px; min-width: 44px; }

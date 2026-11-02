@@ -132,3 +132,18 @@ test('el brillo de fondo de las páginas interiores no baja el contraste del tex
     await ctx.close()
   }
 })
+
+for (const width of [390, 320]) {
+  test(`móvil ${width}: con la barra desplazada al final, el último enlace queda fuera del difuminado (C-09)`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 800 })
+    for (const path of ['/es/contacto/', '/en/contact/', '/es/codigo/']) {
+      await page.goto(path)
+      const m = await page.locator('.topbar nav').evaluate((nav) => {
+        nav.scrollLeft = nav.scrollWidth
+        const last = nav.querySelector('li:last-child a').getBoundingClientRect()
+        return { lastRight: last.right, navRight: nav.getBoundingClientRect().right }
+      })
+      expect(m.lastRight, `${path} a ${width}px`).toBeLessThanOrEqual(m.navRight - 28 + 0.5)
+    }
+  })
+}

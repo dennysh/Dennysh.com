@@ -43,7 +43,7 @@ export function Header({ lang, view = 'home' }) {
   useEffect(() => {
     const el = nav.current
     const cur = el?.querySelector('[aria-current="page"]')
-    if (el && cur && el.scrollWidth > el.clientWidth) el.scrollLeft = Math.max(0, cur.offsetLeft - (el.clientWidth - cur.offsetWidth) / 2)
+    if (el && cur && el.scrollWidth > el.clientWidth) el.scrollLeft = Math.max(0, cur.getBoundingClientRect().left - el.getBoundingClientRect().left + el.scrollLeft - (el.clientWidth - cur.offsetWidth) / 2)
   }, [view])
   return (
     <header className="topbar">

@@ -61,7 +61,7 @@ describe('navegación móvil y movimiento (C-09, C-24)', () => {
   it('la barra de siete enlaces se difumina por la derecha y deja relleno para el último', () => {
     const mobile = site.slice(site.indexOf('@media (max-width: 600px) {'))
     expect(mobile).toMatch(/\.topbar nav \{[^}]*mask-image: linear-gradient\(to right, #000 calc\(100% - 28px\), transparent\)/)
-    expect(mobile).toMatch(/\.topbar nav ul \{ padding-right: 32px; \}/)
+    expect(mobile).toMatch(/\.topbar nav ul \{ width: max-content; padding-right: 32px; \}/) // sin max-content el relleno no sigue al contenido desbordado
   })
   it('los nodos dejan de flotar al apuntarlos o enfocarlos y no flotan en móvil', () => {
     expect(home).toMatch(/\.node-link:is\(:hover, :focus-visible\) \{ animation-play-state: paused; \}/)
