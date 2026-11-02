@@ -38,7 +38,7 @@ Tomadas por Claude sin preguntar, por mandato de Dennys ("elige el valor por def
 - **Revertir:** quitar `.page::before` y volver `.brand` a `font-weight: 700` en `src/styles/site.css`.
 
 ## A-08 · Copy aprobado intacto
-- **Decisión:** la revisión notó que "La forma más directa de contactarme es el correo." y "El formulario no está disponible por ahora. Escríbeme por correo:" se leen seguidos con el formulario apagado. Se deja así: son textos aprobados y el segundo solo aparece cuando el servidor responde "desactivado" o falla (con la API caída solo se ve el primero más el botón).
+- **Decisión:** la revisión notó que "La forma más directa de contactarme es el correo." y "El formulario no está disponible por ahora. Escríbeme por correo:" se leen seguidos con el formulario apagado. Se deja así: ambos textos vienen de la tanda de correcciones 2 y no se cambia redacción sin que Dennys lo decida. Con el servidor apagado o sin respuesta se ven las dos frases y el botón; sin JavaScript se ve la primera y "Escríbeme por correo:".
 - **Revertir/ajustar:** si Dennys prefiere una sola frase, cambiar `contactForm.disabled` en `src/content/site.js`.
 
 ## A-09 · Etiqueta "Cuándo puedo empezar"
