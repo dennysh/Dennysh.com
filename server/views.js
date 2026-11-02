@@ -9,7 +9,7 @@ const PARAMS = {
   B: ['fromCity', 'toCity', 'distanceKm', 'minutes', 'impliedSpeedKmh'],
   C: ['action', 'localTime', 'orgZone'],
 }
-const CODES = ['E_INPUT', 'E_BOT', 'E_RATE', 'E_NOT_FOUND', 'E_LIMIT', 'E_INTERNAL']
+const CODES = ['E_INPUT', 'E_BOT', 'E_RATE', 'E_NOT_FOUND', 'E_LIMIT', 'E_INTERNAL', 'E_RATE_LIMIT', 'E_DISABLED', 'E_DELIVERY']
 
 function alertView(a = {}) {
   const out = pick(a, ['status', 'channel', 'atUtc', 'maskedChat', 'messageIdPresent', 'groupedWithAtUtc', 'code', 'escalation'])
@@ -44,6 +44,7 @@ export function toAuditView(a) {
 
 export function toBody(body) {
   if (body && typeof body.code === 'string') return { code: CODES.includes(body.code) ? body.code : 'E_INTERNAL' }
+  if (body?.status === 'sent') return { status: 'sent' } // formulario de contacto: solo el estado, nunca lo enviado
   if (body?.audit) return body.eventId ? { eventId: body.eventId, audit: toAuditView(body.audit) } : { audit: toAuditView(body.audit) }
   return { code: 'E_INTERNAL' }
 }

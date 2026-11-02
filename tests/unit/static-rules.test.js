@@ -95,7 +95,7 @@ describe('reglas de código (T062, S9, S13, S15, D-01)', () => {
 })
 
 describe('sin IA por clic y superficie de rutas (T069, AC-10, S6, D-01)', () => {
-  const routes = ['functions/api/simulate.js', 'functions/api/intervene.js', 'functions/api/event/[id].js', 'functions/api/_middleware.js']
+  const routes = ['functions/api/simulate.js', 'functions/api/intervene.js', 'functions/api/event/[id].js', 'functions/api/contact.js', 'functions/api/_middleware.js']
   it('el conjunto previsto pasa', () => {
     expect(checkSurface({ files: routes.map((f) => ({ path: f, text: '' })) })).toEqual([])
   })

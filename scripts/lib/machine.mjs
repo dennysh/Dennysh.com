@@ -5,11 +5,13 @@ import { publicRulesFor } from './rules.mjs'
 import { pagePaths } from '../../src/routes.js'
 
 export const SITE_URL = 'https://dennysh.com'
-// Páginas interiores nuevas (spec primera pantalla §5): una por idioma, con su equivalente en el otro.
-export const INNER_PAGES = [{ view: 'projects' }, { view: 'journey' }, { view: 'demo' }]
+// Una página por nodo (correcciones 1, C2) y Contacto, cada una en los dos idiomas con su equivalente en el otro.
+export const INNER_PAGES = ['code', 'projects', 'demo', 'journey', 'how', 'interest', 'contact'].map((view) => ({ view }))
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const items = (lang) => site[lang].work.items
-const repos = (lang) => items(lang).filter((i) => typeof i.repo === 'string')
+// Una sola fuente: los bots de Telegram viven agrupados en site.js; las salidas de máquina listan el grupo y sus bots.
+const flat = (lang) => items(lang).flatMap((i) => i.bots ?? [i])
+const repos = (lang) => flat(lang).filter((i) => typeof i.repo === 'string')
 const linkOf = (i) => i.url ?? (typeof i.repo === 'string' ? i.repo : undefined)
 const shownSkills = (lang) => [...new Set(site[lang].skills.groups.flatMap((g) => g.shown))]
 
@@ -42,7 +44,7 @@ export function jsonLd(lang) {
     codeRepository: r.repo,
     author: { '@id': person['@id'] },
   }))
-  const sites = items(lang).filter((i) => i.url).map((i) => ({
+  const sites = flat(lang).filter((i) => i.url).map((i) => ({
     '@type': 'WebSite',
     name: i.title,
     description: i.text,
@@ -94,6 +96,7 @@ export function llmsTxt() {
     `- [Site (English)](${SITE_URL}/en/)`,
     `- [Sitio (Español)](${SITE_URL}/es/)`,
     `- [Live demo: automated decision, explained](${SITE_URL}/en/demo/)`,
+    ...INNER_PAGES.filter(({ view }) => view !== 'demo').map(({ view }) => `- [${site.en.nav[view]}](${SITE_URL}${pagePaths.en[view]})`),
     `- [Public ruleset (JSON, with hash)](${SITE_URL}/demo/ruleset.v1.json)`,
     `- [Explanation templates (JSON)](${SITE_URL}/demo/explanations.v1.json)`,
     `- [LinkedIn](${links.linkedin})`,
@@ -104,7 +107,10 @@ export function llmsTxt() {
     ...publicRulesFor('en').map((t) => `- ${t}`),
     '',
     '## Work and its status',
-    ...items('en').map((r) => (linkOf(r) ? `- ${r.title} (${en.work.status[r.status]}): ${linkOf(r)}` : `- ${r.title} (${en.work.status[r.status]})`)),
+    ...items('en').flatMap((r) => {
+      const line = (x, pre = '') => `${pre}- ${x.title}${x.status ? ` (${en.work.status[x.status]})` : ''}${linkOf(x) ? `: ${linkOf(x)}` : ''}`
+      return r.bots ? [line(r), ...r.bots.map((b) => line(b, '  '))] : [line(r)]
+    }),
     '',
     '## Notes for agents',
     '- The live demo cannot be run by agents (it requires a human check by design). A static example is in the page HTML and is labelled as not real.',
@@ -127,7 +133,9 @@ export function resumeJson() {
     },
     languages: profile.languages.map((l) => ({ language: l.name, fluency: l.fluency })),
     workingRules: { en: publicRulesFor('en'), es: publicRulesFor('es') },
-    projects: items('en').map((r) => ({ name: r.title, description: r.text, ...(linkOf(r) ? { url: linkOf(r) } : {}), status: r.status })),
+    projects: items('en').map((r) => (r.bots
+      ? { name: r.title, description: r.bots.map((b) => b.title).join(' · '), highlights: r.bots.map((b) => `${b.title}${b.status ? ` (${en.work.status[b.status]})` : ''}`) }
+      : { name: r.title, description: r.text, ...(linkOf(r) ? { url: linkOf(r) } : {}), ...(r.status ? { status: r.status } : {}) })),
     skills: en.skills.groups.map((g) => ({ name: g.title, keywords: [...g.shown, ...g.declared], shown: g.shown })),
   }
 }

@@ -1,7 +1,8 @@
 // Rutas del sitio, compartidas por el prerender (servidor) y la hidratación (cliente).
+// Cada nodo de la primera pantalla es una página propia (correcciones 1, C2).
 export const pagePaths = {
-  en: { projects: '/en/projects/', journey: '/en/journey/', demo: '/en/demo/' },
-  es: { projects: '/es/proyectos/', journey: '/es/trayectoria/', demo: '/es/demo/' },
+  en: { code: '/en/code/', projects: '/en/projects/', demo: '/en/demo/', journey: '/en/journey/', how: '/en/how-i-work/', interest: '/en/interest/', contact: '/en/contact/' },
+  es: { code: '/es/codigo/', projects: '/es/proyectos/', demo: '/es/demo/', journey: '/es/trayectoria/', how: '/es/como-trabajo/', interest: '/es/interes/', contact: '/es/contacto/' },
 }
 export const legalPaths = { en: { privacy: '/en/privacy/', terms: '/en/terms/' }, es: { privacy: '/es/privacidad/', terms: '/es/terminos/' } }
 

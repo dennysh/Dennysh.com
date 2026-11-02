@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { spawnSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import { FIELDS, INTENTS, QUESTIONS } from '../../core/contact.js'
 import { site, collectPending, isPending, pending, AUTHORIZED_PENDING, unauthorized, links } from '../../src/content/site.js'
 
 const walk = (n, out = []) => {
@@ -9,7 +10,8 @@ const walk = (n, out = []) => {
   else if (n && typeof n === 'object' && !isPending(n)) Object.values(n).forEach((v) => walk(v, out))
   return out
 }
-const nonInterest = (c) => { const { contact, ...rest } = c; return { ...rest, home: { ...rest.home, panels: { ...rest.home.panels, interest: undefined } } } }
+// Interés (panel y página) es el único lugar con el pensamiento cerebro–IA; Contacto lo menciona como interés.
+const nonInterest = (c) => { const { contact, interestPage, ...rest } = c; return { ...rest, home: { ...rest.home, panels: { ...rest.home.panels, interest: undefined } } } }
 const shape = (n) => (Array.isArray(n) ? n.map(shape) : n && typeof n === 'object' && !isPending(n) ? Object.fromEntries(Object.entries(n).map(([k, v]) => [k, shape(v)])) : isPending(n) ? 'P' : typeof n)
 
 describe('contenido bilingüe (spec §3, §9)', () => {
@@ -28,20 +30,39 @@ describe('contenido bilingüe (spec §3, §9)', () => {
     expect(all).not.toMatch(/clientes? (satisfech|reales)|years of experience in AI/i)
   })
   it('los únicos números son los 7 años de fibra óptica y el año 2025 del bot (verificados por Dennys)', () => {
-    const digits = walk(site).join(' ').match(/\b\d{1,4}\b/g) ?? []
+    // El formulario de contacto lleva rangos de presupuesto neutros (USD) y plazos, que el spec pide: se prueban aparte.
+    const noForm = (c) => { const { contactForm, ...rest } = c; return rest }
+    const digits = walk([noForm(site.en), noForm(site.es)]).join(' ').match(/\b\d{1,4}\b/g) ?? []
     expect(digits.filter((d) => !['2026', '2025', '5', '7', '27'].includes(d))).toEqual([])
   })
-  it('cada estado de trabajo existe en la tabla de estados', () => {
-    for (const lang of ['en', 'es']) for (const it of site[lang].work.items) expect(Object.keys(site[lang].work.status)).toContain(it.status)
+  it('cada estado de trabajo que existe está en la tabla de estados (Criden no declara estado: no consta)', () => {
+    for (const lang of ['en', 'es']) for (const it of site[lang].work.items) if (it.status) expect(Object.keys(site[lang].work.status)).toContain(it.status)
   })
-  it('cada trabajo es "en producción" o "en desarrollo", nada más (encargo 2026-10-30)', () => {
+  const botsOf = (lang) => site[lang].work.items.find((i) => i.bots).bots
+  it('cada trabajo es "en producción" o "en desarrollo", nada más; el grupo de bots no lleva estado propio (D1, D2)', () => {
     for (const lang of ['en', 'es']) {
       expect(Object.keys(site[lang].work.status).sort()).toEqual(['development', 'production'])
-      for (const it of site[lang].work.items) expect(['production', 'development']).toContain(it.status)
+      for (const it of site[lang].work.items.filter((i) => !i.bots)) expect(['production', 'development']).toContain(it.status)
+      expect(site[lang].work.items.find((i) => i.bots).status).toBeUndefined()
     }
     const prod = site.en.work.items.filter((i) => i.status === 'production').map((i) => i.id)
-    expect(prod).toEqual(['caja-cercana', 'super-gol-kids'])
+    expect(prod).toEqual(['super-gol-kids', 'criden']) // Criden está en producción (Dennys, 2026-11-01)
     expect(site.en.work.items.find((i) => i.id === 'naunturia').status).toBe('development')
+  })
+  it('D2: un solo elemento "Bots para Telegram" con los cuatro bots en este orden; solo Caja Cercana declara estado', () => {
+    expect(site.es.work.items.filter((i) => i.bots)).toHaveLength(1)
+    expect(site.es.work.items.find((i) => i.bots).title).toBe('Bots para Telegram')
+    expect(botsOf('es').map((b) => b.title)).toEqual(['Bot de registro de cajas', 'Bot de caja más cercana', 'Bot de reportes', 'Bot de planificación'])
+    expect(botsOf('en').map((b) => b.title)).toEqual(['Box registry bot', 'Nearest box bot', 'Reports bot', 'Planning bot'])
+    for (const lang of ['en', 'es']) {
+      expect(botsOf(lang).map((b) => b.id)).toEqual(['registro-cajas', 'caja-cercana', 'reportes-telecom', 'planificacion'])
+      expect(botsOf(lang).filter((b) => b.status).map((b) => [b.id, b.status])).toEqual([['caja-cercana', 'production']])
+      const plan = botsOf(lang).find((b) => b.id === 'planificacion')
+      expect(Object.keys(plan).sort()).toEqual(['id', 'title']) // nada que no conste: ni texto, ni estado, ni enlace
+      // los bots sueltos ya no son elementos aparte (ni "Bot Registry" como uno más)
+      expect(site[lang].work.items.map((i) => i.id)).toEqual(['telegram-bots', 'super-gol-kids', 'criden', 'naunturia'])
+      expect(walk(site[lang]).join(' ')).not.toMatch(/bot registry/i)
+    }
   })
   it('Super Gol Kids: en producción, enlace al sitio público del cliente, sin cifras ni correos; Naunturia sin enlace', () => {
     for (const lang of ['en', 'es']) {
@@ -58,8 +79,8 @@ describe('contenido bilingüe (spec §3, §9)', () => {
     expect(walk(site).join(' ')).not.toMatch(/ingenier[oa]|engineer'?s page/i)
   })
   it('el bot: redacción acordada (P-05 cerrada), sin empleador ni cifras', () => {
-    const en = site.en.work.items.find((i) => i.id === 'caja-cercana').text
-    const es = site.es.work.items.find((i) => i.id === 'caja-cercana').text
+    const en = botsOf('en').find((i) => i.id === 'caja-cercana').text
+    const es = botsOf('es').find((i) => i.id === 'caja-cercana').text
     expect(en).toMatch(/2025/); expect(es).toMatch(/2025/)
     expect(en).toMatch(/nearest network box/i); expect(es).toMatch(/caja de red más cercana/i)
     expect(en).toMatch(/used internally at the company/i); expect(es).toMatch(/se usa internamente en la empresa/i)
@@ -86,6 +107,10 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
   it('titular: sistemas con IA que se explican y se auditan, en los dos idiomas', () => {
     expect(site.es.hero.thesis).toBe('Construyo sistemas con IA que se explican y se auditan.')
     expect(site.en.hero.thesis).toBe('I build AI systems that explain themselves and can be audited.')
+  })
+  it('la portada no tiene titular: su único texto principal es la frase de Dennys (correcciones 1, C6)', () => {
+    expect(site.es.home.phrase).toBe('Un poco de lo que hago, en pocos minutos.')
+    expect(site.en.home.phrase).toBe('A little of what I do, in a few minutes.')
   })
   it('una sola línea de origen bajo el titular: 7 años de fibra óptica, en campo; la fibra no es una etiqueta', () => {
     for (const lang of ['es', 'en']) {
@@ -188,7 +213,8 @@ describe('marcadores pending (T080, K2)', () => {
     expect(r.stdout).toContain('P-09')
   })
   it('el sitio muestra "por confirmar" (no pistas internas) en los marcadores autorizados', () => {
-    const html = readFileSync('dist/en/index.html', 'utf8')
+    // Con el inicio limpio, los marcadores autorizados se ven en sus páginas: Contacto (P-09), Cómo trabajo (P-04) y Proyectos (P-22).
+    const html = ['contact', 'how-i-work', 'projects'].map((p) => readFileSync(`dist/en/${p}/index.html`, 'utf8')).join('\n')
     const visible = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ') // solo el texto visible, sin atributos ni JSON-LD
     expect(visible).toContain('to be confirmed')
     expect(visible).not.toMatch(/\bP-\d+\b|Public evidence of the factory|Location, time zone and availability/)
@@ -224,7 +250,7 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
   it('las tarjetas de Proyectos, Demo y Trayectoria llevan los textos aprobados del spec', () => {
     const es = site.es.home.panels
     expect(es.projects.title).toBe('Trabajo en producción')
-    expect(es.projects.text).toBe('Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente.')
+    expect(es.projects.text).toBe('Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente. Criden, para negocios y páginas web.')
     expect(es.demo.title).toBe('Demo en vivo')
     expect(es.demo.text).toBe('Una decisión automatizada, con la regla usada, la explicación y su auditoría.')
     expect(es.journey.title).toBe('De la fibra a la IA')
@@ -234,32 +260,72 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
     expect(site.es.home.tagline).toEqual(['7 años en fibra óptica', 'Remoto · UTC-5 · Español nativo · Inglés B1'])
     expect(site.en.home.tagline).toEqual(['7 years in fiber optics', 'Remote · UTC-5 · Spanish native · English B1'])
   })
-  it('Interés (P-23, respuesta de Dennys 2026-10-31): jiu-jitsu, y triatlón y pistas de obstáculos pocas veces, sin inflar', () => {
+  it('Interés: solo el pensamiento cerebro–IA; ningún deporte en ninguna parte (C6, Dennys 2026-11-01)', () => {
     for (const lang of ['en', 'es']) {
       const i = site[lang].home.panels.interest
-      expect(i.sports).toEqual(['jiu-jitsu'])
+      expect(Object.keys(i).sort()).toEqual(['go', 'opens', 'thought', 'title'])
       expect(collectPending(i)).toEqual([])
-      expect(i.sportsMore).toMatch(lang === 'es' ? /triatlón/i : /triathlon/i)
-      expect(i.sportsMore).toMatch(lang === 'es' ? /pistas de obstáculos/i : /obstacle courses/i)
-      expect(i.sportsMore).toMatch(lang === 'es' ? /ciclismo, natación y pista/i : /cycling, swimming and track/i)
-      expect(i.sportsMore).toMatch(lang === 'es' ? /pocas veces, no de forma constante/i : /a few times, not consistently/i)
-      expect(JSON.stringify(i)).not.toMatch(/competid|compet(e|ing|itor)|campe[oó]n|champion|resultado|result|podio|podium|medall|medal|ranking|\d/i)
+      expect(walk(site[lang]).join(' ')).not.toMatch(/jiu|jitsu|triat|triath|obst[aá]cul|obstacle|deporte|sport|ciclismo|cycling|nataci[oó]n|swimming/i)
     }
   })
-  it('Proyectos y Trayectoria (P-24, P-25): se quedan como están, sin marcadores ni sección extra', () => {
+  it('Proyectos (C7, D1): "Trabajo en producción" con Bots para Telegram, Super Gol Kids y Criden (en producción, sin dirección inventada)', () => {
     for (const lang of ['en', 'es']) {
       const p = site[lang].projectsPage
-      expect(p.ids).toEqual(['caja-cercana', 'super-gol-kids'])
+      expect(p.title).toBe(lang === 'es' ? 'Trabajo en producción' : 'Work in production')
+      expect(site[lang].home.panels.projects.title).toBe(p.title)
+      expect(p.ids).toEqual(['telegram-bots', 'super-gol-kids', 'criden'])
       for (const id of p.ids) expect(site[lang].work.items.map((i) => i.id)).toContain(id)
+      const cr = site[lang].work.items.find((i) => i.id === 'criden')
+      expect(cr.text).toBe(lang === 'es' ? 'Para negocios y páginas web: Criden. Es un producto aparte de este sitio.' : 'For businesses and websites: Criden. A separate product from this site.')
+      expect(cr.status).toBe('production') // D1: en producción, todavía sin enlace
+      expect(cr.url).toBeUndefined(); expect(cr.repo).toBeUndefined()
+      expect(isPending(cr.link)).toBe(true); expect(cr.link.id).toBe('P-22')
+      expect(JSON.stringify(cr)).not.toMatch(/https?:|@|criden\.(com|net|app|io|ec)/i)
       expect(p.more).toBeUndefined()
       expect(site[lang].journeyPage.more).toBeUndefined()
+    }
+  })
+  it('se quitan de todo lo público el sistema contable, Football Manager y HARDLOCK, y solo esos tres (C7, Dennys 2026-10-31)', async () => {
+    const { jsonLd, llmsTxt, resumeJson } = await import('../../scripts/lib/machine.mjs')
+    const everything = [JSON.stringify(site), llmsTxt(), JSON.stringify(resumeJson()), JSON.stringify(jsonLd('en')), JSON.stringify(jsonLd('es'))].join(' ')
+    expect(everything).not.toMatch(/contable|accounting system|football manager|f[uú]tbol manager|futbolManager|hardlock|Sistema-Contable|'contable'|"contable"/i)
+    for (const lang of ['en', 'es']) {
+      expect(site[lang].work.items.map((i) => i.id)).toEqual(['telegram-bots', 'super-gol-kids', 'criden', 'naunturia'])
+    }
+    // una sola fuente: llms.txt y dennys.json listan el grupo y los cuatro bots, y Naunturia sigue (D3)
+    const l = llmsTxt()
+    expect(l).toContain('- Telegram bots')
+    expect(l.indexOf('Box registry bot')).toBeLessThan(l.indexOf('Nearest box bot'))
+    expect(l.indexOf('Nearest box bot')).toBeLessThan(l.indexOf('Reports bot'))
+    expect(l.indexOf('Reports bot')).toBeLessThan(l.indexOf('Planning bot'))
+    expect(l).toContain('- Naunturia (In development)')
+    const proj = resumeJson().projects
+    expect(proj.find((x) => x.name === 'Telegram bots').highlights).toEqual(['Box registry bot', 'Nearest box bot (In production)', 'Reports bot', 'Planning bot'])
+    expect(proj.map((x) => x.name)).toContain('Naunturia')
+  })
+  it('ningún deporte en las salidas de máquina (llms.txt, dennys.json, JSON-LD)', async () => {
+    const { jsonLd, llmsTxt, resumeJson } = await import('../../scripts/lib/machine.mjs')
+    const out = [llmsTxt(), JSON.stringify(resumeJson()), JSON.stringify(jsonLd('en')), JSON.stringify(jsonLd('es'))].join(' ')
+    expect(out).not.toMatch(/jiu|jitsu|triat|triath|obst[aá]cul|obstacle|deporte|sport/i)
+  })
+  it('Capacidades (C10): se añaden LLM, Chatbots con LLM y Agentes de IA acotado; ni bots autónomos ni aprendizaje profundo ni potencias ópticas', () => {
+    for (const lang of ['en', 'es']) {
+      const ai = site[lang].skills.groups.find((g) => g.title === (lang === 'es' ? 'Sistemas con IA' : 'AI systems'))
+      expect(ai.shown).toEqual([])
+      expect(ai.declared).toEqual(lang === 'es'
+        ? ['LLM', 'APIs de LLM', 'Claude', 'OpenAI', 'Gemini', 'Whisper', 'Chatbots con LLM', 'Agentes de IA']
+        : ['LLM', 'LLM APIs', 'Claude', 'OpenAI', 'Gemini', 'Whisper', 'LLM chatbots', 'AI agents'])
+      expect(ai.note).toMatch(lang === 'es' ? /solo lectura.*prototipo, sin producción/i : /read-only.*prototype, never in production/i)
+      const all = walk(site[lang].skills).join(' ')
+      expect(all).not.toMatch(/aut[oó]nom|autonomous|aprendizaje|deep learning|continual|continuous learning|potencia|optical power|isp\b.*(nombre|name)/i)
+      expect(ai.note).not.toMatch(/ISP/)
     }
   })
   it('cada página interior tiene su propia descripción (no la de la portada)', () => {
     for (const lang of ['en', 'es']) {
       const c = site[lang]
-      const d = [c.projectsPage.description, c.journeyPage.description, c.demo.description]
-      expect(new Set([...d, c.meta.description]).size).toBe(4)
+      const d = ['codePage', 'projectsPage', 'journeyPage', 'howPage', 'interestPage', 'contactPage'].map((k) => c[k].description).concat(c.demo.description)
+      expect(new Set([...d, c.meta.description]).size).toBe(8)
       for (const t of d) expect(t.length).toBeGreaterThan(40)
       expect(c.journeyPage.description).not.toMatch(/demo/i)
     }
@@ -291,6 +357,43 @@ describe('galería por fila de Trayectoria (spec §5.1; P-29 resuelto por Dennys
       expect(site[lang].journeyPage.rows[0].meta).toEqual([lang === 'es' ? '7 años' : '7 years'])
       expect(rows).not.toMatch(/técnic[oa] de telecom|telecom technician|ingenier|engineer|supervisor|gerente|manager|jefe|empresa por confirmar|company to be confirmed/i)
       expect(rows).not.toMatch(/\.(webp|jpe?g|png)|"src"/)
+    }
+  })
+})
+
+describe('textos del formulario de contacto (D4): es y en, sin tarifas', () => {
+  const F = FIELDS, I = INTENTS, Q = QUESTIONS
+  const forms = { es: site.es.contactForm, en: site.en.contactForm }
+  it('hay una etiqueta no vacía por cada opción y por cada valor de cada lista cerrada, en los dos idiomas', () => {
+    for (const [lang, t] of Object.entries(forms)) {
+      for (const i of I) expect(t.intent.options[i]?.trim().length, `${lang} intent ${i}`).toBeGreaterThan(2)
+      for (const [f, def] of Object.entries(F)) {
+        if (!t.questions[f]) continue
+        if (def.kind === 'enum') for (const v of def.values) expect(t.questions[f].options[v]?.trim().length, `${lang} ${f}=${v}`).toBeGreaterThan(1)
+        expect(t.questions[f].q.trim().length, `${lang} ${f}.q`).toBeGreaterThan(5)
+      }
+      for (const i of I) for (const q of Q[i]) expect(t.questions[q], `${lang} pregunta ${q}`).toBeDefined()
+    }
+  })
+  it('los rangos de presupuesto son neutros (USD) y el formulario no publica precios, tarifas ni cantidades de Dennys', () => {
+    expect(Object.values(forms.es.questions.budget.options)).toEqual(['Menos de 300', '300–1 000', '1 000–3 000', 'Más de 3 000', 'Aún no lo sé'])
+    expect(Object.values(forms.en.questions.budget.options)).toEqual(['Under 300', '300–1,000', '1,000–3,000', 'Over 3,000', 'I do not know yet'])
+    for (const t of Object.values(forms)) {
+      const text = JSON.stringify(t)
+      expect(text).not.toMatch(/tarifa|\bmy rate|\brates? (are|start)|per hour|por hora|\/h\b|\bhourly|cobro|I charge|precio de|my price/i)
+      expect(text).not.toMatch(/USD per|USD por|\$\s?\d/)
+    }
+  })
+  it('el aviso de consentimiento y el de privacidad existen en los dos idiomas', () => {
+    for (const t of Object.values(forms)) { expect(t.review.consent.length).toBeGreaterThan(20); expect(t.review.privacy.length).toBeGreaterThan(5) }
+  })
+})
+
+describe('Naunturia (D3): igual que hoy en los dos idiomas', () => {
+  it('en desarrollo, sin enlace ni repositorio ni marcador, con "Proyecto en desarrollo" / "Project in development"', () => {
+    for (const [lang, text] of [['es', 'Proyecto en desarrollo.'], ['en', 'Project in development.']]) {
+      const n = site[lang].work.items.find((i) => i.id === 'naunturia')
+      expect(n).toEqual({ id: 'naunturia', status: 'development', title: 'Naunturia', text })
     }
   })
 })

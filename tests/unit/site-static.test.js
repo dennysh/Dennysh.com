@@ -1,17 +1,34 @@
 import { describe, it, expect } from 'vitest'
-import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget, SECTION_IDS } from '../../scripts/static/site.mjs'
+import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget } from '../../scripts/static/site.mjs'
 import { sitemapXml, llmsTxt, headHtml, INNER_PAGES } from '../../scripts/lib/machine.mjs'
 import { pagePaths } from '../../src/routes.js'
 import { site } from '../../src/content/site.js'
 
 const reader = (files) => (rel) => files[rel] ?? null
 
-describe('prerender (AC-02)', () => {
-  const good = (lang) => `<html lang="${lang}"><body>${site[lang].hero.thesis} ${site[lang].hero.summary.join(' ').replace(/&/g, '&amp;')} ${SECTION_IDS.map((i) => `<s id="${i}">`).join('')}</body>`
+describe('prerender del inicio limpio (AC-02, correcciones 1 C4)', () => {
+  const NODES = ['code', 'projects', 'demo', 'journey', 'how', 'interest']
+  const good = (lang) => `<html lang="${lang}"><body><section id="inicio"><h1 id="hero-h">${site[lang].home.phrase}</h1>${NODES.map((n) => `<a class="node-link" data-node="${n}" href="${pagePaths[lang][n]}">x</a>`).join('')}</section><script type="application/ld+json">{"email":"dennys@dennysh.com"}</script></body>`
   const files = { 'index.html': good('en'), 'en/index.html': good('en'), 'es/index.html': good('es') }
-  it('pasa con el texto de la tesis, el resumen y las 10 anclas', () => expect(checkPrerender(reader(files))).toEqual([]))
-  it('falla si falta la tesis', () => expect(checkPrerender(reader({ ...files, 'es/index.html': '<html lang="es">' })).length).toBeGreaterThan(0))
-  it('falla si falta una ancla', () => expect(checkPrerender(reader({ ...files, 'en/index.html': files['en/index.html'].replace('id="work"', '') }))).toContainEqual(expect.stringContaining('#work')))
+  it('pasa con la frase única como h1, los seis nodos hacia sus páginas y el correo solo en el JSON-LD', () => expect(checkPrerender(reader(files))).toEqual([]))
+  it('falla si falta la frase', () => expect(checkPrerender(reader({ ...files, 'es/index.html': files['es/index.html'].replace(site.es.home.phrase, 'otra') })).join(' ')).toMatch(/frase única/))
+  it('falla si hay dos h1 (por ejemplo el titular que se eliminó)', () => {
+    expect(checkPrerender(reader({ ...files, 'en/index.html': files['en/index.html'].replace('</section>', '<h1>Titular</h1></section>') })).join(' ')).toMatch(/un solo h1/)
+  })
+  it('falla si el enlace del propio nodo pierde su href aunque el botón del panel lo repita', () => {
+    const html = files['en/index.html'].replace(`<a class="node-link" data-node="interest" href="${pagePaths.en.interest}">x</a>`, `<a class="node-link" data-node="interest">x</a><a href="${pagePaths.en.interest}">Open</a>`)
+    expect(checkPrerender(reader({ ...files, 'en/index.html': html })).join(' ')).toMatch(/nodo interest/)
+  })
+  it('falla si falta un nodo o apunta a otra ruta', () => {
+    expect(checkPrerender(reader({ ...files, 'en/index.html': files['en/index.html'].replace('data-node="how"', 'data-node="otro"') })).join(' ')).toMatch(/nodo how/)
+    expect(checkPrerender(reader({ ...files, 'es/index.html': files['es/index.html'].replace(pagePaths.es.interest, '#p-interest') })).join(' ')).toMatch(/nodo interest/)
+  })
+  it('falla si el inicio vuelve a llevar una sección larga, el pie o el correo a la vista', () => {
+    for (const id of ['demo', 'factory', 'governance', 'work', 'skills', 'journey', 'criden', 'contact', 'footer']) {
+      expect(checkPrerender(reader({ ...files, 'en/index.html': files['en/index.html'].replace('<section id="inicio">', `<section id="${id}"></section><section id="inicio">`) })).join(' '), id).toContain(`#${id}`)
+    }
+    expect(checkPrerender(reader({ ...files, 'en/index.html': files['en/index.html'].replace('</section>', '<a href="mailto:dennys@dennysh.com">dennys@dennysh.com</a></section>') })).join(' ')).toMatch(/correo/)
+  })
 })
 
 describe('capa de máquinas (AC-15, AC-33)', () => {
@@ -29,20 +46,20 @@ describe('capa de máquinas (AC-15, AC-33)', () => {
   it('falla si falta hreflang x-default', () => {
     expect(checkMachine(reader({ ...files, 'en/index.html': files['en/index.html'].replace('hreflang="x-default"', 'hreflang="zz"') })).length).toBeGreaterThan(0)
   })
-  it('las páginas nuevas son exactamente estas tres, con estas rutas (no se derivan de la misma lista que se verifica)', () => {
-    expect(INNER_PAGES.map((p) => p.view)).toEqual(['projects', 'journey', 'demo'])
+  it('las páginas son exactamente estas siete (una por nodo y Contacto), con estas rutas (no se derivan de la misma lista que se verifica)', () => {
+    expect(INNER_PAGES.map((p) => p.view)).toEqual(['code', 'projects', 'demo', 'journey', 'how', 'interest', 'contact'])
     expect(pagePaths).toEqual({
-      en: { projects: '/en/projects/', journey: '/en/journey/', demo: '/en/demo/' },
-      es: { projects: '/es/proyectos/', journey: '/es/trayectoria/', demo: '/es/demo/' },
+      en: { code: '/en/code/', projects: '/en/projects/', demo: '/en/demo/', journey: '/en/journey/', how: '/en/how-i-work/', interest: '/en/interest/', contact: '/en/contact/' },
+      es: { code: '/es/codigo/', projects: '/es/proyectos/', demo: '/es/demo/', journey: '/es/trayectoria/', how: '/es/como-trabajo/', interest: '/es/interes/', contact: '/es/contacto/' },
     })
     const locs = [...sitemapXml().matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].replace('https://dennysh.com', ''))
-    expect(locs).toEqual(['/en/', '/es/', '/en/projects/', '/es/proyectos/', '/en/journey/', '/es/trayectoria/', '/en/demo/', '/es/demo/'])
+    expect(locs).toEqual(['/en/', '/es/', '/en/code/', '/es/codigo/', '/en/projects/', '/es/proyectos/', '/en/demo/', '/es/demo/', '/en/journey/', '/es/trayectoria/', '/en/how-i-work/', '/es/como-trabajo/', '/en/interest/', '/es/interes/', '/en/contact/', '/es/contacto/'])
   })
   it('cada <url> del sitemap declara su x-default hacia la versión en inglés', () => {
     const bad = sitemapXml().replace(/(<loc>https:\/\/dennysh\.com\/es\/<\/loc>[\s\S]*?hreflang="x-default" href=")[^"]*/, '$1https://dennysh.com/es/')
     expect(checkMachine(reader({ ...files, 'sitemap.xml': bad })).join(' ')).toMatch(/x-default/)
   })
-  it('el sitemap lista el inicio y las tres páginas nuevas en los dos idiomas (AC-H8)', () => {
+  it('el sitemap lista el inicio y las siete páginas en los dos idiomas (AC-H8)', () => {
     const locs = [...sitemapXml().matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1])
     expect(locs).toEqual(['https://dennysh.com/en/', 'https://dennysh.com/es/', ...INNER_PAGES.flatMap(({ view }) => ['en', 'es'].map((l) => `https://dennysh.com${pagePaths[l][view]}`))])
   })
@@ -74,12 +91,16 @@ describe('perfil en datos de máquina (idiomas)', () => {
 
 describe('legales (AC-31)', () => {
   const files = {
-    'en/privacy/index.html': 'HMAC Turnstile Telegram 24 hours', 'es/privacidad/index.html': 'HMAC Turnstile Telegram 24 horas',
+    'en/privacy/index.html': 'HMAC Turnstile Telegram 24 hours contact form 25 hours', 'es/privacidad/index.html': 'HMAC Turnstile Telegram 24 horas formulario de contacto 25 horas',
     'en/terms/index.html': 'This is a simulation', 'es/terminos/index.html': 'es una simulación', '404.html': '404',
   }
   it('pasa con las menciones', () => expect(checkLegal(reader(files))).toEqual([]))
   it('falla si privacidad no menciona la retención de 24 h', () => {
     expect(checkLegal(reader({ ...files, 'en/privacy/index.html': 'HMAC Turnstile Telegram' })).length).toBeGreaterThan(0)
+  })
+  it('falla si privacidad no declara el formulario de contacto ni sus 25 h de límites', () => {
+    expect(checkLegal(reader({ ...files, 'en/privacy/index.html': 'HMAC Turnstile Telegram 24 hours' })).length).toBeGreaterThan(0)
+    expect(checkLegal(reader({ ...files, 'es/privacidad/index.html': 'HMAC Turnstile Telegram 24 horas formulario de contacto' })).length).toBeGreaterThan(0)
   })
   it('falla si falta la página 404', () => expect(checkLegal(reader({ ...files, '404.html': undefined })).length).toBeGreaterThan(0))
 })
@@ -93,12 +114,14 @@ describe('ejemplo estático (AC-29) y SVG', () => {
     expect(checkStaticExample(reader({ 'en/demo/index.html': ex('Static example, not a real send', 'Delivered to Telegram'), 'es/demo/index.html': ex('Ejemplo estático, no es un envío real') })).length).toBe(1)
     expect(checkStaticExample(reader({ 'en/demo/index.html': ex('hola'), 'es/demo/index.html': ex('Ejemplo estático, no es un envío real') })).length).toBe(1)
   })
+  const how = { en: `${pagePaths.en.how.slice(1)}index.html`, es: `${pagePaths.es.how.slice(1)}index.html` }
   const svg = (inner) => `<svg class="diagram" role="img" aria-labelledby="a b">${inner}</svg>`
   it('SVG con título y descripción pasa; sin ellos o con cifras falla', () => {
     const ok = svg('<title id="a">Diagrama</title><desc id="b">Cinco pasos</desc><text>Orquestador</text>')
-    expect(checkSvg(reader({ 'en/index.html': ok, 'es/index.html': ok }))).toEqual([])
-    expect(checkSvg(reader({ 'en/index.html': svg('<text>x</text>'), 'es/index.html': ok })).length).toBeGreaterThan(0)
-    expect(checkSvg(reader({ 'en/index.html': svg('<title id="a">t</title><desc id="b">d</desc><text>99%</text>'), 'es/index.html': ok })).length).toBe(1)
+    expect(checkSvg(reader({ [how.en]: ok, [how.es]: ok }))).toEqual([])
+    expect(checkSvg(reader({ [how.en]: svg('<text>x</text>'), [how.es]: ok })).length).toBeGreaterThan(0)
+    expect(checkSvg(reader({ [how.en]: svg('<title id="a">t</title><desc id="b">d</desc><text>99%</text>'), [how.es]: ok })).length).toBe(1)
+    expect(checkSvg(reader({ 'en/index.html': ok, 'es/index.html': ok })).length).toBe(2) // el diagrama vive en Cómo trabajo, no en el inicio
   })
 })
 

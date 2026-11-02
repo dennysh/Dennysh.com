@@ -9,6 +9,8 @@ const ACTIONS = ['approve', 'override', 'escalate']
 const MAX_INTERVENTIONS = 3
 export const EVENT_TTL_MS = 24 * 60 * 60 * 1000
 export const SLOT_TTL_MS = 25 * 60 * 60 * 1000
+// Formulario de contacto: por IP (hash) 3 por hora, por correo (hash) 2 al día y 40 al día en total.
+export const CONTACT_LIMITS = { ipMax: 3, ipWindowMs: 60 * 60 * 1000, mailMax: 2, mailWindowMs: 24 * 60 * 60 * 1000, globalMax: 40, globalWindowMs: 24 * 60 * 60 * 1000 }
 
 export function createStore(db) {
   const down = { kind: 'StoreDown' }
@@ -49,6 +51,46 @@ export function createStore(db) {
         }
         const last = await db.prepare("SELECT MAX(at) AS at FROM alert_slots WHERE at > ? AND status = 'Delivered'").bind(now - GLOBAL_WINDOW_MS).first()
         return { kind: 'GlobalCap', lastAlertAt: last?.at ?? null }
+      } catch {
+        return down
+      }
+    },
+
+    // Una sola sentencia condicional (igual que reserveSlot): dos envíos simultáneos no pasan ambos el tope.
+    async reserveContact(byIp, byMail, now) {
+      const L = CONTACT_LIMITS
+      try {
+        const id = newRawId()
+        const r = await db
+          .prepare(
+            `INSERT INTO contact_slots (id, byIp, byMail, at)
+             SELECT ?, ?, ?, ?
+             WHERE (SELECT COUNT(*) FROM contact_slots WHERE byIp = ? AND at > ?) < ?
+               AND (SELECT COUNT(*) FROM contact_slots WHERE byMail = ? AND at > ?) < ?
+               AND (SELECT COUNT(*) FROM contact_slots WHERE at > ?) < ?`,
+          )
+          .bind(id, byIp, byMail, now, byIp, now - L.ipWindowMs, L.ipMax, byMail, now - L.mailWindowMs, L.mailMax, now - L.globalWindowMs, L.globalMax)
+          .run()
+        return r.meta.changes === 1 ? { kind: 'Reserved', slotId: id } : { kind: 'RateLimited' }
+      } catch {
+        return down
+      }
+    },
+
+    async releaseContact(slotId) {
+      try {
+        await db.prepare('DELETE FROM contact_slots WHERE id = ?').bind(slotId).run()
+        return { kind: 'Ok' }
+      } catch {
+        return down
+      }
+    },
+
+    // Aparte de purgeExpired: si la migración 0002 aún no está aplicada, la demo no debe verse afectada.
+    async purgeContact(now) {
+      try {
+        await db.prepare('DELETE FROM contact_slots WHERE at <= ?').bind(now - SLOT_TTL_MS).run()
+        return { kind: 'Ok' }
       } catch {
         return down
       }

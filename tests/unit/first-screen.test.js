@@ -18,9 +18,10 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
     const out = html(lang)
     const nodeLinks = [...out.matchAll(/<a\b[^>]*data-node="(\w+)"[^>]*>([\s\S]*?)<\/a>/g)].map((m) => ({ id: m[1], tag: m[0], label: m[2].replace(/<svg[\s\S]*?<\/svg>/g, '').replace(/<[^>]+>/g, '').trim() }))
 
-    it(`(${lang}) un solo h1 con la tesis y las dos líneas del perfil`, () => {
+    it(`(${lang}) un solo h1: la frase única, sin titular; y las dos líneas del perfil`, () => {
       expect(out.match(/<h1\b/g)).toHaveLength(1)
-      expect(out).toContain(esc(c.hero.thesis))
+      expect(out).toContain(`<h1 id="hero-h">${esc(c.home.phrase)}</h1>`)
+      expect(out).not.toContain(esc(c.hero.thesis))
       for (const t of c.home.tagline) expect(out).toContain(esc(t))
     })
     it(`(${lang}) seis nodos como enlaces, con nombre accesible y destino`, () => {
@@ -30,7 +31,8 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       expect(href('projects')).toBe(pagePaths[lang].projects)
       expect(href('demo')).toBe(pagePaths[lang].demo)
       expect(href('journey')).toBe(pagePaths[lang].journey)
-      for (const id of ['code', 'how', 'interest']) expect(href(id)).toBe(`#p-${id}`)
+      for (const id of ['code', 'how', 'interest']) expect(href(id)).toBe(pagePaths[lang][id])
+      for (const n of nodeLinks) expect(n.tag).not.toMatch(/href="#/)
     })
     it(`(${lang}) los seis paneles están en el HTML con su texto completo`, () => {
       for (const id of ['code', 'projects', 'demo', 'journey', 'how', 'interest']) expect(out).toContain(`id="p-${id}"`)
@@ -39,6 +41,17 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       for (const t of [p.projects.text, p.demo.text, p.journey.text, p.interest.thought]) expect(out).toContain(esc(t))
       expect(out).toContain('https://github.com/dennysh')
       expect(out).toContain(pagePaths[lang].projects)
+      expect(out).toContain(esc(p.projects.text)) // Trabajo en producción, con Criden
+      expect(out).toContain(esc(p.projects.title))
+      const d = /<section id="p-projects"[\s\S]*?<\/section>/.exec(out)[0]
+      expect(d).toMatch(/<details class="bots"[^>]*><summary>/) // Bots para Telegram, cerrado, en el panel
+      expect([...d.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])).toEqual(c.work.items[0].bots.map((b) => esc(b.title)))
+    })
+    it(`(${lang}) cada panel trae su botón hacia la página del nodo (táctil: "Abrir página")`, () => {
+      for (const id of ['code', 'projects', 'demo', 'journey', 'how', 'interest']) {
+        const panel = new RegExp(`<section id="p-${id}"[\\s\\S]*?</section>`).exec(out)[0]
+        expect(panel, id).toContain(`<a class="btn btn-primary" href="${pagePaths[lang][id]}">${esc(c.home.panels[id].go)}</a>`)
+      }
     })
     it(`(${lang}) el panel Demo es el activo de inicio y no hay rotación`, () => {
       expect(/id="p-demo"[^>]*data-active="true"|data-active="true"[^>]*id="p-demo"/.test(out)).toBe(true)
@@ -57,15 +70,26 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       expect(out).not.toMatch(/\sstyle="/)
       expect(/<svg\b[^>]*class="lines"[^>]*aria-hidden="true"/.test(out)).toBe(true)
     })
-    it(`(${lang}) resumen de 5 líneas, botón de la demo hacia la página propia y puntero #demo`, () => {
-      for (const s of c.hero.summary) expect(out).toContain(esc(s))
-      expect(out).toMatch(new RegExp(`<a[^>]*href="${pagePaths[lang].demo}"[^>]*>${esc(c.hero.tryDemo)}</a>`))
-      expect(out).toContain('id="demo"')
+    it(`(${lang}) el inicio es solo la primera pantalla: sin resumen, sin botones de demo ni de contacto, sin secciones largas, sin pie y sin correo`, () => {
+      for (const id of ['demo', 'factory', 'governance', 'work', 'skills', 'journey', 'criden', 'contact', 'footer', 'summary']) expect(out).not.toContain(`id="${id}"`)
+      expect(out).not.toContain('class="cta"')
+      expect(out).not.toContain('<footer')
+      expect(out).not.toContain(esc(c.hero.summary[0]))
+      expect(out).not.toMatch(/dennys@dennysh\.com|mailto:|#contact|\/contact|\/contacto/)
+      expect(out).not.toContain('Scroll')
     })
-    it(`(${lang}) Interés trae los deportes de Dennys y ningún marcador`, () => {
+    it(`(${lang}) la barra del inicio: CV, idioma e interruptor de tema; sin Contacto`, () => {
+      const bar = /<div class="bar">[\s\S]*?<\/nav><\/div>/.exec(out)[0]
+      expect(bar).toContain('/cv-dennys-heras.pdf')
+      expect(bar).toContain(`hrefLang="${lang === 'es' ? 'en' : 'es'}"`)
+      expect(bar).toMatch(/<button[^>]*class="theme-toggle"[^>]*aria-pressed="false"[^>]*aria-label="[^"]+"/)
+      expect(bar).not.toMatch(/contact/i)
+    })
+    it(`(${lang}) Interés trae solo el pensamiento y ningún deporte ni marcador`, () => {
       const i = c.home.panels.interest
-      expect(out).toContain(esc(i.sportsMore))
-      expect(out).not.toContain('data-pending="P-23"')
+      expect(out).toContain(esc(i.thought))
+      expect(out).not.toMatch(/jiu|triat|triath|obst[aá]cul|obstacle|deporte|sport/i)
+      expect(out).not.toContain('data-pending')
     })
   }
 })

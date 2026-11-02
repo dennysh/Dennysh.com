@@ -20,12 +20,14 @@ export function createTokenGetter(sitekey, container) {
     if (!sitekey) return 'dev-no-widget' // entorno local sin clave: el servidor en modo prueba usa la clave de prueba
     await load()
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error('timeout')), 15000)
-      const id = globalThis.turnstile.render(container(), {
+      let id
+      const drop = () => { try { if (id !== undefined) globalThis.turnstile.remove(id) } catch { /* el widget ya no existe */ } }
+      const timer = setTimeout(() => { drop(); reject(new Error('timeout')) }, 15000)
+      id = globalThis.turnstile.render(container(), {
         sitekey,
         size: 'flexible',
         callback: (token) => { clearTimeout(timer); globalThis.turnstile.remove(id); resolve(token) },
-        'error-callback': () => { clearTimeout(timer); reject(new Error('turnstile')) },
+        'error-callback': () => { clearTimeout(timer); drop(); reject(new Error('turnstile')) },
       })
     })
   }

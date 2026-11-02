@@ -15,10 +15,10 @@ export const INTERVENE_SCHEMA = {
 
 const fail = (status) => ({ ok: false, status, code: 'E_INPUT' })
 
-export function parseRequest({ method, contentType, bodyText }, schema) {
+export function parseRequest({ method, contentType, bodyText }, schema, maxBytes = MAX_BODY_BYTES) {
   if (method !== 'POST') return fail(405)
   if (typeof contentType !== 'string' || !/^application\/json\s*(;|$)/i.test(contentType)) return fail(415)
-  if (typeof bodyText !== 'string' || new TextEncoder().encode(bodyText).length > MAX_BODY_BYTES) return fail(413)
+  if (typeof bodyText !== 'string' || new TextEncoder().encode(bodyText).length > maxBytes) return fail(413)
   let data
   try {
     data = JSON.parse(bodyText)

@@ -21,8 +21,8 @@ export default defineConfig({
   reporter: [['list']],
   use: { ...devices['Desktop Chrome'], trace: 'off' },
   projects: [
-    { name: 'mocked', testIgnore: /(full-flow|privacy)\.spec\.js/, use: { baseURL: 'http://localhost:4173' } },
-    { name: 'real', testMatch: /(full-flow|privacy)\.spec\.js/, use: { baseURL: 'http://localhost:8788' } },
+    { name: 'mocked', testIgnore: /(full-flow|privacy|contact-real)\.spec\.js/, use: { baseURL: 'http://localhost:4173' } },
+    { name: 'real', testMatch: /(full-flow|privacy|contact-real)\.spec\.js/, use: { baseURL: 'http://localhost:8788' } },
   ],
   webServer: [
     { command: 'npx vite preview --outDir dist-e2e --port 4173 --strictPort', url: 'http://localhost:4173/en/', reuseExistingServer: true, timeout: 60_000 },

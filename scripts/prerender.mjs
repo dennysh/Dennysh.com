@@ -48,12 +48,12 @@ try {
       }))
     }
   }
-  // Páginas interiores nuevas: Proyectos, Trayectoria y Demo (D-H1), con canonical propio y hreflang en/es/x-default.
+  // Una página por nodo y Contacto (D-H1, correcciones 1 C2), con canonical propio y hreflang en/es/x-default.
   for (const { view } of INNER_PAGES) {
     const alternates = { en: pagePaths.en[view], es: pagePaths.es[view] }
     for (const lang of ['en', 'es']) {
       const c = site[lang]
-      const src = view === 'demo' ? c.demo : c[view === 'projects' ? 'projectsPage' : 'journeyPage']
+      const src = view === 'demo' ? c.demo : c[`${view}Page`]
       const title = src.title
       write(`${pagePaths[lang][view].slice(1)}index.html`, page({
         lang,
@@ -85,4 +85,4 @@ write('sitemap.xml', sitemapXml())
 mkdirSync(join(DIST, 'demo'), { recursive: true })
 copyFileSync('content/ruleset.v1.json', join(DIST, 'demo/ruleset.v1.json'))
 copyFileSync('content/explanations/v1.json', join(DIST, 'demo/explanations.v1.json'))
-console.log('prerender OK — /, /en/, /es/, Proyectos, Trayectoria, Demo, legales, 404 y capa de máquinas')
+console.log('prerender OK — /, /en/, /es/, las siete páginas de nodo, legales, 404 y capa de máquinas')

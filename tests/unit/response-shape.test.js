@@ -10,7 +10,7 @@ const CHAT = '987654367'
 const TSECRET = 'turnstile-secret-value'
 const EKEY = 'e'.repeat(32)
 const VKEY = 'v'.repeat(32)
-const IP = '203.0.113.7'
+const IP = '100.64.12.34' // fuera de los rangos de documentación que usan los escenarios sintéticos (si coincidiera por azar, la prueba fallaría sin motivo)
 const env = () => ({
   DB: createD1(), TURNSTILE_SECRET: TSECRET, TELEGRAM_BOT_TOKEN: TOKEN, TELEGRAM_CHAT_ID: CHAT,
   VISITOR_HMAC_KEY: VKEY, EVENT_HMAC_KEY: EKEY, ALERTS_ENABLED: 'true',

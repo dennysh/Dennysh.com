@@ -4,7 +4,9 @@ import AxeBuilder from '@axe-core/playwright'
 // Galería por fila de Trayectoria (spec §5.1, AC-H11, AC-H12, AC-H13). Las fotos son marcadores (P-29): ninguna entregada todavía.
 const PATH = '/en/journey/'
 const { defaultBrowserType: _b, ...PIXEL } = devices['Pixel 5']
-const rowBox = async (page, i) => (await page.locator('.g-btn').nth(i).boundingBox())
+// La página lleva ahora la trayectoria sobre la galería: la fila puede quedar bajo el pliegue, así que se trae a la vista antes de medir.
+// (el scroll abre la ventana de silencio de la galería, AC-H11: se espera a que pase antes de mover el ratón)
+const rowBox = async (page, i) => { await page.locator('.g-btn').nth(i).scrollIntoViewIfNeeded(); await page.waitForTimeout(900); return page.locator('.g-btn').nth(i).boundingBox() }
 const counter = (page) => page.locator('.g-float .g-count')
 
 test.describe('ratón', () => {

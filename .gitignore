@@ -61,6 +61,10 @@ dist
 
 # e2e y Wrangler locales
 dist-e2e
+dist-demo
 .wrangler
 test-results
 playwright-report
+
+# rsc local state (hooks, seals, logs) and managed skill links — machine-local
+.claude/skills/tidy

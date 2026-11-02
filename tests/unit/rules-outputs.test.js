@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import React from 'react'
 import { renderToString } from 'react-dom/server'
 import Site from '../../src/Site.jsx'
+import { HowPage } from '../../src/pages/Pages.jsx'
 import { publicRules, machineRulesText } from '../../src/home/rules-core.js'
 import { llmsTxt, resumeJson } from '../../scripts/lib/machine.mjs'
 
@@ -21,13 +22,15 @@ describe('reglas de trabajo: una sola fuente, cuatro salidas (TH05, AC-H4)', () 
     expect(machineRulesText(extra, 'en')).not.toContain('Internal text for tests only')
   })
   for (const lang of ['en', 'es']) {
-    it(`la página (${lang}) trae las reglas públicas en Personas, en Máquinas y en la sección, y ninguna oculta`, () => {
-      const html = renderToString(React.createElement(Site, { lang }))
+    it(`(${lang}) el inicio trae las reglas públicas en Personas y en Máquinas, y la página Cómo trabajo en la lista y en Máquinas; ninguna oculta`, () => {
+      const home = renderToString(React.createElement(Site, { lang }))
+      const page = renderToString(React.createElement(HowPage, { lang }))
       for (const r of shown) {
         const t = r[lang]
-        expect(html.split(t).length - 1, t).toBeGreaterThanOrEqual(3) // Personas + Máquinas + sección "Cómo trabajo"
+        expect(home.split(t).length - 1, `inicio: ${t}`).toBeGreaterThanOrEqual(2) // Personas + Máquinas del panel
+        expect(page.split(t).length - 1, `página: ${t}`).toBeGreaterThanOrEqual(2) // lista de Personas + bloque Máquinas
       }
-      for (const r of hidden) expect(html).not.toContain(r[lang])
+      for (const r of hidden) { expect(home).not.toContain(r[lang]); expect(page).not.toContain(r[lang]) }
     })
   }
   it('llms.txt contiene exactamente las reglas públicas en inglés y ninguna oculta', () => {

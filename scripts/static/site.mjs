@@ -4,7 +4,9 @@ import { site, links } from '../../src/content/site.js'
 import { SITE_URL, INNER_PAGES, sitemapPaths } from '../lib/machine.mjs'
 import { pagePaths } from '../../src/routes.js'
 
-export const SECTION_IDS = ['inicio', 'demo', 'factory', 'governance', 'work', 'skills', 'journey', 'criden', 'contact', 'footer']
+// El inicio es solo la primera pantalla (correcciones 1, C4): la frase única como h1, los seis nodos hacia sus páginas y nada más.
+const withoutScripts = (html) => html.replace(/<script\b[\s\S]*?<\/script>/g, '')
+const NODE_IDS = ['code', 'projects', 'demo', 'journey', 'how', 'interest']
 const need = (read, rel, problems) => {
   const t = read(rel)
   if (t == null) problems.push(`falta ${rel}`)
@@ -16,10 +18,15 @@ export function checkPrerender(read) {
   for (const [rel, lang] of [['index.html', 'en'], ['en/index.html', 'en'], ['es/index.html', 'es']]) {
     const html = need(read, rel, problems)
     if (html == null) continue
-    if (!html.includes(site[lang].hero.thesis)) problems.push(`${rel}: falta la tesis en el HTML (${lang})`)
-    for (const s of site[lang].hero.summary) if (!html.includes(s.replace(/&/g, '&amp;'))) problems.push(`${rel}: falta una línea del resumen`)
-    for (const id of SECTION_IDS) if (!html.includes(`id="${id}"`)) problems.push(`${rel}: falta la ancla #${id}`)
+    const phrase = site[lang].home.phrase
+    if (!html.includes(`<h1 id="hero-h">${phrase}</h1>`)) problems.push(`${rel}: falta la frase única como h1 (${lang})`)
+    if ((html.match(/<h1\b/g) ?? []).length !== 1) problems.push(`${rel}: debe haber un solo h1`)
+    if (!html.includes('id="inicio"')) problems.push(`${rel}: falta la ancla #inicio`)
+    for (const id of NODE_IDS) if (!new RegExp(`<a class="node-link" data-node="${id}" href="${pagePaths[lang][id]}"`).test(html)) problems.push(`${rel}: falta el nodo ${id} hacia ${pagePaths[lang][id]}`)
     if (!new RegExp(`<html lang="${lang}"`).test(html)) problems.push(`${rel}: <html lang> incorrecto`)
+    // Inicio limpio: sin las secciones largas, sin pie y sin contacto.
+    for (const id of ['demo', 'factory', 'governance', 'work', 'skills', 'journey', 'criden', 'contact', 'footer']) if (html.includes(`id="${id}"`)) problems.push(`${rel}: el inicio no debe llevar la sección #${id}`)
+    if (withoutScripts(html).includes(links.emailAddress)) problems.push(`${rel}: el inicio no debe mostrar el correo de contacto`)
   }
   return problems
 }
@@ -94,8 +101,8 @@ export function checkMachine(read) {
 export function checkLegal(read) {
   const problems = []
   const must = {
-    'en/privacy/index.html': [/HMAC/, /Turnstile/, /Telegram/, /24 hours/],
-    'es/privacidad/index.html': [/HMAC/, /Turnstile/, /Telegram/, /24 horas/],
+    'en/privacy/index.html': [/HMAC/, /Turnstile/, /Telegram/, /24 hours/, /contact form/i, /25 hours/],
+    'es/privacidad/index.html': [/HMAC/, /Turnstile/, /Telegram/, /24 horas/, /formulario de contacto/i, /25 horas/],
     'en/terms/index.html': [/simulation/i],
     'es/terminos/index.html': [/simulaci[oó]n/i],
   }
@@ -122,7 +129,7 @@ export function checkStaticExample(read) {
 
 export function checkSvg(read) {
   const problems = []
-  for (const rel of ['en/index.html', 'es/index.html']) {
+  for (const rel of [`${pagePaths.en.how.slice(1)}index.html`, `${pagePaths.es.how.slice(1)}index.html`]) {
     const html = need(read, rel, problems)
     if (html == null) continue
     const m = /<svg[^>]*class="diagram"[\s\S]*?<\/svg>/.exec(html)
@@ -160,7 +167,6 @@ export function checkBudget(read, readBuffer) {
 
 // CSP sin 'unsafe-inline' (regla 24): nada de style="…" ni de <script> en línea (el JSON-LD es un bloque de datos y no cuenta),
 // y ningún dominio externo de fuentes o iconos (reglas 24 y 25).
-const withoutScripts = (html) => html.replace(/<script\b[\s\S]*?<\/script>/g, '')
 export function checkMarkup(files) {
   const problems = []
   for (const { path, text } of files) {

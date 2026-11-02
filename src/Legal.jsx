@@ -7,14 +7,15 @@ const TEXT = {
   en: {
     privacy: {
       title: 'Privacy',
-      intro: 'This site has no accounts, no cookies and no analytics. The only processing happens when you run the live demo.',
+      intro: 'This site has no accounts, no cookies and no analytics. The only processing happens when you run the live demo or send the contact form.',
       items: [
         ['What I store', 'When you run the demo I store the synthetic event the system generated (fictional account, a documentation-range IP address, the decision and the audit record) and a visitor hash. The hash is an HMAC of your IP address with a secret key; your IP address itself is never stored.'],
         ['Retention', 'Events and your interventions are kept 24 hours and then deleted automatically. The alert-slot records that enforce the rate limits are kept 25 hours and then deleted.'],
         ['Cloudflare Turnstile', 'To tell people from bots, the demo uses Cloudflare Turnstile. It runs only when you press the button, and Cloudflare processes the check under its own terms.'],
         ['Telegram', 'Each run can send a short alert to the site owner through Telegram. The message contains only fixed text: scenario, decision, rule, time and a read-only link to the event. It never contains anything you typed, because you type nothing.'],
         ['Browser storage', 'The event identifier is kept in your browser session storage so a page reload restores the result. It is not a cookie, is not sent anywhere except to this site, and disappears when you close the tab.'],
-        ['Your data', 'The demo asks you for no personal data. If you write to me by email, I use your message only to reply.'],
+        ['Contact form', 'The contact form (on the Contact page, when it is enabled) asks for the option you choose, your answers to a few short questions, your name, your email address, an optional message and your consent. It is used only to reply to you. The message is sent by email to dennys@dennysh.com and is not stored on this site. To enforce limits on sending, I keep for 25 hours only an HMAC of your IP address and an HMAC of your email address (with a secret key), plus the time; never the text, the name or the address itself. The same Cloudflare Turnstile check as in the demo runs when you press Send. Only the recipient of the email, the site owner, sees what you wrote.'],
+        ['Your data', 'The demo asks you for no personal data. If you write to me by email or through the contact form, I use your message only to reply.'],
       ],
     },
     terms: {
@@ -33,14 +34,15 @@ const TEXT = {
   es: {
     privacy: {
       title: 'Privacidad',
-      intro: 'Este sitio no tiene cuentas, ni cookies, ni analítica. El único tratamiento ocurre cuando ejecutas la demo en vivo.',
+      intro: 'Este sitio no tiene cuentas, ni cookies, ni analítica. El único tratamiento ocurre cuando ejecutas la demo en vivo o envías el formulario de contacto.',
       items: [
         ['Qué guardo', 'Al ejecutar la demo guardo el evento sintético que generó el sistema (cuenta ficticia, una IP de rango de documentación, la decisión y el registro de auditoría) y un hash de visitante. El hash es un HMAC de tu dirección IP con una clave secreta; tu dirección IP nunca se guarda.'],
         ['Retención', 'Los eventos y tus intervenciones se conservan 24 horas y luego se borran de forma automática. Los registros de cupo de alerta que aplican los límites se conservan 25 horas y luego se borran.'],
         ['Cloudflare Turnstile', 'Para distinguir personas de bots, la demo usa Cloudflare Turnstile. Solo se ejecuta cuando pulsas el botón, y Cloudflare procesa la comprobación bajo sus propios términos.'],
         ['Telegram', 'Cada ejecución puede enviar una alerta corta al dueño del sitio por Telegram. El mensaje solo contiene texto fijo: escenario, decisión, regla, hora y un enlace de solo lectura al evento. Nunca contiene nada que hayas escrito, porque no escribes nada.'],
         ['Almacenamiento del navegador', 'El identificador del evento se guarda en el almacenamiento de sesión del navegador para que una recarga restaure el resultado. No es una cookie, no se envía a ningún sitio salvo a este y desaparece al cerrar la pestaña.'],
-        ['Tus datos', 'La demo no te pide ningún dato personal. Si me escribes por correo, uso tu mensaje solo para responderte.'],
+        ['Formulario de contacto', 'El formulario de contacto (en la página Contacto, cuando está activo) pide la opción que eliges, tus respuestas a unas pocas preguntas cortas, tu nombre, tu correo, un mensaje opcional y tu consentimiento. Se usa solo para responderte. El mensaje se envía por correo a dennys@dennysh.com y no se guarda en este sitio. Para aplicar los límites de envío guardo durante 25 horas solo un HMAC de tu dirección IP y un HMAC de tu correo (con una clave secreta), más la hora; nunca el texto, el nombre ni la dirección. Al pulsar Enviar se ejecuta la misma comprobación de Cloudflare Turnstile que en la demo. Solo quien recibe el correo, el dueño del sitio, ve lo que escribiste.'],
+        ['Tus datos', 'La demo no te pide ningún dato personal. Si me escribes por correo o por el formulario de contacto, uso tu mensaje solo para responderte.'],
       ],
     },
     terms: {

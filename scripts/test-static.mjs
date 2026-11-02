@@ -82,7 +82,7 @@ function noAiRoutes() {
   const files = sourceFiles().map((path) => ({ path, text: readFileSync(path, 'utf8') }))
   const problems = checkSurface({ files })
   for (const p of problems) console.error(p)
-  if (!problems.length) console.log('no-ai-routes OK — sin proveedores de modelos, fetch cerrado y tres rutas')
+  if (!problems.length) console.log('no-ai-routes OK — sin proveedores de modelos, fetch cerrado y cuatro rutas')
   return problems.length === 0
 }
 
