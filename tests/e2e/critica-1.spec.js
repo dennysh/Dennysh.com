@@ -111,3 +111,24 @@ test('móvil: la barra de siete enlaces deja a la vista la página actual y se d
   expect(cur.x + cur.width).toBeLessThanOrEqual(390)
   expect(await page.locator('.topbar nav').evaluate((n) => getComputedStyle(n).maskImage)).toContain('linear-gradient')
 })
+
+test('el brillo de fondo de las páginas interiores no baja el contraste del texto atenuado ni de los enlaces por debajo de 4,5:1 (C-04)', async ({ browser }) => {
+  const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]) }
+  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05)
+  for (const scheme of ['light', 'dark']) {
+    const ctx = await browser.newContext({ colorScheme: scheme })
+    const page = await ctx.newPage()
+    await page.goto('/es/interes/')
+    const t = await page.evaluate(() => {
+      const probe = document.createElement('i'); document.body.appendChild(probe)
+      const col = (v) => { probe.style.color = `var(${v})`; const m = getComputedStyle(probe).color.match(/[\d.]+/g).map(Number); probe.remove; return m }
+      const glow = col('--glow-core'); const op = parseFloat(getComputedStyle(document.querySelector('.page'), '::before').opacity)
+      const out = { bg: col('--bg'), text: col('--text'), muted: col('--muted'), accent: col('--accent'), glow, op }
+      probe.remove(); return out
+    })
+    const a = t.glow[3] ?? 1
+    const mix = t.bg.slice(0, 3).map((v, i) => v * (1 - a * t.op) + t.glow[i] * a * t.op) // el peor punto: el centro del brillo sobre el fondo
+    for (const k of ['text', 'muted', 'accent']) expect(ratio(t[k], mix), `${scheme} ${k} sobre el brillo`).toBeGreaterThanOrEqual(4.5)
+    await ctx.close()
+  }
+})

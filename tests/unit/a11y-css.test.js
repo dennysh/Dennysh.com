@@ -68,3 +68,33 @@ describe('navegación móvil y movimiento (C-09, C-24)', () => {
     expect(home).toMatch(/\.node-link \{ animation: none; \}/)
   })
 })
+
+describe('identidad de las páginas interiores y arreglos baratos (C-04, C-11, C-14, C-17, C-19, C-20, C-26)', () => {
+  it('la marca de las interiores usa la misma voz que el inicio: mono, mayúsculas y espaciada', () => {
+    const r = rule(site, '.brand')
+    expect(r).toMatch(/font: 700 13px\/1 var\(--font-mono\)/)
+    expect(r).toContain('text-transform: uppercase')
+    expect(r).toContain('letter-spacing: .2em')
+  })
+  it('el brillo cálido va por debajo del texto y no recibe el puntero', () => {
+    const r = rule(site, '.page::before')
+    expect(r).toContain('z-index: -1')
+    expect(r).toContain('pointer-events: none')
+    expect(r).toMatch(/var\(--glow-core\)/)
+    expect(rule(site, '.page')).toContain('isolation: isolate')
+  })
+  it('.pending ya no parece un error (sin borde discontinuo ni fondo rojizo) y la tarjeta de reglas no es una pestaña lateral', () => {
+    const r = rule(site, '.pending')
+    expect(r).not.toMatch(/dashed|background/)
+    expect(rule(site, '.rules li')).not.toContain('border-left')
+  })
+  it('párrafos sin palabra suelta, medida de lectura y diagrama oculto en móvil', () => {
+    expect(site).toMatch(/\.page :is\(p, li\) \{ text-wrap: pretty; \}/)
+    expect(site).toMatch(/\.page \.lead, \.page \.method \{ max-width: 68ch; \}/)
+    expect(site.slice(site.indexOf('@media (max-width: 600px) {'))).toMatch(/\.diagram \{ display: none; \}/)
+  })
+  it('la fábrica de agentes reparte sus cinco pasos 3 + 2 en pantallas anchas', () => {
+    expect(site).toMatch(/\.steps:has\(> li:nth-child\(5\):last-child\) \{ grid-template-columns: repeat\(6, 1fr\); \}/)
+    expect(site).toMatch(/> li:nth-child\(n\+4\) \{ grid-column: span 3; \}/)
+  })
+})
