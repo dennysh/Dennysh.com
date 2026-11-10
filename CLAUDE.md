@@ -6,6 +6,8 @@ La demo de decisión automatizada se quitó del sitio el 2026-11-09 (nodo, tarje
 
 La primera pantalla lleva una red de fondo (canvas, solo escritorio con puntero fino; `src/home/network.js`, `NetworkBackground.jsx`). Nunca se dibuja sobre la cara ni el cuerpo: su zona protegida sale de `src/home/geometry.js`. Detalle: `docs/superpowers/specs/2026-11-09-red-de-fondo.md`.
 
+Trayectoria es una línea de tiempo con fotos opcionales (`src/components/Timeline.jsx`; las fotos se declaran en `src/content/journey-photos.js`, guía en `02-DOCS/guia-fotos-trayectoria.md`). Detalle: `docs/superpowers/specs/2026-11-09-trayectoria-linea-de-tiempo.md`.
+
 ## Knowledge map
 
 | Qué | Dónde |

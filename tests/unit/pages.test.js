@@ -99,10 +99,10 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       expect(d.match(/class="bot-text"/g)).toHaveLength(bots.filter((x) => x.text).length)
       expect(/<li data-bot="planificacion">([\s\S]*?)<\/li>/.exec(d)[1]).toBe(`<strong>${esc(bots[3].title)}</strong>`)
     })
-    it(`(${lang}) Trayectoria: las cuatro líneas de la trayectoria antes de la galería`, () => {
+    it(`(${lang}) Trayectoria: las cuatro líneas de la trayectoria antes de la línea de tiempo`, () => {
       const out = render(JourneyPage, lang)
       for (const l of c.journey.lines) expect(out).toContain(esc(l))
-      expect(out.indexOf(esc(c.journey.lines[0]))).toBeLessThan(out.indexOf(esc(c.journeyPage.rows[0].title)))
+      expect(out.indexOf(esc(c.journey.lines[0]))).toBeLessThan(out.indexOf(esc(c.journeyPage.timeline[0].title)))
     })
     it(`(${lang}) Interés: solo el pensamiento cerebro–IA, como idea y no como capacidad`, () => {
       const out = render(InterestPage, lang)

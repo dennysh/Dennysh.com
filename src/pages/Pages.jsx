@@ -1,7 +1,7 @@
 import React from 'react'
 import { site, links } from '../content/site.js'
 import Txt from '../components/Txt.jsx'
-import RowGallery from '../components/RowGallery.jsx'
+import Timeline from '../components/Timeline.jsx'
 import ContactForm from '../contact/ContactForm.jsx'
 import { Header, Footer, WorkCard, FactoryDiagram } from '../Site.jsx'
 import { codePanel } from '../home/code-panel.js'
@@ -71,7 +71,7 @@ export function JourneyPage({ lang }) {
   return (
     <Page lang={lang} view="journey" title={p.title} lead={p.lead} back={p.back}>
       <ol className="journey">{c.journey.lines.map((l) => <li key={l}>{l}</li>)}</ol>
-      <RowGallery rows={p.rows} ui={p.gallery} lang={lang} />
+      <Timeline entries={p.timeline} ui={p.ui} />
     </Page>
   )
 }

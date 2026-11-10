@@ -1,6 +1,8 @@
 // Contenido bilingüe del sitio (spec §3, §4, §9). Solo datos reales de src/data/ o del prompt de Dennys.
 // Todo lo no confirmado es un marcador pending(id, pista): el build de producción los lista y falla si no están autorizados.
 // `label` (opcional) es el texto público cuando el marcador está autorizado a publicarse; por defecto, "por confirmar".
+import { journeyPhotos } from './journey-photos.js'
+
 export const pending = (id, hint, label) => ({ pending: true, id, hint, ...(label ? { label } : {}) })
 export const isPending = (v) => v !== null && typeof v === 'object' && v.pending === true
 
@@ -18,10 +20,16 @@ export const profile = {
 // (razón y alcance en 02-DOCS/wiki/sdd/decisions.md, D-IMPL-11; P-29 el 2026-10-31, D-H12: la galería de Trayectoria queda oculta mientras no haya fotos reales). Cualquier marcador nuevo debe autorizarse aquí a propósito.
 export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-09', 'P-22', 'P-29']
 
-// Fotos de la galería de Trayectoria: Dennys las entrega en unos días (P-29). Mientras no haya fotos reales la galería no se muestra.
+// Fotos de la línea de tiempo de Trayectoria (P-29): Dennys las entrega después. Se declaran en src/content/journey-photos.json, por id de entrada:
+// { "fibratelecom": [{ "src": "/images/trayectoria/fibratelecom-1.webp", "thumb": "/images/trayectoria/fibratelecom-1-thumb.webp", "width": 1600, "height": 1067, "alt": { "es": "…", "en": "…" } }] }
+// (`thumb` es opcional; guía corta en 02-DOCS/guia-fotos-trayectoria.md). Sin fotos declaradas la página se ve completa, sin huecos.
 // Solo la compilación de pruebas e2e (modo de Vite `e2e`) pone fotos de relleno para ejercitar el componente; nunca la de producción.
 const E2E_PHOTOS = import.meta.env?.MODE === 'e2e'
-const photos = (n) => (E2E_PHOTOS ? Array.from({ length: n }, () => ({ src: '/images/dennys-portrait-360.webp', alt: '', width: 360, height: 484 })) : [])
+const E2E_SAMPLE = { fibratelecom: 2, msnet: 1 }
+const declared = E2E_PHOTOS
+  ? Object.fromEntries(Object.entries(E2E_SAMPLE).map(([id, n]) => [id, Array.from({ length: n }, (_, i) => ({ src: '/images/dennys-portrait-360.webp', width: 360, height: 484, alt: { es: `Foto de prueba ${i + 1}`, en: `Test photo ${i + 1}` } }))]))
+  : journeyPhotos
+const photosFor = (lang, id) => (declared[id] ?? []).map((p) => ({ src: p.src, thumb: p.thumb, width: p.width, height: p.height, alt: p.alt?.[lang] ?? '' }))
 
 export const unauthorized = (list, authorized = AUTHORIZED_PENDING) => list.filter((p) => !authorized.includes(p.id))
 
@@ -86,13 +94,16 @@ export const site = {
       back: 'Back to the home screen',
       title: 'Journey', lead: 'From fiber-optic fieldwork to building AI systems.',
       description: 'From fiber-optic fieldwork to building AI systems: the journey of Dennys Heras.',
-      photosPending: pending('P-29', 'Photos for the Journey gallery: Dennys delivers them in a few days (the gallery stays hidden until then)'),
-      gallery: { hint: 'Move the pointer along a row to see its photos. On touch screens, tap a row.', photoOf: 'Photo {k} of {n}', prev: 'Previous photo', next: 'Next photo', close: 'Close', list: 'Places and projects' },
-      rows: [
-        { id: 'fibra', title: 'Fiber-optic networks', meta: ['7 years'], text: '7 years in fiber-optic networks, where things have to work in the field.', photos: photos(6) },
-        { id: 'bot', title: 'Caja Cercana bot', meta: ['2025', 'In production'], text: 'Telegram bot for ISP technicians that finds the nearest network box to their location. Used internally at the company.', photos: photos(4) },
-        { id: 'supergol', title: 'Super Gol Kids', meta: ['In production'], text: 'Platform for children\'s football championships. Public website for a client; I developed the site.', photos: photos(3) },
-        { id: 'ia', title: 'AI systems', meta: ['Now'], text: 'I build AI systems that explain themselves and can be audited.', photos: photos(5) },
+      photosPending: pending('P-29', 'Photos for the Journey timeline: Dennys delivers them later (the timeline shows without photos until then; they are declared in src/content/journey-photos.js)'),
+      ui: { list: 'Experience, projects and education, most recent first', present: 'Present', kinds: { project: 'Project', study: 'Education' }, enlarge: 'Enlarge photo', photoOf: 'Photo {k} of {n}', prev: 'Previous photo', next: 'Next photo', close: 'Close', dialog: 'Photos: {title}' },
+      timeline: [
+        { id: 'bot-caja-cercana', kind: 'project', when: '2025', from: '2025-01', title: 'Caja Cercana bot', status: 'In production', bullets: ['Telegram bot for ISP technicians that finds the nearest network box to their location.', 'Used internally at the company.'], tags: ['Python', 'Telegram Bot API'], photos: photosFor('en', 'bot-caja-cercana') },
+        { id: 'super-gol-kids', kind: 'project', when: 'In production', title: 'Super Gol Kids', bullets: ['Platform for children\'s football championships.', 'Public website for a client; I developed the site.'], tags: ['Website', 'Client'], photos: photosFor('en', 'super-gol-kids') },
+        { id: 'ismac', kind: 'study', when: 'Sep 2023 – Present', from: '2023-09', current: true, title: 'Software Development', org: 'ISMAC Institute of Technology', bullets: ['Software development studies, in progress.'], tags: [], photos: photosFor('en', 'ismac') },
+        { id: 'fibratelecom', kind: 'job', when: 'Mar 2023 – Present', from: '2023-03', current: true, title: 'Field Technician / Asset Management', org: 'Fibratelecom', bullets: ['Weekly inventory of technology equipment, with traceability and asset control.', 'Document management of customer contracts after installation.', 'Deployment and maintenance of GPON network (NAP, splice closures).', 'Automations that cut repetitive tasks.'], tags: ['GPON', 'Inventory', 'Contracts', 'Automation'], photos: photosFor('en', 'fibratelecom') },
+        { id: 'msnet', kind: 'job', when: 'Jun 2021 – Oct 2022', from: '2021-06', to: '2022-10', title: 'ISP Manager', org: 'MS@Net', bullets: ['Full ISP operation: active equipment configuration, technical support and commercial management.', 'Quoted and compared equipment from several suppliers.', 'GPON networks for residential and corporate customers.'], tags: ['ISP', 'GPON', 'Quotes', 'Support'], photos: photosFor('en', 'msnet') },
+        { id: 'afiatic', kind: 'job', when: 'Feb 2018 – May 2021', from: '2018-02', to: '2021-05', title: 'Network Technician (CNT contractor)', org: 'Afiatic', bullets: ['24/7 support for fiber-optic backbone networks.', 'Fault location, on-site repair and technical close-out under defined SLAs.', 'Coverage in Azuay, Cañar, Morona Santiago, Zamora Chinchipe and Pastaza.'], tags: ['Fiber optics', 'Backbone', 'SLA', '24/7'], photos: photosFor('en', 'afiatic') },
+        { id: 'telydata', kind: 'job', when: 'Mar 2017 – Feb 2018', from: '2017-03', to: '2018-02', title: 'Technical Assistant', org: 'Telydata', bullets: ['Installation and preventive and corrective maintenance of fiber-optic networks.', 'Field support.'], tags: ['Fiber optics', 'Maintenance', 'Field support'], photos: photosFor('en', 'telydata') },
       ],
     },
     factory: {
@@ -359,13 +370,16 @@ export const site = {
       back: 'Volver a la primera pantalla',
       title: 'Trayectoria', lead: 'Del trabajo de campo con fibra óptica a construir sistemas con IA.',
       description: 'Del trabajo de campo con fibra óptica a construir sistemas con IA: la trayectoria de Dennys Heras.',
-      photosPending: pending('P-29', 'Fotos de la galería de Trayectoria: Dennys las entrega en unos días (la galería queda oculta hasta entonces)'),
-      gallery: { hint: 'Mueve el puntero a lo largo de una fila para ver sus fotos. En pantallas táctiles, toca una fila.', photoOf: 'Foto {k} de {n}', prev: 'Foto anterior', next: 'Foto siguiente', close: 'Cerrar', list: 'Lugares y proyectos' },
-      rows: [
-        { id: 'fibra', title: 'Redes de fibra óptica', meta: ['7 años'], text: '7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', photos: photos(6) },
-        { id: 'bot', title: 'Bot Caja Cercana', meta: ['2025', 'En producción'], text: 'Bot de Telegram para técnicos de un ISP que encuentra la caja de red más cercana a su ubicación. Hoy se usa internamente en la empresa.', photos: photos(4) },
-        { id: 'supergol', title: 'Super Gol Kids', meta: ['En producción'], text: 'Plataforma de campeonatos de fútbol infantil. Sitio público de un cliente; yo desarrollé el sitio.', photos: photos(3) },
-        { id: 'ia', title: 'Sistemas con IA', meta: ['Ahora'], text: 'Construyo sistemas con IA que se explican y se auditan.', photos: photos(5) },
+      photosPending: pending('P-29', 'Fotos de la línea de tiempo de Trayectoria: Dennys las entrega después (la línea se ve sin fotos hasta entonces; se declaran en src/content/journey-photos.js)'),
+      ui: { list: 'Experiencia, proyectos y formación, de lo más reciente a lo más antiguo', present: 'Presente', kinds: { project: 'Proyecto', study: 'Formación' }, enlarge: 'Ampliar foto', photoOf: 'Foto {k} de {n}', prev: 'Foto anterior', next: 'Foto siguiente', close: 'Cerrar', dialog: 'Fotos: {title}' },
+      timeline: [
+        { id: 'bot-caja-cercana', kind: 'project', when: '2025', from: '2025-01', title: 'Bot Caja Cercana', status: 'En producción', bullets: ['Bot de Telegram para técnicos de un ISP que encuentra la caja de red más cercana a su ubicación.', 'Hoy se usa internamente en la empresa.'], tags: ['Python', 'Telegram Bot API'], photos: photosFor('es', 'bot-caja-cercana') },
+        { id: 'super-gol-kids', kind: 'project', when: 'En producción', title: 'Super Gol Kids', bullets: ['Plataforma de campeonatos de fútbol infantil.', 'Sitio público de un cliente; yo desarrollé el sitio.'], tags: ['Sitio web', 'Cliente'], photos: photosFor('es', 'super-gol-kids') },
+        { id: 'ismac', kind: 'study', when: 'Sep 2023 – Presente', from: '2023-09', current: true, title: 'Desarrollo de Software', org: 'Instituto Tecnológico ISMAC', bullets: ['Estudios de desarrollo de software, en curso.'], tags: [], photos: photosFor('es', 'ismac') },
+        { id: 'fibratelecom', kind: 'job', when: 'Mar 2023 – Presente', from: '2023-03', current: true, title: 'Técnico de Campo / Gestión de Activos', org: 'Fibratelecom', bullets: ['Inventario semanal de equipos tecnológicos, con trazabilidad y control de activos.', 'Gestión documental de contratos con clientes después de la instalación.', 'Despliegue y mantenimiento de la red GPON (NAP, mangas).', 'Automatizaciones que reducen tareas repetitivas.'], tags: ['GPON', 'Inventario', 'Contratos', 'Automatización'], photos: photosFor('es', 'fibratelecom') },
+        { id: 'msnet', kind: 'job', when: 'Jun 2021 – Oct 2022', from: '2021-06', to: '2022-10', title: 'ISP Manager', org: 'MS@Net', bullets: ['Operación integral del ISP: configuración de equipos activos, soporte técnico y gestión comercial.', 'Cotización y comparación de equipos con varios proveedores.', 'Redes GPON para clientes residenciales y corporativos.'], tags: ['ISP', 'GPON', 'Cotización', 'Soporte'], photos: photosFor('es', 'msnet') },
+        { id: 'afiatic', kind: 'job', when: 'Feb 2018 – May 2021', from: '2018-02', to: '2021-05', title: 'Técnico de Redes (contratista CNT)', org: 'Afiatic', bullets: ['Soporte 24/7 de redes troncales de fibra óptica.', 'Localización de fallas, corrección en sitio y cierre técnico bajo SLA definidos.', 'Cobertura en Azuay, Cañar, Morona Santiago, Zamora Chinchipe y Pastaza.'], tags: ['Fibra óptica', 'Redes troncales', 'SLA', '24/7'], photos: photosFor('es', 'afiatic') },
+        { id: 'telydata', kind: 'job', when: 'Mar 2017 – Feb 2018', from: '2017-03', to: '2018-02', title: 'Auxiliar Técnico', org: 'Telydata', bullets: ['Instalación y mantenimiento preventivo y correctivo de redes de fibra óptica.', 'Soporte en campo.'], tags: ['Fibra óptica', 'Mantenimiento', 'Soporte en campo'], photos: photosFor('es', 'telydata') },
       ],
     },
     factory: {

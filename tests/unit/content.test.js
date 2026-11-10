@@ -31,7 +31,8 @@ describe('contenido bilingüe (spec §3, §9)', () => {
   })
   it('los únicos números son los 7 años de fibra óptica y el año 2025 del bot (verificados por Dennys)', () => {
     // El formulario de contacto lleva rangos de presupuesto neutros (USD) y plazos, que el spec pide: se prueban aparte.
-    const noForm = (c) => { const { contactForm, ...rest } = c; return rest }
+    // La línea de tiempo de Trayectoria lleva las fechas del CV público: sus números se prueban aparte (más abajo).
+    const noForm = (c) => { const { contactForm, journeyPage, ...rest } = c; return { ...rest, journeyPage: { ...journeyPage, timeline: undefined } } }
     const digits = walk([noForm(site.en), noForm(site.es)]).join(' ').match(/\b\d{1,4}\b/g) ?? []
     expect(digits.filter((d) => !['2026', '2025', '5', '7', '27'].includes(d))).toEqual([])
   })
@@ -335,28 +336,51 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
   })
 })
 
-describe('galería por fila de Trayectoria (spec §5.1; P-29 resuelto por Dennys el 2026-10-31)', () => {
-  it('cuatro filas con su texto real; sin fotos entregadas todavía (llegan en unos días)', () => {
+describe('línea de tiempo de Trayectoria (trabajo B; contenido solo del CV público; P-29 sigue pendiente)', () => {
+  const ORDER = ['bot-caja-cercana', 'super-gol-kids', 'ismac', 'fibratelecom', 'msnet', 'afiatic', 'telydata']
+  it('siete entradas en el mismo orden en español e inglés, de lo más reciente a lo más antiguo, con sus textos', () => {
     for (const lang of ['en', 'es']) {
-      const rows = site[lang].journeyPage.rows
-      expect(rows.map((r) => r.id)).toEqual(['fibra', 'bot', 'supergol', 'ia'])
-      for (const r of rows) { expect(r.photos).toEqual([]); expect(r.title.length).toBeGreaterThan(3); expect(r.text.length).toBeGreaterThan(20) }
+      const t = site[lang].journeyPage.timeline
+      expect(t.map((e) => e.id)).toEqual(ORDER)
+      for (const e of t) { expect(e.title.length).toBeGreaterThan(3); expect(e.bullets.length).toBeGreaterThanOrEqual(1); expect(e.bullets.length).toBeLessThanOrEqual(4); expect(e.when.length).toBeGreaterThan(3) }
+      // los empleos y los estudios con fecha de inicio van de más reciente a más antiguo
+      const dated = t.filter((e) => e.from).map((e) => e.from)
+      expect([...dated].sort().reverse()).toEqual(dated)
     }
   })
-  it('P-29 queda registrado como pendiente, autorizado y sin rastro visible en las filas', () => {
+  it('es y en tienen la misma estructura (tipo, fechas ISO, actual, número de viñetas y de etiquetas)', () => {
+    const shape = (lang) => site[lang].journeyPage.timeline.map((e) => [e.id, e.kind, e.from ?? null, e.to ?? null, !!e.current, e.bullets.length, e.tags.length])
+    expect(shape('es')).toEqual(shape('en'))
+  })
+  it('las fechas coinciden con el CV público; "Presente" solo en los dos que siguen en curso', () => {
+    const t = site.es.journeyPage.timeline, byId = (id) => t.find((e) => e.id === id)
+    expect(byId('fibratelecom')).toMatchObject({ when: 'Mar 2023 – Presente', current: true, org: 'Fibratelecom' })
+    expect(byId('msnet')).toMatchObject({ when: 'Jun 2021 – Oct 2022', org: 'MS@Net', title: 'ISP Manager' })
+    expect(byId('afiatic')).toMatchObject({ when: 'Feb 2018 – May 2021', org: 'Afiatic' })
+    expect(byId('telydata')).toMatchObject({ when: 'Mar 2017 – Feb 2018', org: 'Telydata' })
+    expect(byId('ismac')).toMatchObject({ kind: 'study', when: 'Sep 2023 – Presente', current: true })
+    expect(t.filter((e) => e.current).map((e) => e.id)).toEqual(['ismac', 'fibratelecom'])
+    expect(t.filter((e) => e.kind === 'job').map((e) => e.id)).toEqual(['fibratelecom', 'msnet', 'afiatic', 'telydata'])
+    expect(t.filter((e) => e.kind === 'project').map((e) => e.id)).toEqual(['bot-caja-cercana', 'super-gol-kids'])
+  })
+  it('ninguna entrada trae fotos en la compilación normal, y P-29 sigue registrado, autorizado y sin rastro visible', () => {
     for (const lang of ['en', 'es']) {
       const j = site[lang].journeyPage
+      for (const e of j.timeline) expect(e.photos).toEqual([])
       expect(isPending(j.photosPending)).toBe(true)
       expect(j.photosPending.id).toBe('P-29')
-      expect(collectPending(j.rows)).toEqual([])
+      expect(collectPending(j.timeline)).toEqual([])
     }
   })
-  it('no se nombra la empresa de fibra ni se inventan roles ni rutas de imagen', () => {
+  it('no se usa la sección Referencias del CV (correos ni nombres de terceros) ni se inventan roles ni rutas de imagen', () => {
     for (const lang of ['en', 'es']) {
-      const rows = JSON.stringify(site[lang].journeyPage.rows)
-      expect(site[lang].journeyPage.rows[0].meta).toEqual([lang === 'es' ? '7 años' : '7 years'])
-      expect(rows).not.toMatch(/técnic[oa] de telecom|telecom technician|ingenier|engineer|supervisor|gerente|manager|jefe|empresa por confirmar|company to be confirmed/i)
-      expect(rows).not.toMatch(/\.(webp|jpe?g|png)|"src"/)
+      const all = JSON.stringify(site[lang].journeyPage.timeline)
+      expect(all).not.toMatch(/[\w.-]+@[\w.-]+\.\w+|darwin|robles|santamar|gaibor|oscar ortiz|referenc/i)
+      expect(all).not.toMatch(/ingenier|engineer|supervisor|gerente|manager de|jefe|\.(webp|jpe?g|png)|"src"/i)
+      expect(all).not.toMatch(/\d+ ?%|\$ ?\d|\d+ clientes|\d+ clients/i) // sin cifras que no estén en el CV
+      // los únicos números de la prosa son los años del CV (y "24/7"); las fechas ISO van aparte en from/to
+      const prose = JSON.stringify(site[lang].journeyPage.timeline.map(({ from, to, ...e }) => e))
+      expect((prose.match(/\b\d{1,4}\b/g) ?? []).filter((d) => !['2017', '2018', '2021', '2022', '2023', '2025', '24', '7'].includes(d))).toEqual([])
     }
   })
 })

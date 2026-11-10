@@ -2,6 +2,8 @@
 
 > **Enmienda 2026-11-09:** la Demo salió del sitio (ver `2026-11-09-quitar-demo.md`). Donde este documento hable de seis nodos, de la tarjeta o la página de Demo, de `/es/demo/` o de la tarjeta de reposo, hoy valen cinco nodos y ninguna tarjeta en reposo.
 
+> **Enmienda 2026-11-09 (Trayectoria):** la galería por fila de §5.1 (y AC-H11, AC-H12 que la prueban) se sustituyó por la línea de tiempo con miniaturas de `2026-11-09-trayectoria-linea-de-tiempo.md`. Los componentes `RowGallery` y `gallery-logic` y las pruebas de la galería ya no existen.
+
 Estado: **borrador para revisión de Dennys** · Fecha: 2026-10-31 · Destino: la Factory (repo `~/projects/dennysh`)
 Referencia visual aprobada en lo esencial: boceto https://claude.ai/artifact/9DaX1jdset5yQrC4zzRe7p (versión 5) y su archivo `primera-pantalla.html`. El boceto es una **guía de forma y comportamiento, no código para copiar**: usa fuentes e iconos de Google, que la constitución prohíbe (ver §6).
 
