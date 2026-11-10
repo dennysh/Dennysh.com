@@ -53,7 +53,7 @@ try {
     const alternates = { en: pagePaths.en[view], es: pagePaths.es[view] }
     for (const lang of ['en', 'es']) {
       const c = site[lang]
-      const src = view === 'demo' ? c.demo : c[`${view}Page`]
+      const src = c[`${view}Page`]
       const title = src.title
       write(`${pagePaths[lang][view].slice(1)}index.html`, page({
         lang,
@@ -82,7 +82,7 @@ write('llms.txt', llmsTxt())
 write('dennys.json', JSON.stringify(resumeJson(), null, 2) + '\n')
 write('robots.txt', robotsTxt())
 write('sitemap.xml', sitemapXml())
-mkdirSync(join(DIST, 'demo'), { recursive: true })
-copyFileSync('content/ruleset.v1.json', join(DIST, 'demo/ruleset.v1.json'))
-copyFileSync('content/explanations/v1.json', join(DIST, 'demo/explanations.v1.json'))
+mkdirSync(join(DIST, 'data'), { recursive: true })
+copyFileSync('content/ruleset.v1.json', join(DIST, 'data/ruleset.v1.json'))
+copyFileSync('content/explanations/v1.json', join(DIST, 'data/explanations.v1.json'))
 console.log('prerender OK — /, /en/, /es/, las siete páginas de nodo, legales, 404 y capa de máquinas')

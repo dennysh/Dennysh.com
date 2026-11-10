@@ -33,8 +33,7 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; }
 .panel { --panel-pad-y: 14px; background: var(--surface); border-radius: 12px; padding: var(--panel-pad-y) 16px; display: none; }
 .panel[data-active="true"] { display: block; }
 /* Sin JavaScript la vista previa la da CSS: al señalar o enfocar un nodo se ve su panel; con JS manda el estado de React. */
-.first:not([data-js]) .canvas:has(.node:is(:hover, :focus-within)) .panel[data-active="true"] { display: none; }
-.first:not([data-js]) .canvas:has(.n-code:is(:hover, :focus-within)) #p-code, .first:not([data-js]) .canvas:has(.n-projects:is(:hover, :focus-within)) #p-projects, .first:not([data-js]) .canvas:has(.n-demo:is(:hover, :focus-within)) #p-demo, .first:not([data-js]) .canvas:has(.n-journey:is(:hover, :focus-within)) #p-journey, .first:not([data-js]) .canvas:has(.n-how:is(:hover, :focus-within)) #p-how, .first:not([data-js]) .canvas:has(.n-interest:is(:hover, :focus-within)) #p-interest { display: block; }
+.first:not([data-js]) .canvas:has(.n-code:is(:hover, :focus-within)) #p-code, .first:not([data-js]) .canvas:has(.n-projects:is(:hover, :focus-within)) #p-projects, .first:not([data-js]) .canvas:has(.n-journey:is(:hover, :focus-within)) #p-journey, .first:not([data-js]) .canvas:has(.n-how:is(:hover, :focus-within)) #p-how, .first:not([data-js]) .canvas:has(.n-interest:is(:hover, :focus-within)) #p-interest { display: block; }
 .panel h2 { margin: 0 0 var(--space-2); font-size: 1.05em; }
 .panel p { margin: 0 0 var(--space-2); }
 .panel .bots { margin-bottom: var(--space-2); }
@@ -65,7 +64,7 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; }
 @media (prefers-reduced-motion: no-preference) {
   .node-link { animation: float 7s ease-in-out infinite; }
   .n-projects .node-link, .n-how .node-link { animation-duration: 8.5s; animation-delay: -2s; }
-  .n-demo .node-link, .n-journey .node-link { animation-duration: 6.5s; animation-delay: -3.5s; }
+  .n-journey .node-link { animation-duration: 6.5s; animation-delay: -3.5s; }
 }
 
 /* ---------- Escritorio ---------- */
@@ -77,8 +76,8 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; }
   .lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
   .nodes { position: absolute; inset: 0; pointer-events: none; z-index: 7; }
   .node { position: absolute; pointer-events: auto; transform: translate(-50%, -28px); }
-  .n-code { left: 10.909%; top: 31.861%; } .n-projects { left: 21.091%; top: 18.375%; } .n-demo { left: 35.636%; top: 10.694%; }
-  .n-journey { left: 64.364%; top: 10.694%; } .n-how { left: 78.909%; top: 18.375%; } .n-interest { left: 89.091%; top: 31.861%; }
+  .n-code { left: 10.909%; top: 32.389%; } .n-projects { left: 26%; top: 16.306%; } .n-journey { left: 50%; top: 10.222%; }
+  .n-how { left: 74%; top: 16.306%; } .n-interest { left: 89.091%; top: 32.389%; }
   .phrase { position: absolute; left: 3.2%; top: 58%; width: 31%; }
   h1#hero-h { font-size: max(1.5rem, 2.6cqw); }
   .tagline { margin: 1.2cqw 0 0; font-size: max(12px, 1cqw); }
@@ -99,7 +98,7 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; }
   .portrait { grid-area: portrait; width: 96px; height: clamp(112px, 17svh, 220px); object-fit: cover; object-position: top; align-self: end; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
   .lines { display: none; }
   .nodes { grid-area: nodes; }
-  .nodes ul { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; }
+  .nodes ul { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; }
   .node-link { width: 100%; min-height: 56px; padding: 4px 0; gap: 2px; font-size: 10px; line-height: 1.1; text-align: center; border-radius: 10px; letter-spacing: 0; }
   .node-link[aria-expanded="true"] { background: var(--surface); outline: 1px solid var(--accent-line); }
   .node-icon { width: 28px; height: 28px; padding: 0; border: 0; background: none; border-radius: 0; }
@@ -109,7 +108,7 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; }
   .panels { grid-area: panels; font-size: 13px; }
   .panel { --panel-pad-y: 10px; padding: var(--panel-pad-y) 12px; }
   .panel-links a, .panel .btn, .tabs button { min-height: 44px; }
-  .node-link { animation: none; } /* sin flotar: las etiquetas quedan alineadas en la fila de seis (C-10 parcial) */
+  .node-link { animation: none; } /* sin flotar: las etiquetas quedan alineadas en la fila de cinco (C-10 parcial) */
 }
 /* En pantallas bajas no cabe la tarjeta en línea (la hoja deja libre la fila de nodos: su altura máxima es la pantalla menos barra, retrato y nodos): se abre como hoja superpuesta al pulsar un nodo (Esc la cierra; con ratón se cierra al apartar el puntero; con toque, el segundo toque navega). */
 @media (max-width: 760px) and (max-height: 719px) {

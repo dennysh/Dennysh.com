@@ -27,9 +27,9 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.useRealTimers() })
 
 describe('vista previa al pasar el mouse', () => {
-  it('en reposo se ve Demo y no hay línea ni anillo', () => {
+  it('en reposo no se ve ninguna tarjeta, ni línea ni anillo (solo retrato y frase)', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'es' }))
-    expect(active(c)).toEqual(['p-demo'])
+    expect(active(c)).toEqual([])
     expect(ring(c)).toBe(false)
     expect(lineOn(c)).toEqual([])
   })
@@ -37,7 +37,7 @@ describe('vista previa al pasar el mouse', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'es' }))
     fireEvent.pointerOver(node(c, 'code'), mouse)
     tick(HOVER_DELAY_MS - 1)
-    expect(active(c)).toEqual(['p-demo'])
+    expect(active(c)).toEqual([])
     tick(1)
     expect(active(c)).toEqual(['p-code'])
     expect(HOVER_DELAY_MS).toBeGreaterThanOrEqual(100); expect(HOVER_DELAY_MS).toBeLessThanOrEqual(150)
@@ -55,10 +55,10 @@ describe('vista previa al pasar el mouse', () => {
     tick(HOVER_DELAY_MS - 20)
     fireEvent.pointerOut(node(c, 'how'), mouse)
     tick(1000)
-    expect(active(c)).toEqual(['p-demo'])
+    expect(active(c)).toEqual([])
     expect(lineOn(c)).toEqual([])
   })
-  it('el panel se queda abierto al salir del nodo; ir al panel dentro del margen conserva anillo y línea; salir del todo los quita', () => {
+  it('al salir del nodo el panel sigue un instante; ir al panel dentro del margen lo conserva con anillo y línea; salir del todo lo oculta y quita anillo y línea', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'es' }))
     fireEvent.pointerOver(node(c, 'how'), mouse)
     tick(HOVER_DELAY_MS)
@@ -72,7 +72,7 @@ describe('vista previa al pasar el mouse', () => {
     tick(LEAVE_GRACE_MS)
     expect(lineOn(c)).toEqual([])
     expect(ring(c)).toBe(false)
-    expect(active(c)).toEqual(['p-how']) // el panel no desaparece solo
+    expect(active(c)).toEqual([]) // al salir del todo vuelve el reposo: sin tarjeta
   })
   it('pasar de un nodo a otro cambia el panel y la línea', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'en' }))
@@ -86,7 +86,7 @@ describe('vista previa al pasar el mouse', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'es' }))
     fireEvent.pointerOver(node(c, 'code'), { pointerType: 'touch' })
     tick(1000)
-    expect(active(c)).toEqual(['p-demo'])
+    expect(active(c)).toEqual([])
   })
   it('un clic con el mouse (o Enter) navega: la vista previa no intercepta el enlace', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'es' }))
@@ -123,7 +123,7 @@ describe('vista previa al pasar el mouse', () => {
     const orig = a.matches.bind(a)
     a.matches = (sel) => (sel === ':focus-visible' ? false : orig(sel))
     fireEvent.focus(a)
-    expect(active(c)).toEqual(['p-demo'])
+    expect(active(c)).toEqual([])
     a.matches = (sel) => (sel === ':focus-visible' ? true : orig(sel))
     fireEvent.focus(a)
     expect(active(c)).toEqual(['p-projects'])
@@ -133,9 +133,10 @@ describe('vista previa al pasar el mouse', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'es' }))
     expect(c.container.innerHTML).not.toContain('aria-live')
   })
-  it('los seis nodos son enlaces reales a sus páginas, también tras montar', () => {
+  it('los cinco nodos (sin Demo) son enlaces reales a sus páginas, también tras montar', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'en' }))
-    for (const id of ['code', 'projects', 'demo', 'journey', 'how', 'interest']) { expect(node(c, id).tagName).toBe('A'); expect(node(c, id).getAttribute('href')).toBe(pagePaths.en[id]) }
+    for (const id of ['code', 'projects', 'journey', 'how', 'interest']) { expect(node(c, id).tagName).toBe('A'); expect(node(c, id).getAttribute('href')).toBe(pagePaths.en[id]) }
+    expect(node(c, 'demo')).toBeNull()
   })
   it('hoja abierta por el ratón (móvil bajo con puntero): se cierra al apartarlo, pero no si el puntero llega al panel', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'es' }))
@@ -170,7 +171,7 @@ describe('vista previa al pasar el mouse', () => {
     const a = node(c, 'projects')
     a.matches = () => { throw new SyntaxError('not a valid selector') }
     expect(() => fireEvent.focus(a)).not.toThrow()
-    expect(active(c)).toEqual(['p-demo'])
+    expect(active(c)).toEqual([])
   })
   it('el margen de salida es corto (el panel no se queda pegado): ≤ 600 ms, y el intento de intención está acotado', () => {
     expect(LEAVE_GRACE_MS).toBeGreaterThanOrEqual(200); expect(LEAVE_GRACE_MS).toBeLessThanOrEqual(600)
@@ -194,15 +195,75 @@ describe('vista previa al pasar el mouse', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'es' }))
     fireEvent.pointerOver(node(c, 'code'), mouse); tick(50)
     fireEvent.pointerOver(node(c, 'interest'), mouse); tick(HOVER_DELAY_MS - 1)
-    expect(active(c)).toEqual(['p-demo']) // el primero no llegó a abrirse
+    expect(active(c)).toEqual([]) // el primero no llegó a abrirse
     tick(1)
     expect(active(c)).toEqual(['p-interest'])
   })
   it('cada nodo declara el panel que controla (aria-controls apunta a un id que existe)', () => {
     const c = render(React.createElement(FirstScreen, { lang: 'en' }))
-    for (const id of ['code', 'projects', 'demo', 'journey', 'how', 'interest']) {
+    for (const id of ['code', 'projects', 'journey', 'how', 'interest']) {
       expect(node(c, id).getAttribute('aria-controls')).toBe(`p-${id}`)
       expect(c.container.querySelector(`#p-${id}`)).not.toBeNull()
     }
+  })
+})
+
+describe('reposo sin tarjeta: ratón, teclado y táctil (sin Demo)', () => {
+  it('con el ratón: la tarjeta aparece al señalar el nodo y se oculta al salir, y se puede volver a abrir', () => {
+    const c = render(React.createElement(FirstScreen, { lang: 'es' }))
+    for (const id of ['code', 'projects', 'journey', 'how', 'interest']) {
+      fireEvent.pointerOver(node(c, id), mouse); tick(HOVER_DELAY_MS)
+      expect(active(c)).toEqual([`p-${id}`])
+      fireEvent.pointerOut(node(c, id), mouse); tick(LEAVE_GRACE_MS)
+      expect(active(c)).toEqual([])
+    }
+  })
+  it('con el teclado: el foco muestra la tarjeta; Tab al siguiente nodo cambia de tarjeta; salir del grupo la oculta', () => {
+    const c = render(React.createElement(FirstScreen, { lang: 'es' }))
+    const kb = (a) => { a.matches = (sel) => sel === ':focus-visible' }
+    const [a, b] = [node(c, 'code'), node(c, 'projects')]
+    kb(a); kb(b)
+    fireEvent.focus(a); expect(active(c)).toEqual(['p-code'])
+    fireEvent.blur(a, { relatedTarget: b }); fireEvent.focus(b); tick(LEAVE_GRACE_MS - 1)
+    expect(active(c)).toEqual(['p-projects'])
+    fireEvent.blur(b, { relatedTarget: document.body }); tick(LEAVE_GRACE_MS)
+    expect(active(c)).toEqual([])
+  })
+  it('con el teclado: del nodo al enlace "Abrir" de su panel el panel no se oculta (nada queda inalcanzable)', () => {
+    const c = render(React.createElement(FirstScreen, { lang: 'es' }))
+    const a = node(c, 'interest')
+    a.matches = (sel) => sel === ':focus-visible'
+    fireEvent.focus(a)
+    const open = c.container.querySelector('#p-interest a.btn')
+    fireEvent.blur(a, { relatedTarget: open }); tick(5000)
+    expect(active(c)).toEqual(['p-interest'])
+    fireEvent.blur(open, { relatedTarget: document.body }); tick(LEAVE_GRACE_MS)
+    expect(active(c)).toEqual([])
+  })
+  it('táctil: la tarjeta no se oculta sola; se cierra con un toque fuera de nodos y paneles, o con Esc', () => {
+    const c = render(React.createElement(FirstScreen, { lang: 'es' }))
+    clickAs(node(c, 'how'), 'touch')
+    fireEvent.pointerOut(node(c, 'how'), { pointerType: 'touch' }); fireEvent.blur(node(c, 'how')); tick(5000)
+    expect(active(c)).toEqual(['p-how'])
+    fireEvent.pointerDown(c.container.querySelector('#p-how h2'), { pointerType: 'touch' }) // dentro del panel: sigue
+    expect(active(c)).toEqual(['p-how'])
+    fireEvent.pointerDown(c.container.querySelector('.phrase'), { pointerType: 'touch' }) // fuera: se cierra
+    expect(active(c)).toEqual([])
+    clickAs(node(c, 'journey'), 'touch')
+    expect(active(c)).toEqual(['p-journey'])
+    tick(2000)
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(active(c)).toEqual([])
+  })
+  it('Esc con el ratón también devuelve el reposo (sin tarjeta)', () => {
+    const c = render(React.createElement(FirstScreen, { lang: 'es' }))
+    fireEvent.pointerOver(node(c, 'how'), mouse); tick(HOVER_DELAY_MS + 2000)
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(active(c)).toEqual([])
+  })
+  it('no existe el nodo ni la tarjeta de Demo', () => {
+    const c = render(React.createElement(FirstScreen, { lang: 'es' }))
+    expect(c.container.querySelector('[data-node="demo"], #p-demo, [href*="/demo"]')).toBeNull()
+    expect(c.container.querySelectorAll('.node-link')).toHaveLength(5)
   })
 })

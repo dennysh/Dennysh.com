@@ -80,7 +80,7 @@ for (const scheme of ['light', 'dark']) {
       await page.waitForSelector('.first[data-js]')
       await run('/es/')
       for (const name of ['Código', 'Cómo trabajo', 'Interés']) { await page.getByRole('link', { name, exact: true }).hover(); await run(`/es/ (${name})`) }
-      for (const p of ['/en/code/', '/es/proyectos/', '/en/how-i-work/', '/es/contacto/', '/en/interest/', '/es/trayectoria/', '/en/demo/']) { await page.goto(p); await run(p) }
+      for (const p of ['/en/code/', '/es/proyectos/', '/en/how-i-work/', '/es/contacto/', '/en/interest/', '/es/trayectoria/']) { await page.goto(p); await run(p) }
     })
   })
 }

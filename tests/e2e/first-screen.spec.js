@@ -3,15 +3,15 @@ import { VIEW, HEAD_BOX, POINTS } from '../../src/home/geometry.js'
 
 // Primera pantalla (AC-H1, AC-H5, AC-H6, AC-01) y correcciones 1 (F1, F2, F4, C1, C3). Los nodos flotan; Playwright espera que un elemento esté
 // quieto para actuar sobre él, así que la interacción se prueba con movimiento reducido (que es además un comportamiento exigido).
-const NODES = { en: ['Code', 'Projects', 'Demo', 'Journey', 'How I work', 'Interest'], es: ['Código', 'Proyectos', 'Demo', 'Trayectoria', 'Cómo trabajo', 'Interés'] }
-const IDS = ['code', 'projects', 'demo', 'journey', 'how', 'interest']
-const PATHS = { en: { code: '/en/code/', projects: '/en/projects/', demo: '/en/demo/', journey: '/en/journey/', how: '/en/how-i-work/', interest: '/en/interest/' } }
+const NODES = { en: ['Code', 'Projects', 'Journey', 'How I work', 'Interest'], es: ['Código', 'Proyectos', 'Trayectoria', 'Cómo trabajo', 'Interés'] }
+const IDS = ['code', 'projects', 'journey', 'how', 'interest']
+const PATHS = { en: { code: '/en/code/', projects: '/en/projects/', journey: '/en/journey/', how: '/en/how-i-work/', interest: '/en/interest/' } }
 const hydrated = (page) => page.waitForSelector('.first[data-js]')
 const node = (page, name) => page.getByRole('link', { name, exact: true })
 
 for (const [w, h] of [[360, 640], [390, 844]]) {
   for (const lang of ['en', 'es']) {
-    test(`móvil ${w}×${h} (${lang}): frase única, los seis nodos y el retrato caben sin desplazarse (AC-H1, AC-01)`, async ({ page }) => {
+    test(`móvil ${w}×${h} (${lang}): frase única, los cinco nodos y el retrato caben sin desplazarse (AC-H1, AC-01)`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h })
       await page.goto(`/${lang}/`)
       await hydrated(page)
@@ -30,19 +30,21 @@ for (const [w, h] of [[360, 640], [390, 844]]) {
   }
 }
 
-test('móvil 390×844: la tarjeta Demo en vivo se ve en línea y entra en la pantalla', async ({ page }) => {
+test('móvil 390×844: en reposo no hay tarjeta; al tocar un nodo su tarjeta se ve en línea y entra en la pantalla', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/es/')
-  await expect(page.locator('#p-demo')).toBeInViewport({ ratio: 1 })
+  await expect(page.locator('.panel:visible')).toHaveCount(0)
+  await expect(page.locator('#p-demo')).toHaveCount(0)
 })
 
-test('escritorio 1180×800: retrato, seis nodos, frase y tarjeta sin desplazarse (AC-H1)', async ({ page }) => {
+test('escritorio 1180×800: retrato, cinco nodos y frase, sin tarjeta en reposo, sin desplazarse (AC-H1)', async ({ page }) => {
   await page.setViewportSize({ width: 1180, height: 800 })
   await page.goto('/es/')
   await expect(page.locator('.canvas')).toBeInViewport({ ratio: 1 })
-  for (const loc of [page.locator('.portrait'), page.locator('h1'), page.locator('.panel[data-active="true"]')]) await expect(loc).toBeInViewport({ ratio: 1 })
-  await expect(page.locator('[data-node]')).toHaveCount(6)
-  for (let i = 0; i < 6; i++) await expect(page.locator('[data-node]').nth(i)).toBeInViewport({ ratio: 1 })
+  for (const loc of [page.locator('.portrait'), page.locator('h1')]) await expect(loc).toBeInViewport({ ratio: 1 })
+  await expect(page.locator('.panel:visible')).toHaveCount(0)
+  await expect(page.locator('[data-node]')).toHaveCount(5)
+  for (let i = 0; i < 5; i++) await expect(page.locator('[data-node]').nth(i)).toBeInViewport({ ratio: 1 })
   expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true)
 })
 
@@ -104,9 +106,9 @@ test.describe('F1/F2: clic y centrado de los nodos', () => {
       })
     }
   }
-  test('el clic en la parte superior de Demo y Trayectoria (donde antes estaba la barra) navega', async ({ page }) => {
+  test('el clic en la parte superior de Proyectos y Trayectoria (donde antes estaba la barra) navega', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
-    for (const [id, path] of [['demo', '/es/demo/'], ['journey', '/es/trayectoria/']]) {
+    for (const [id, path] of [['projects', '/es/proyectos/'], ['journey', '/es/trayectoria/']]) {
       await page.goto('/es/')
       await hydrated(page)
       const b = await page.locator(`[data-node="${id}"] .node-icon`).boundingBox()
@@ -153,7 +155,7 @@ test.describe('C1 opción C: arco, anillo y líneas', () => {
       expect(Math.abs(m.ringCenter[1] - headCenter[1])).toBeLessThanOrEqual(tol)
       expect(m.ringEnters).toBe(false); expect(m.arcEnters).toBe(false)
       for (const id of IDS) expect(m.lines[id].enters, `la línea de ${id} entra en la cabeza`).toBe(false)
-      for (const [l, r] of [['code', 'interest'], ['projects', 'how'], ['demo', 'journey']]) {
+      for (const [l, r] of [['code', 'interest'], ['projects', 'how']]) {
         expect(m.lines[l].end[0] + m.lines[r].end[0]).toBeCloseTo(2 * m.axis, 0)
         expect(m.lines[l].end[1]).toBeCloseTo(m.lines[r].end[1], 0)
       }
@@ -163,7 +165,7 @@ test.describe('C1 opción C: arco, anillo y líneas', () => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/es/')
     await hydrated(page)
-    for (const id of IDS) {
+    for (const id of IDS.filter((i) => i !== 'journey')) {
       const { gap, circle } = await page.evaluate((id) => {
         const l = document.querySelector(`.line[data-line="${id}"]`)
         const ctm = document.querySelector('svg.lines').getScreenCTM()
@@ -174,13 +176,22 @@ test.describe('C1 opción C: arco, anillo y líneas', () => {
       }, id)
       expect(Math.abs(gap - circle), `${id}: el trazo debe empezar en el borde del círculo`).toBeLessThanOrEqual(4)
     }
+    // Trayectoria está en el eje y su etiqueta queda en el camino de la línea: la línea parte justo debajo de la etiqueta, sin atravesarla.
+    const j = await page.evaluate(() => {
+      const l = document.querySelector('.line[data-line="journey"]')
+      const s = new DOMPoint(Number(l.getAttribute('x1')), Number(l.getAttribute('y1'))).matrixTransform(document.querySelector('svg.lines').getScreenCTM())
+      const label = document.querySelector('[data-node="journey"] span').getBoundingClientRect()
+      return { startY: s.y, startX: s.x, labelBottom: label.bottom, labelLeft: label.left, labelRight: label.right }
+    })
+    expect(j.startY, 'la línea de Trayectoria empieza bajo su etiqueta').toBeGreaterThanOrEqual(j.labelBottom - 1)
+    expect(j.startX).toBeGreaterThan(j.labelLeft); expect(j.startX).toBeLessThan(j.labelRight)
   })
   test('al señalar un nodo aparecen su línea y el anillo; al apartar el puntero desaparecen; con movimiento reducido no hay transición', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/es/')
     await hydrated(page)
     await expect(page.locator('.ring')).toHaveCSS('opacity', '0')
-    await expect(page.locator('.line')).toHaveCount(6)
+    await expect(page.locator('.line')).toHaveCount(5)
     await node(page, 'Proyectos').hover()
     await expect(page.locator('.line[data-on="true"]')).toHaveCount(1)
     await expect(page.locator('.line[data-line="projects"]')).toHaveCSS('opacity', '1')
@@ -207,13 +218,15 @@ test.describe('vista previa al pasar el mouse (C3)', () => {
     await hydrated(page)
   })
 
-  test('Demo es el panel de reposo; pasar el mouse por cada nodo muestra su panel', async ({ page }) => {
-    await expect(page.locator('#p-demo')).toBeVisible()
-    for (const [name, id] of [['Code', 'code'], ['Projects', 'projects'], ['Journey', 'journey'], ['How I work', 'how'], ['Interest', 'interest'], ['Demo', 'demo']]) {
+  test('en reposo no hay ninguna tarjeta; pasar el mouse por cada nodo muestra la suya y al salir vuelve el reposo', async ({ page }) => {
+    await expect(page.locator('.panel:visible')).toHaveCount(0)
+    for (const [name, id] of [['Code', 'code'], ['Projects', 'projects'], ['Journey', 'journey'], ['How I work', 'how'], ['Interest', 'interest']]) {
       await node(page, name).hover()
       await expect(page.locator(`#p-${id}`), id).toBeVisible()
       await expect(page.locator('.panel:visible')).toHaveCount(1)
       await expect(node(page, name)).toHaveAttribute('aria-expanded', 'true')
+      await page.mouse.move(5, 5) // fuera del lienzo
+      await expect(page.locator('.panel:visible'), `${id}: al salir`).toHaveCount(0)
     }
   })
   test('Proyectos muestra "Work in production" con Criden, y su botón lleva a la página', async ({ page }) => {
@@ -270,8 +283,8 @@ test.describe('vista previa al pasar el mouse (C3)', () => {
       expect(pb.y + pb.height, id).toBeLessThanOrEqual(800)
     }
   })
-  test('clic en un nodo lleva a su página (los seis, también Código, Cómo trabajo e Interés)', async ({ page }) => {
-    for (const [name, id] of [['Code', 'code'], ['Projects', 'projects'], ['Demo', 'demo'], ['Journey', 'journey'], ['How I work', 'how'], ['Interest', 'interest']]) {
+  test('clic en un nodo lleva a su página (los cinco, también Código, Cómo trabajo e Interés)', async ({ page }) => {
+    for (const [name, id] of [['Code', 'code'], ['Projects', 'projects'], ['Journey', 'journey'], ['How I work', 'how'], ['Interest', 'interest']]) {
       await page.goto('/en/')
       await hydrated(page)
       await node(page, name).click()
@@ -325,7 +338,7 @@ test.describe('retraso de intención y escritura con movimiento normal (AC-H5)',
     await page.mouse.move(b.x - 60, b.y + 10)
     await page.mouse.move(b.x + b.width + 60, b.y + 10, { steps: 3 })
     await page.waitForTimeout(400)
-    await expect(page.locator('#p-demo')).toBeVisible()
+    await expect(page.locator('.panel:visible')).toHaveCount(0)
   })
   test('el panel termina de escribirse en ≤ 2 s', async ({ page }) => {
     await page.locator('[data-node="code"]').hover({ force: true })
@@ -353,7 +366,7 @@ test.describe('táctil (C3): primer toque abre la vista previa, segundo toque na
     await page.setViewportSize({ width: 360, height: 640 })
     await page.goto('/en/')
     await hydrated(page)
-    await expect(page.locator('#p-demo')).toBeHidden()
+    await expect(page.locator('.panel:visible')).toHaveCount(0)
     await node(page, 'Journey').tap()
     await expect(page.locator('#p-journey')).toBeVisible()
     await expect(page.locator('#p-journey a.btn')).toHaveText('Open Journey →')
@@ -402,9 +415,13 @@ test.describe('revisión adversarial: 404, enlace antiguo, barra', () => {
     await expect(page.locator('.first')).toHaveCount(0)
     expect(errors).toEqual([])
   })
-  test('el enlace antiguo /es/?evento=… redirige a la página de la demo conservando el evento', async ({ page }) => {
+  test('el enlace antiguo /es/?evento=… (y /en/demo/?evento=…) va a la portada del idioma, no a una 404', async ({ page }) => {
     await page.goto('/es/?evento=ab.cd')
-    await page.waitForURL(/\/es\/demo\/\?evento=ab\.cd$/)
+    await page.waitForURL((u) => u.pathname === '/es/' && u.search === '')
+    await expect(page.locator('h1')).toHaveText('Un poco de lo que hago, en pocos minutos.')
+    await page.goto('/en/demo/?evento=ab.cd')
+    await page.waitForURL((u) => u.pathname === '/en/' && u.search === '')
+    await expect(page.locator('.first')).toHaveCount(1)
   })
   test('los enlaces de la barra superior miden al menos 24×24 px en móvil (WCAG 2.5.8)', async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 640 })
@@ -419,17 +436,16 @@ test.describe('revisión adversarial: 404, enlace antiguo, barra', () => {
 
 test.describe('sin JavaScript (AC-H2)', () => {
   test.use({ javaScriptEnabled: false, reducedMotion: 'reduce' })
-  test('los seis nodos son enlaces a sus páginas, los textos de los paneles están y CSS da la vista previa al señalar', async ({ page }) => {
+  test('los cinco nodos son enlaces a sus páginas, los textos de los paneles están y CSS da la vista previa al señalar', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 })
     await page.goto('/es/')
-    await expect(page.locator('a[data-node]')).toHaveCount(6)
+    await expect(page.locator('a[data-node]')).toHaveCount(5)
     for (const id of IDS) await expect(page.locator(`a[data-node="${id}"]`)).toHaveAttribute('href', new RegExp(`^/es/[a-z-]+/$`))
-    await expect(page.locator('#p-demo')).toBeVisible()
+    await expect(page.locator('.panel:visible')).toHaveCount(0) // reposo: sin tarjeta
     await expect(page.locator('#p-code')).toBeHidden()
     await expect(page.locator('#p-code pre.code')).toContainText('$ cat ruleset.v1.json')
     await page.locator('a[data-node="code"]').hover()
     await expect(page.locator('#p-code')).toBeVisible()
-    await expect(page.locator('#p-demo')).toBeHidden()
     await page.locator('a[data-node="interest"]').focus()
     await expect(page.locator('#p-interest')).toBeVisible()
     await expect(page.locator('h1')).toHaveText('Un poco de lo que hago, en pocos minutos.')

@@ -24,21 +24,21 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       expect(out).not.toContain(esc(c.hero.thesis))
       for (const t of c.home.tagline) expect(out).toContain(esc(t))
     })
-    it(`(${lang}) seis nodos como enlaces, con nombre accesible y destino`, () => {
-      expect(nodeLinks.map((n) => n.id)).toEqual(['code', 'projects', 'demo', 'journey', 'how', 'interest'])
+    it(`(${lang}) cinco nodos como enlaces (sin Demo), con nombre accesible y destino`, () => {
+      expect(nodeLinks.map((n) => n.id)).toEqual(['code', 'projects', 'journey', 'how', 'interest'])
       expect(nodeLinks.map((n) => n.label)).toEqual(c.home.nodes.map((n) => esc(n.label)))
       const href = (id) => /href="([^"]+)"/.exec(nodeLinks.find((n) => n.id === id).tag)[1]
       expect(href('projects')).toBe(pagePaths[lang].projects)
-      expect(href('demo')).toBe(pagePaths[lang].demo)
+      expect(out).not.toMatch(/data-node="demo"|id="p-demo"|\/demo\//)
       expect(href('journey')).toBe(pagePaths[lang].journey)
       for (const id of ['code', 'how', 'interest']) expect(href(id)).toBe(pagePaths[lang][id])
       for (const n of nodeLinks) expect(n.tag).not.toMatch(/href="#/)
     })
-    it(`(${lang}) los seis paneles están en el HTML con su texto completo`, () => {
-      for (const id of ['code', 'projects', 'demo', 'journey', 'how', 'interest']) expect(out).toContain(`id="p-${id}"`)
+    it(`(${lang}) los cinco paneles están en el HTML con su texto completo`, () => {
+      for (const id of ['code', 'projects', 'journey', 'how', 'interest']) expect(out).toContain(`id="p-${id}"`)
       for (const line of codePanel(ruleset, audit, lang)) if (line.trim()) expect(out).toContain(esc(line))
       const p = c.home.panels
-      for (const t of [p.projects.text, p.demo.text, p.journey.text, p.interest.thought]) expect(out).toContain(esc(t))
+      for (const t of [p.projects.text, p.journey.text, p.interest.thought]) expect(out).toContain(esc(t))
       expect(out).toContain('https://github.com/dennysh')
       expect(out).toContain(pagePaths[lang].projects)
       expect(out).toContain(esc(p.projects.text)) // Trabajo en producción, con Criden
@@ -48,14 +48,14 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       expect([...d.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])).toEqual(c.work.items[0].bots.map((b) => esc(b.title)))
     })
     it(`(${lang}) cada panel trae su botón hacia la página del nodo (táctil: "Abrir página")`, () => {
-      for (const id of ['code', 'projects', 'demo', 'journey', 'how', 'interest']) {
+      for (const id of ['code', 'projects', 'journey', 'how', 'interest']) {
         const panel = new RegExp(`<section id="p-${id}"[\\s\\S]*?</section>`).exec(out)[0]
         expect(panel, id).toContain(`<a class="btn btn-primary" href="${pagePaths[lang][id]}">${esc(c.home.panels[id].go)}</a>`)
       }
     })
-    it(`(${lang}) el panel Demo es el activo de inicio y no hay rotación`, () => {
-      expect(/id="p-demo"[^>]*data-active="true"|data-active="true"[^>]*id="p-demo"/.test(out)).toBe(true)
-      expect(out.match(/data-active="true"/g)).toHaveLength(1)
+    it(`(${lang}) en reposo no hay ninguna tarjeta activa (ni la de Demo, que ya no existe) y no hay rotación`, () => {
+      expect(out.match(/data-active="true"/g)).toBeNull()
+      expect(out.match(/<section id="p-/g)).toHaveLength(5)
     })
     it(`(${lang}) retrato con alt, dimensiones, prioridad alta y srcset`, () => {
       const img = /<img\b[^>]*dennys-portrait[^>]*>/.exec(out)[0]
@@ -100,7 +100,7 @@ describe('panel de vista previa: la acción "Abrir" siempre se ve (critica-impec
     for (const lang of ['en', 'es']) {
       const out = html(lang)
       const footers = out.match(/<div class="panel-open"><p class="opens">[^<]+<\/p><a class="btn btn-primary" href="[^"]+">[^<]+<\/a><\/div>/g) ?? []
-      expect(footers).toHaveLength(6)
+      expect(footers).toHaveLength(5)
     }
     expect(css).toMatch(/\.panel-open \{[^}]*position: sticky;[^}]*bottom: calc\(-1 \* var\(--panel-pad-y\)\)/)
     expect(css).toMatch(/\.panel \{ --panel-pad-y: 14px;/)

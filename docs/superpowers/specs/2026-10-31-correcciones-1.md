@@ -1,5 +1,7 @@
 # Correcciones 1 — primera pantalla
 
+> **Enmienda 2026-11-09:** la Demo salió del sitio (ver `2026-11-09-quitar-demo.md`). Donde este documento hable de seis nodos, de la tarjeta o la página de Demo, de `/es/demo/` o de la tarjeta de reposo, hoy valen cinco nodos y ninguna tarjeta en reposo.
+
 Estado: decisiones de Dennys cerradas (2026-11-01). Lo que aún diga **[DECIDE DENNYS]** usa el valor por defecto indicado y se avisa en el informe. Reglas 18 y 19: NO hacer commit ni push, ni tocar Cloudflare o secretos, sin autorización expresa de Dennys. Entregar los cambios verdes en el árbol de trabajo y reportar.
 
 Orden sugerido: F1/F2 (clic y centrado) → C1 (líneas) → C2/C3 (páginas y vista previa) → C4/C5 (inicio limpio y contacto) → C6/C7/C10 (textos, proyectos, capacidades) → C8/C9 (brillo y modo oscuro). Después: revisión adversarial (seguridad, pruebas, corrección) y `bash scripts/verify.sh`.

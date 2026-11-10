@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test'
 
 // Una página por nodo (correcciones 1, C2): el inicio es solo la primera pantalla y el resto vive en cada página, en los dos idiomas.
 const PAGES = {
-  en: { code: ['/en/code/', 'Code'], projects: ['/en/projects/', 'Work in production'], demo: ['/en/demo/', 'Live demo'], journey: ['/en/journey/', 'Journey'], how: ['/en/how-i-work/', 'How I work'], interest: ['/en/interest/', 'Interest'], contact: ['/en/contact/', 'Contact'] },
-  es: { code: ['/es/codigo/', 'Código'], projects: ['/es/proyectos/', 'Trabajo en producción'], demo: ['/es/demo/', 'Demo en vivo'], journey: ['/es/trayectoria/', 'Trayectoria'], how: ['/es/como-trabajo/', 'Cómo trabajo'], interest: ['/es/interes/', 'Interés'], contact: ['/es/contacto/', 'Contacto'] },
+  en: { code: ['/en/code/', 'Code'], projects: ['/en/projects/', 'Work in production'], journey: ['/en/journey/', 'Journey'], how: ['/en/how-i-work/', 'How I work'], interest: ['/en/interest/', 'Interest'], contact: ['/en/contact/', 'Contact'] },
+  es: { code: ['/es/codigo/', 'Código'], projects: ['/es/proyectos/', 'Trabajo en producción'], journey: ['/es/trayectoria/', 'Trayectoria'], how: ['/es/como-trabajo/', 'Cómo trabajo'], interest: ['/es/interes/', 'Interés'], contact: ['/es/contacto/', 'Contacto'] },
 }
 const ALL = Object.values(PAGES).flatMap((p) => Object.values(p).map(([path]) => path))
 
@@ -30,7 +30,7 @@ for (const lang of ['en', 'es']) {
       await expect(page.locator('h1')).toHaveCount(1)
       await expect(page.locator('h1')).toContainText(h1)
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', `https://dennysh.com${path}`)
-      await expect(page.locator('header.topbar nav a')).toHaveCount(7)
+      await expect(page.locator('header.topbar nav a')).toHaveCount(6)
       await expect(page.locator(`header.topbar nav a[aria-current="page"]`)).toHaveAttribute('href', path)
       await expect(page.locator('main a', { hasText: /home screen|primera pantalla/ })).toHaveAttribute('href', `/${lang}/`)
       await expect(page.locator('footer a[href="mailto:dennys@dennysh.com"]')).toHaveCount(1)
@@ -133,14 +133,15 @@ test('el cambio de idioma lleva a la otra versión', async ({ page }) => {
   await expect(page.locator('html')).toHaveAttribute('lang', 'es')
 })
 
-test('con JavaScript desactivado el contenido y el ejemplo estático son legibles (AC-02)', async ({ browser }) => {
+test('con JavaScript desactivado el contenido y los cinco nodos son legibles (AC-02)', async ({ browser }) => {
   const ctx = await browser.newContext({ javaScriptEnabled: false })
   const page = await ctx.newPage()
   await page.goto('http://localhost:4173/en/')
   await expect(page.locator('h1')).toHaveText('A little of what I do, in a few minutes.')
-  await expect(page.locator('a[data-node]')).toHaveCount(6)
-  await page.goto('http://localhost:4173/en/demo/') // la demo vive en su propia página (D-H1); sin JS muestra el ejemplo estático
-  await expect(page.getByTestId('static-example')).toContainText('not a real send')
+  await expect(page.locator('a[data-node]')).toHaveCount(5)
+  await page.goto('http://localhost:4173/en/demo/') // la demo ya no existe: este servidor devuelve la portada o la 404, nunca una página de demo
+  await expect(page.getByTestId('run')).toHaveCount(0)
+  await expect(page.getByTestId('static-example')).toHaveCount(0)
   await ctx.close()
 })
 

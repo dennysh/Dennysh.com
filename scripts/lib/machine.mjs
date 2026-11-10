@@ -6,7 +6,7 @@ import { pagePaths } from '../../src/routes.js'
 
 export const SITE_URL = 'https://dennysh.com'
 // Una página por nodo (correcciones 1, C2) y Contacto, cada una en los dos idiomas con su equivalente en el otro.
-export const INNER_PAGES = ['code', 'projects', 'demo', 'journey', 'how', 'interest', 'contact'].map((view) => ({ view }))
+export const INNER_PAGES = ['code', 'projects', 'journey', 'how', 'interest', 'contact'].map((view) => ({ view }))
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const items = (lang) => site[lang].work.items
 // Una sola fuente: los bots de Telegram viven agrupados en site.js; las salidas de máquina listan el grupo y sus bots.
@@ -95,10 +95,9 @@ export function llmsTxt() {
     '## Best links',
     `- [Site (English)](${SITE_URL}/en/)`,
     `- [Sitio (Español)](${SITE_URL}/es/)`,
-    `- [Live demo: automated decision, explained](${SITE_URL}/en/demo/)`,
-    ...INNER_PAGES.filter(({ view }) => view !== 'demo').map(({ view }) => `- [${site.en.nav[view]}](${SITE_URL}${pagePaths.en[view]})`),
-    `- [Public ruleset (JSON, with hash)](${SITE_URL}/demo/ruleset.v1.json)`,
-    `- [Explanation templates (JSON)](${SITE_URL}/demo/explanations.v1.json)`,
+    ...INNER_PAGES.map(({ view }) => `- [${site.en.nav[view]}](${SITE_URL}${pagePaths.en[view]})`),
+    `- [Public ruleset (JSON, with hash)](${SITE_URL}/data/ruleset.v1.json)`,
+    `- [Explanation templates (JSON)](${SITE_URL}/data/explanations.v1.json)`,
     `- [LinkedIn](${links.linkedin})`,
     `- [GitHub](${links.github})`,
     `- [CV (PDF)](${SITE_URL}${links.cv})`,
@@ -113,7 +112,6 @@ export function llmsTxt() {
     }),
     '',
     '## Notes for agents',
-    '- The live demo cannot be run by agents (it requires a human check by design). A static example is in the page HTML and is labelled as not real.',
     '- Items marked "declared" in Skills have no public proof yet.',
     '',
   ]

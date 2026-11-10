@@ -240,19 +240,19 @@ describe('marcadores pending (T080, K2)', () => {
 })
 
 describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
-  const IDS = ['code', 'projects', 'demo', 'journey', 'how', 'interest']
-  it('seis nodos, mismo orden e ids en los dos idiomas', () => {
+  const IDS = ['code', 'projects', 'journey', 'how', 'interest']
+  it('cinco nodos (sin Demo), mismo orden e ids en los dos idiomas', () => {
     for (const lang of ['en', 'es']) expect(site[lang].home.nodes.map((n) => n.id)).toEqual(IDS)
+    for (const lang of ['en', 'es']) { expect(site[lang].nav).not.toHaveProperty('demo'); expect(site[lang]).not.toHaveProperty('demo') }
   })
   it('hay un panel por nodo', () => {
     for (const lang of ['en', 'es']) expect(Object.keys(site[lang].home.panels).sort()).toEqual([...IDS].sort())
   })
-  it('las tarjetas de Proyectos, Demo y Trayectoria llevan los textos aprobados del spec', () => {
+  it('las tarjetas de Proyectos y Trayectoria llevan los textos aprobados del spec', () => {
     const es = site.es.home.panels
     expect(es.projects.title).toBe('Trabajo en producción')
     expect(es.projects.text).toBe('Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente. Criden, para negocios y páginas web.')
-    expect(es.demo.title).toBe('Demo en vivo')
-    expect(es.demo.text).toBe('Una decisión automatizada, con la regla usada, la explicación y su auditoría.')
+    expect(es).not.toHaveProperty('demo')
     expect(es.journey.title).toBe('De la fibra a la IA')
     expect(es.journey.text).toBe('Siete años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.')
   })
@@ -324,8 +324,8 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
   it('cada página interior tiene su propia descripción (no la de la portada)', () => {
     for (const lang of ['en', 'es']) {
       const c = site[lang]
-      const d = ['codePage', 'projectsPage', 'journeyPage', 'howPage', 'interestPage', 'contactPage'].map((k) => c[k].description).concat(c.demo.description)
-      expect(new Set([...d, c.meta.description]).size).toBe(8)
+      const d = ['codePage', 'projectsPage', 'journeyPage', 'howPage', 'interestPage', 'contactPage'].map((k) => c[k].description)
+      expect(new Set([...d, c.meta.description]).size).toBe(7)
       for (const t of d) expect(t.length).toBeGreaterThan(40)
       expect(c.journeyPage.description).not.toMatch(/demo/i)
     }

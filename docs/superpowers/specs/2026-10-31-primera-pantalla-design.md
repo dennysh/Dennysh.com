@@ -1,5 +1,7 @@
 # Especificación — Primera pantalla de dennysh.com (retrato + nodos)
 
+> **Enmienda 2026-11-09:** la Demo salió del sitio (ver `2026-11-09-quitar-demo.md`). Donde este documento hable de seis nodos, de la tarjeta o la página de Demo, de `/es/demo/` o de la tarjeta de reposo, hoy valen cinco nodos y ninguna tarjeta en reposo.
+
 Estado: **borrador para revisión de Dennys** · Fecha: 2026-10-31 · Destino: la Factory (repo `~/projects/dennysh`)
 Referencia visual aprobada en lo esencial: boceto https://claude.ai/artifact/9DaX1jdset5yQrC4zzRe7p (versión 5) y su archivo `primera-pantalla.html`. El boceto es una **guía de forma y comportamiento, no código para copiar**: usa fuentes e iconos de Google, que la constitución prohíbe (ver §6).
 

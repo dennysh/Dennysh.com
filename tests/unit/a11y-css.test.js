@@ -98,3 +98,14 @@ describe('identidad de las páginas interiores y arreglos baratos (C-04, C-11, C
     expect(site).toMatch(/> li:nth-child\(n\+4\) \{ grid-column: span 3; \}/)
   })
 })
+
+describe('el anillo y las líneas van detrás del retrato en escritorio', () => {
+  it('.lines tiene z-index -1 en el bloque de escritorio; barra (6) y nodos (7) no cambian y en móvil sigue oculto', () => {
+    const desk = home.slice(home.indexOf('@media (min-width: 761px)'), home.indexOf('@media (max-width: 760px)'))
+    expect(rule(desk, '.lines')).toContain('z-index: -1')
+    expect(rule(desk, '.nodes')).toContain('z-index: 7')
+    expect(rule(home, '.bar')).toContain('z-index: 6')
+    expect(rule(home, '.canvas::before')).toContain('z-index: -1')
+    expect(rule(home.slice(home.indexOf('@media (max-width: 760px)')), '.lines')).toContain('display: none')
+  })
+})

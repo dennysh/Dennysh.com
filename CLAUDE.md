@@ -1,6 +1,8 @@
 # dennysh.com
 
-Sitio de presentación de Dennys Heras y demo de decisión automatizada explicada. Se trabaja con el arnés RSC (SDD).
+Sitio de presentación de Dennys Heras. Se trabaja con el arnés RSC (SDD).
+
+La demo de decisión automatizada se quitó del sitio el 2026-11-09 (nodo, tarjeta, página y rutas); el backend (funciones, D1, Telegram) sigue en el repositorio, sin usar. La primera pantalla tiene cinco nodos y ninguna tarjeta en reposo. Detalle: `docs/superpowers/specs/2026-11-09-quitar-demo.md`.
 
 ## Knowledge map
 

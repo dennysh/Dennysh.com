@@ -1,7 +1,6 @@
 import React from 'react'
 import { site, links } from '../content/site.js'
 import Txt from '../components/Txt.jsx'
-import Demo from '../demo/Demo.jsx'
 import RowGallery from '../components/RowGallery.jsx'
 import ContactForm from '../contact/ContactForm.jsx'
 import { Header, Footer, WorkCard, FactoryDiagram } from '../Site.jsx'
@@ -62,15 +61,6 @@ export function ProjectsPage({ lang }) {
   return (
     <Page lang={lang} view="projects" title={p.title} lead={p.lead} back={p.back}>
       <div className="cards">{items.map((it) => <WorkCard key={it.id} lang={lang} it={it} />)}</div>
-    </Page>
-  )
-}
-
-export function DemoPage({ lang, demoClient }) {
-  const c = site[lang]
-  return (
-    <Page lang={lang} view="demo" id="demo" title={c.demo.title} lead={c.demo.lead} back={c.projectsPage.back}>
-      <Demo lang={lang} client={demoClient} />
     </Page>
   )
 }

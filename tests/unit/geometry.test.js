@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { readFileSync } from 'node:fs'
-import { VIEW, PORTRAIT_PX, HEAD_RECT, HEAD, RING_R, ICON_R, ARC, POINTS, linePoints, arcPath, pct } from '../../src/home/geometry.js'
+import { VIEW, PORTRAIT_PX, HEAD_RECT, HEAD, RING_R, ICON_R, LABEL_DROP, ARC, POINTS, linePoints, arcPath, pct } from '../../src/home/geometry.js'
 
-const IDS = ['code', 'projects', 'demo', 'journey', 'how', 'interest']
-const MIRROR = [['code', 'interest'], ['projects', 'how'], ['demo', 'journey']]
+const IDS = ['code', 'projects', 'journey', 'how', 'interest']
+const MIRROR = [['code', 'interest'], ['projects', 'how']]
 const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1])
 const inside = ([x, y], r = HEAD_RECT) => x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1
 // ¿el segmento corta el rectángulo? (muestreo fino: más que suficiente para trazos de cientos de unidades)
@@ -22,7 +22,7 @@ describe('líneas, anillo y cabeza (correcciones 1, C1 opción C; F4)', () => {
     expect(PORTRAIT_PX.x + PORTRAIT_PX.w / 2).toBeCloseTo(VIEW.w / 2, 5)
     expect(PORTRAIT_PX.y + PORTRAIT_PX.h).toBeCloseTo(VIEW.h, 5)
   })
-  it('los seis puntos de llegada al anillo están sobre el anillo y son simétricos respecto al eje', () => {
+  it('los cinco puntos de llegada al anillo están sobre el anillo y son simétricos respecto al eje', () => {
     for (const id of IDS) expect(dist([linePoints(id).x2, linePoints(id).y2], [HEAD.x, HEAD.y])).toBeCloseTo(RING_R, 0)
     for (const [l, r] of MIRROR) {
       const [a, b] = [linePoints(l), linePoints(r)]
@@ -33,13 +33,28 @@ describe('líneas, anillo y cabeza (correcciones 1, C1 opción C; F4)', () => {
     }
   })
   it('cada línea parte del borde del círculo del nodo (no de su centro ni de la etiqueta), hacia el centro del anillo', () => {
-    for (const id of IDS) {
+    for (const id of IDS.filter((i) => i !== 'journey')) {
       const p = linePoints(id)
       expect(dist([p.x1, p.y1], POINTS[id]), id).toBeCloseTo(ICON_R, 0)
       // el inicio, el final y el centro del anillo están alineados
       const cross = (p.x2 - p.x1) * (HEAD.y - p.y1) - (p.y2 - p.y1) * (HEAD.x - p.x1)
       expect(Math.abs(cross) / dist([p.x1, p.y1], [HEAD.x, HEAD.y]), id).toBeLessThan(0.5)
     }
+  })
+  it('Trayectoria está en el eje: su línea es vertical, parte bajo su etiqueta (no la atraviesa) y llega a la cima del anillo', () => {
+    const p = linePoints('journey')
+    expect(POINTS.journey[0]).toBe(HEAD.x)
+    expect(p.x1).toBe(HEAD.x); expect(p.x2).toBe(HEAD.x)
+    expect(p.y1).toBeCloseTo(POINTS.journey[1] + LABEL_DROP, 0)
+    expect(LABEL_DROP).toBeGreaterThan(ICON_R + 6 + 14) // círculo + hueco + una línea de etiqueta
+    expect(p.y2).toBeCloseTo(HEAD.y - RING_R, 0)
+    expect(p.y1).toBeLessThan(p.y2)
+  })
+  it('el reparto es equilibrado: pasos angulares iguales entre vecinos y ningún hueco donde estaba la Demo', () => {
+    const ang = IDS.map((id) => Math.asin((POINTS[id][0] - HEAD.x) / ARC.rx) * (180 / Math.PI))
+    const steps = ang.slice(1).map((a, i) => a - ang[i])
+    for (const st of steps) expect(st).toBeCloseTo(steps[0], 0)
+    expect(Math.max(...steps) - Math.min(...steps)).toBeLessThan(1)
   })
   it('ningún trazo entra en el rectángulo de la cabeza: ni las líneas, ni el anillo, ni el arco', () => {
     for (const id of IDS) expect(segmentEntersRect(linePoints(id)), id).toBe(false)
@@ -50,10 +65,10 @@ describe('líneas, anillo y cabeza (correcciones 1, C1 opción C; F4)', () => {
     }
   })
   it('la prueba detecta el defecto original: curvas que convergen en la coronilla sí entran en la caja de la cabeza', () => {
-    const coronilla = { x1: POINTS.demo[0], y1: POINTS.demo[1], x2: HEAD.x, y2: HEAD_RECT.y0 + 4 }
+    const coronilla = { x1: POINTS.projects[0], y1: POINTS.projects[1], x2: HEAD.x, y2: HEAD_RECT.y0 + 4 }
     expect(segmentEntersRect(coronilla)).toBe(true)
   })
-  it('los seis círculos están sobre el arco elíptico y el arco pasa por el primero y el último', () => {
+  it('los cinco círculos están sobre el arco elíptico y el arco pasa por el primero y el último', () => {
     for (const id of IDS) {
       const [x, y] = POINTS[id]
       expect(((x - HEAD.x) / ARC.rx) ** 2 + ((y - HEAD.y) / ARC.ry) ** 2, id).toBeCloseTo(1, 1)

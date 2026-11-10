@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 // Crítica Impeccable 1 (02-DOCS/critica-impeccable-1.md): lo que el CSS promete se mide en el navegador (estilos calculados, no texto de la hoja).
-const PAGES = ['/es/', '/en/', '/es/codigo/', '/es/proyectos/', '/es/demo/', '/es/trayectoria/', '/es/como-trabajo/', '/es/interes/', '/es/contacto/', '/en/contact/']
+const PAGES = ['/es/', '/en/', '/es/codigo/', '/es/proyectos/', '/es/trayectoria/', '/es/como-trabajo/', '/es/interes/', '/es/contacto/', '/en/contact/']
 const hydrated = (page) => page.waitForSelector('.first[data-js]')
 
 test.describe('panel de vista previa (C-03)', () => {
@@ -29,7 +29,7 @@ test.describe('panel de vista previa (C-03)', () => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/es/')
     await hydrated(page)
-    for (const name of ['Código', 'Proyectos', 'Demo', 'Trayectoria', 'Cómo trabajo', 'Interés']) {
+    for (const name of ['Código', 'Proyectos', 'Trayectoria', 'Cómo trabajo', 'Interés']) {
       await page.getByRole('link', { name, exact: true }).hover()
       const extra = await page.locator('.panel[data-active="true"]').evaluate((p) => p.scrollHeight - p.clientHeight)
       expect(extra, `${name}: scrollHeight − clientHeight`).toBeLessThanOrEqual(1)
@@ -217,11 +217,11 @@ test('los nodos dejan de flotar al apuntarlos y al enfocarlos (con movimiento pe
   await page.goto('/es/')
   await hydrated(page)
   const play = (name) => page.getByRole('link', { name, exact: true }).evaluate((e) => getComputedStyle(e).animationPlayState)
-  expect(await play('Demo')).toBe('running')
-  await page.getByRole('link', { name: 'Demo', exact: true }).focus()
-  expect(await play('Demo')).toBe('paused')
+  expect(await play('Trayectoria')).toBe('running')
+  await page.getByRole('link', { name: 'Trayectoria', exact: true }).focus()
+  expect(await play('Trayectoria')).toBe('paused')
   await page.setViewportSize({ width: 390, height: 844 })
-  expect(await page.getByRole('link', { name: 'Demo', exact: true }).evaluate((e) => getComputedStyle(e).animationName)).toBe('none')
+  expect(await page.getByRole('link', { name: 'Trayectoria', exact: true }).evaluate((e) => getComputedStyle(e).animationName)).toBe('none')
 })
 
 test('móvil: la barra del inicio mantiene su altura aunque sus enlaces midan 44 px (C-07)', async ({ page }) => {

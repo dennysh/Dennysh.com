@@ -36,13 +36,12 @@ export const site = {
     lang: 'en',
     meta: {
       title: 'Dennys Heras — AI systems that explain themselves and can be audited',
-      description: 'Dennys Heras builds AI systems that explain their decisions in plain language, leave an audit trail and hand control to a person. Comes from 7 years in fiber-optic networks. Live demo included.',
+      description: 'Dennys Heras builds AI systems that explain their decisions in plain language, leave an audit trail and hand control to a person. Comes from 7 years in fiber-optic networks.',
     },
-    nav: { code: 'Code', projects: 'Projects', demo: 'Demo', journey: 'Journey', how: 'How I work', interest: 'Interest', contact: 'Contact', menu: 'Sections', skip: 'Skip to content', lang: 'Español', theme: 'Dark mode', home: 'Home' },
+    nav: { code: 'Code', projects: 'Projects', journey: 'Journey', how: 'How I work', interest: 'Interest', contact: 'Contact', menu: 'Sections', skip: 'Skip to content', lang: 'Español', theme: 'Dark mode', home: 'Home' },
     hero: {
       thesis: 'I build AI systems that explain themselves and can be audited.',
       who: ['I come from 7 years in fiber-optic networks, where things have to work in the field.'],
-      tryDemo: 'Try the demo',
       summaryTitle: 'Summary in 5 lines',
       summary: [
         'Dennys Heras builds AI systems that explain themselves and can be audited.',
@@ -59,13 +58,12 @@ export const site = {
       portraitAlt: 'Portrait of Dennys Heras',
       nodesLabel: 'Explore',
       nodes: [
-        { id: 'code', label: 'Code' }, { id: 'projects', label: 'Projects' }, { id: 'demo', label: 'Demo' },
+        { id: 'code', label: 'Code' }, { id: 'projects', label: 'Projects' },
         { id: 'journey', label: 'Journey' }, { id: 'how', label: 'How I work' }, { id: 'interest', label: 'Interest' },
       ],
       panels: {
-        code: { title: 'Code', note: 'Real data from the demo: the public ruleset and the static audit example.', github: 'View on GitHub ↗', opens: 'opens a new page', go: 'Open Code →' },
+        code: { title: 'Code', note: 'Real data: the public ruleset and the static audit example.', github: 'View on GitHub ↗', opens: 'opens a new page', go: 'Open Code →' },
         projects: { title: 'Work in production', text: 'Telegram bot for ISP technicians. A children\'s football championships site for a client. Criden, for businesses and websites.', opens: 'opens a new page', go: 'Open Projects →' },
-        demo: { title: 'Live demo', text: 'An automated decision, with the rule used, the explanation and its audit.', opens: 'opens a new page', go: 'Open the demo →' },
         journey: { title: 'From fiber to AI', text: 'Seven years in fiber-optic networks, where things have to work in the field.', opens: 'opens a new page', go: 'Open Journey →' },
         how: { title: 'How I work', tabs: { people: 'People', machines: 'Machines' }, opens: 'opens a new page', go: 'Open How I work →' },
         interest: {
@@ -75,7 +73,7 @@ export const site = {
         },
       },
     },
-    codePage: { back: 'Back to the home screen', title: 'Code', lead: 'Real data from the demo and what I can do, grouped by capability.', description: 'Code by Dennys Heras: the public ruleset and static audit example of the demo, and his capabilities, each marked as shown or declared.' },
+    codePage: { back: 'Back to the home screen', title: 'Code', lead: 'Real data and what I can do, grouped by capability.', description: 'Code by Dennys Heras: the public ruleset and static audit example, and his capabilities, each marked as shown or declared.' },
     howPage: { back: 'Back to the home screen', title: 'How I work', lead: 'The rules I work with, for people and for machines, and the way I build with agents.', description: 'How Dennys Heras works with AI: short, checkable working rules for people and machines, and a software factory with agents under human control.', people: 'People', machines: 'Machines', machinesLead: 'The same rules as plain text, as published in llms.txt:' },
     interestPage: { back: 'Back to the home screen', title: 'Interest', lead: 'Where I would like to go in the long run.', description: 'A long-term interest of Dennys Heras: how artificial intelligence could relate to the human brain. An idea, not a capability.' },
     contactPage: { back: 'Back to the home screen', title: 'Contact', description: 'Contact Dennys Heras: email, LinkedIn, GitHub and CV.' },
@@ -96,12 +94,6 @@ export const site = {
         { id: 'supergol', title: 'Super Gol Kids', meta: ['In production'], text: 'Platform for children\'s football championships. Public website for a client; I developed the site.', photos: photos(3) },
         { id: 'ia', title: 'AI systems', meta: ['Now'], text: 'I build AI systems that explain themselves and can be audited.', photos: photos(5) },
       ],
-    },
-    demo: {
-      description: 'Live demo of an automated decision: the rule used, the explanation in plain language and its audit trail. A simulation with synthetic data.',
-      title: 'Live demo: an automated decision, explained',
-      lead: 'One click simulates a suspicious access. The system decides, explains why, shows the rule it used, keeps a full audit trail and lets you take control.',
-      notice: 'Simulated test environment. Nothing real is attacked or blocked.',
     },
     factory: {
       title: 'The software factory with agents',
@@ -317,13 +309,12 @@ export const site = {
     lang: 'es',
     meta: {
       title: 'Dennys Heras — Sistemas con IA que se explican y se auditan',
-      description: 'Dennys Heras construye sistemas con IA que explican sus decisiones en lenguaje claro, dejan rastro y ceden el control a una persona. Viene de 7 años en redes de fibra óptica. Incluye demo en vivo.',
+      description: 'Dennys Heras construye sistemas con IA que explican sus decisiones en lenguaje claro, dejan rastro y ceden el control a una persona. Viene de 7 años en redes de fibra óptica.',
     },
-    nav: { code: 'Código', projects: 'Proyectos', demo: 'Demo', journey: 'Trayectoria', how: 'Cómo trabajo', interest: 'Interés', contact: 'Contacto', menu: 'Secciones', skip: 'Saltar al contenido', lang: 'English', theme: 'Modo oscuro', home: 'Inicio' },
+    nav: { code: 'Código', projects: 'Proyectos', journey: 'Trayectoria', how: 'Cómo trabajo', interest: 'Interés', contact: 'Contacto', menu: 'Secciones', skip: 'Saltar al contenido', lang: 'English', theme: 'Modo oscuro', home: 'Inicio' },
     hero: {
       thesis: 'Construyo sistemas con IA que se explican y se auditan.',
       who: ['Vengo de 7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.'],
-      tryDemo: 'Probar la demo',
       summaryTitle: 'Resumen en 5 líneas',
       summary: [
         'Dennys Heras construye sistemas con IA que se explican y se auditan.',
@@ -340,13 +331,12 @@ export const site = {
       portraitAlt: 'Retrato de Dennys Heras',
       nodesLabel: 'Explorar',
       nodes: [
-        { id: 'code', label: 'Código' }, { id: 'projects', label: 'Proyectos' }, { id: 'demo', label: 'Demo' },
+        { id: 'code', label: 'Código' }, { id: 'projects', label: 'Proyectos' },
         { id: 'journey', label: 'Trayectoria' }, { id: 'how', label: 'Cómo trabajo' }, { id: 'interest', label: 'Interés' },
       ],
       panels: {
-        code: { title: 'Código', note: 'Datos reales de la demo: el conjunto de reglas público y el ejemplo de auditoría estático.', github: 'Ver en GitHub ↗', opens: 'abre una página nueva', go: 'Abrir Código →' },
+        code: { title: 'Código', note: 'Datos reales: el conjunto de reglas público y el ejemplo de auditoría estático.', github: 'Ver en GitHub ↗', opens: 'abre una página nueva', go: 'Abrir Código →' },
         projects: { title: 'Trabajo en producción', text: 'Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente. Criden, para negocios y páginas web.', opens: 'abre una página nueva', go: 'Abrir Proyectos →' },
-        demo: { title: 'Demo en vivo', text: 'Una decisión automatizada, con la regla usada, la explicación y su auditoría.', opens: 'abre una página nueva', go: 'Abrir la demo →' },
         journey: { title: 'De la fibra a la IA', text: 'Siete años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', opens: 'abre una página nueva', go: 'Abrir Trayectoria →' },
         how: { title: 'Cómo trabajo', tabs: { people: 'Personas', machines: 'Máquinas' }, opens: 'abre una página nueva', go: 'Abrir Cómo trabajo →' },
         interest: {
@@ -356,7 +346,7 @@ export const site = {
         },
       },
     },
-    codePage: { back: 'Volver a la primera pantalla', title: 'Código', lead: 'Datos reales de la demo y lo que sé hacer, agrupado por capacidad.', description: 'Código de Dennys Heras: el conjunto de reglas público y el ejemplo de auditoría estático de la demo, y sus capacidades, cada una marcada como demostrada o declarada.' },
+    codePage: { back: 'Volver a la primera pantalla', title: 'Código', lead: 'Datos reales y lo que sé hacer, agrupado por capacidad.', description: 'Código de Dennys Heras: el conjunto de reglas público y el ejemplo de auditoría estático, y sus capacidades, cada una marcada como demostrada o declarada.' },
     howPage: { back: 'Volver a la primera pantalla', title: 'Cómo trabajo', lead: 'Las reglas con las que trabajo, para personas y para máquinas, y la forma en que construyo con agentes.', description: 'Cómo trabaja Dennys Heras con IA: reglas de trabajo cortas y comprobables para personas y máquinas, y una fábrica de software con agentes bajo control humano.', people: 'Personas', machines: 'Máquinas', machinesLead: 'Las mismas reglas en texto plano, como se publican en llms.txt:' },
     interestPage: { back: 'Volver a la primera pantalla', title: 'Interés', lead: 'Hacia dónde me gustaría ir a largo plazo.', description: 'Un interés a largo plazo de Dennys Heras: cómo podría relacionarse la inteligencia artificial con el cerebro humano. Una idea, no una capacidad.' },
     contactPage: { back: 'Volver a la primera pantalla', title: 'Contacto', description: 'Contacta a Dennys Heras: correo, LinkedIn, GitHub y CV.' },
@@ -377,12 +367,6 @@ export const site = {
         { id: 'supergol', title: 'Super Gol Kids', meta: ['En producción'], text: 'Plataforma de campeonatos de fútbol infantil. Sitio público de un cliente; yo desarrollé el sitio.', photos: photos(3) },
         { id: 'ia', title: 'Sistemas con IA', meta: ['Ahora'], text: 'Construyo sistemas con IA que se explican y se auditan.', photos: photos(5) },
       ],
-    },
-    demo: {
-      description: 'Demo en vivo de una decisión automatizada: la regla usada, la explicación en lenguaje claro y su auditoría. Una simulación con datos sintéticos.',
-      title: 'Demo en vivo: una decisión automatizada, explicada',
-      lead: 'Un clic simula un acceso sospechoso. El sistema decide, explica por qué, muestra la regla que usó, guarda una pista de auditoría completa y te deja tomar el control.',
-      notice: 'Entorno de prueba simulado. Nada real se ataca ni se bloquea.',
     },
     factory: {
       title: 'La fábrica de software con agentes',

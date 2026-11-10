@@ -2,44 +2,43 @@ import { test, expect } from '@playwright/test'
 import { stubTurnstile } from './helpers.js'
 
 const ORIGIN = 'http://localhost:8788'
+const PAGES = ['/es/', '/en/', '/es/codigo/', '/en/projects/', '/es/contacto/', '/en/privacy/']
 
-test('solo salen peticiones a estáticos, Turnstile y /api con el cuerpo permitido; sin cookies ni violaciones de CSP (AC-17, S9)', async ({ page, context }) => {
+// La demo salió del sitio: lo que queda es la portada, las páginas y el formulario de contacto (que solo consulta GET /api/contact).
+test('solo salen peticiones a estáticos, Turnstile y GET /api/contact; sin cookies ni violaciones de CSP (AC-17, S9)', async ({ page, context }) => {
   const requests = []
   const responses = []
   const consoleErrors = []
   page.on('request', (r) => requests.push({ url: r.url(), method: r.method(), body: r.postData() }))
   page.on('response', async (r) => responses.push({ url: r.url(), headers: await r.allHeaders() }))
   page.on('console', (m) => { if (m.type() === 'error' || /content security policy/i.test(m.text())) consoleErrors.push(m.text()) })
-  await stubTurnstile(page)
 
-  await page.goto('/es/demo/')
-  await page.getByTestId('run').click()
-  await page.getByTestId('show-all').click()
-  await page.getByTestId('act-approve').click()
-  await expect(page.getByTestId('effective')).toContainText('Aprobado')
+  await page.emulateMedia({ reducedMotion: 'reduce' }) // los nodos flotan; Playwright espera que estén quietos para señalarlos
+  await stubTurnstile(page) // sin red hacia Cloudflare: el script de Turnstile se sustituye
+  for (const p of PAGES) await page.goto(p)
+  await page.goto('/es/')
+  await page.locator('.first[data-js]').waitFor()
+  await page.getByRole('link', { name: 'Código', exact: true }).hover()
 
   const allowedHosts = [ORIGIN, 'https://challenges.cloudflare.com']
   for (const r of requests) expect(allowedHosts.some((h) => r.url.startsWith(h)), r.url).toBe(true)
-
-  const api = requests.filter((r) => r.url.startsWith(`${ORIGIN}/api/`))
-  expect(api.length).toBeGreaterThan(0)
-  for (const r of api.filter((x) => x.method === 'POST')) {
-    const keys = Object.keys(JSON.parse(r.body))
-    const allowed = r.url.endsWith('/simulate') ? ['lang', 'scenario', 'turnstileToken'] : ['eventId', 'action']
-    for (const k of keys) expect(allowed, `${r.url} campo ${k}`).toContain(k)
+  for (const r of requests.filter((x) => x.url.startsWith(`${ORIGIN}/api/`))) {
+    expect(r.method, r.url).toBe('GET')
+    expect(r.url).toBe(`${ORIGIN}/api/contact`)
   }
+  expect(requests.some((r) => /\/demo\//.test(r.url))).toBe(false)
   for (const res of responses) expect(res.headers['set-cookie'], res.url).toBeUndefined()
   expect(await context.cookies()).toEqual([])
   expect(await page.evaluate(() => document.cookie)).toBe('')
   expect(consoleErrors).toEqual([])
 })
 
-test('lo único guardado en el navegador es el eventId en sessionStorage (sin localStorage)', async ({ page }) => {
+test('el navegador no guarda nada del sitio: ni localStorage ni sessionStorage (la demo ya no guarda el eventId)', async ({ page }) => {
   await stubTurnstile(page)
-  await page.goto('/en/demo/')
-  await page.getByTestId('run').click()
-  await page.getByTestId('show-all').click()
-  const store = await page.evaluate(() => ({ local: Object.keys(localStorage), session: Object.keys(sessionStorage) }))
-  expect(store.local).toEqual([])
-  expect(store.session).toEqual(['demo-event-id'])
+  for (const p of ['/en/', '/es/contacto/']) {
+    await page.goto(p)
+    const store = await page.evaluate(() => ({ local: Object.keys(localStorage), session: Object.keys(sessionStorage) }))
+    expect(store.session, p).toEqual([])
+    expect(store.local.filter((k) => !/theme/i.test(k)), p).toEqual([]) // la preferencia de tema es lo único que puede quedar
+  }
 })

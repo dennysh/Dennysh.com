@@ -52,7 +52,7 @@ export function Header({ lang, view = 'home' }) {
         <a className="brand" href={base(lang)}>Dennys Heras</a>
         <nav aria-label={n.menu} ref={nav}>
           <ul>
-            {['code', 'projects', 'demo', 'journey', 'how', 'interest', 'contact'].map((id) => (
+            {['code', 'projects', 'journey', 'how', 'interest', 'contact'].map((id) => (
               <li key={id}><a href={pagePaths[lang][id]} aria-current={view === id ? 'page' : undefined}>{n[id]}</a></li>
             ))}
           </ul>

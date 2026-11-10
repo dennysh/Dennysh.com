@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { checkMarkup, checkNodeIcons, checkVisibleMarkers } from '../../scripts/static/site.mjs'
 
 const icon = '<svg class="node-icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1"/></svg>'
-const home = `<html><body>${icon.repeat(6)}<script type="application/ld+json">{"a":1}</script><script type="module" src="/assets/a.js"></script></body></html>`
+const home = `<html><body>${icon.repeat(5)}<script type="application/ld+json">{"a":1}</script><script type="module" src="/assets/a.js"></script></body></html>`
 
 describe('marcado prerenderizado y la CSP (TH09, AC-H7)', () => {
   it('pasa con un HTML limpio', () => expect(checkMarkup([{ path: 'en/index.html', text: home }])).toEqual([]))
@@ -22,13 +22,13 @@ describe('marcado prerenderizado y la CSP (TH09, AC-H7)', () => {
 })
 
 describe('iconos de los nodos (TH09)', () => {
-  it('seis iconos SVG en línea, aria-hidden y trazo 1,5', () => expect(checkNodeIcons('en/index.html', home)).toEqual([]))
-  it('falla con cinco', () => expect(checkNodeIcons('en/index.html', `<html>${icon.repeat(5)}</html>`).length).toBeGreaterThan(0))
+  it('cinco iconos SVG en línea (sin Demo), aria-hidden y trazo 1,5', () => expect(checkNodeIcons('en/index.html', home)).toEqual([]))
+  it('falla con cuatro o con seis', () => expect(checkNodeIcons('en/index.html', `<html>${icon.repeat(4)}</html>`).length).toBeGreaterThan(0) && expect(checkNodeIcons('en/index.html', `<html>${icon.repeat(6)}</html>`).length).toBeGreaterThan(0))
   it('falla si un icono no está oculto a lectores de pantalla', () => {
-    expect(checkNodeIcons('en/index.html', `<html>${icon.repeat(5)}${icon.replace(' aria-hidden="true"', '')}</html>`).length).toBeGreaterThan(0)
+    expect(checkNodeIcons('en/index.html', `<html>${icon.repeat(4)}${icon.replace(' aria-hidden="true"', '')}</html>`).length).toBeGreaterThan(0)
   })
   it('falla si el trazo no es 1,5', () => {
-    expect(checkNodeIcons('en/index.html', `<html>${icon.repeat(5)}${icon.replace('1.5', '3')}</html>`).length).toBeGreaterThan(0)
+    expect(checkNodeIcons('en/index.html', `<html>${icon.repeat(4)}${icon.replace('1.5', '3')}</html>`).length).toBeGreaterThan(0)
   })
 })
 

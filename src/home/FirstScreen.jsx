@@ -45,9 +45,9 @@ function Typed({ text, run, skip }) {
   return <><span>{text.slice(0, n)}</span><span className="t-off">{text.slice(n)}</span></>
 }
 
-function Panel({ id, active, children, onClick, onEnter, onLeave, className = '' }) {
+function Panel({ id, active, children, onClick, onEnter, onLeave, onBlur, className = '' }) {
   return (
-    <section id={`p-${id}`} className={`panel ${className}`} data-active={active ? 'true' : undefined} aria-labelledby={`p-${id}-h`} onClick={onClick} onPointerEnter={onEnter} onPointerLeave={onLeave}>
+    <section id={`p-${id}`} className={`panel ${className}`} data-active={active ? 'true' : undefined} aria-labelledby={`p-${id}-h`} onClick={onClick} onPointerEnter={onEnter} onPointerLeave={onLeave} onBlur={onBlur}>
       {children}
     </section>
   )
@@ -78,7 +78,7 @@ const isMouse = (e) => e.pointerType === 'mouse' || e.pointerType === 'pen'
 export default function FirstScreen({ lang }) {
   const c = site[lang]
   const h = c.home
-  const [active, setActive] = useState('demo') // panel que se ve (reposo: Demo)
+  const [active, setActive] = useState(null) // panel que se ve (reposo: ninguno; solo aparece al señalar o enfocar un nodo)
   const [pointed, setPointed] = useState(null) // nodo señalado ahora: muestra su línea y el anillo
   const [enhanced, setEnhanced] = useState(false)
   const [sheet, setSheet] = useState(false)
@@ -89,14 +89,16 @@ export default function FirstScreen({ lang }) {
   const timer = useRef(0) // retraso de intención
   const off = useRef(0) // margen de salida
   const hoverSheet = useRef(false) // la hoja la abrió el ratón: se cierra al apartarlo
+  const byTouch = useRef(false) // el panel lo abrió un toque: no hay "salir", se cierra con otro toque fuera o con Esc
   useEffect(() => { setEnhanced(true); return () => { clearTimeout(timer.current); clearTimeout(off.current) } }, [])
 
   const codeText = codePanel(ruleset, staticExample, lang).join('\n')
   const people = peopleRules(lang)
   const machines = machineRules(lang)
 
-  const show = (id, viaMouse = false) => {
+  const show = (id, viaMouse = false, viaTouch = false) => {
     hoverSheet.current = viaMouse
+    byTouch.current = viaTouch
     if (id !== active) {
       setRuns((r) => ({ ...r, [id]: (r[id] ?? 0) + 1 }))
       // Solo los paneles con texto que se escribe (no "Cómo trabajo") y sin movimiento reducido tienen algo que completar.
@@ -107,13 +109,15 @@ export default function FirstScreen({ lang }) {
     setSheet(true)
   }
   // Vista previa al pasar el puntero (con retraso de intención) o al enfocar con teclado (sin retraso).
-  const preview = (id, delay, viaMouse = false) => {
+  const preview = (id, delay, viaMouse = false, viaTouch = false) => {
     clearTimeout(timer.current)
     clearTimeout(off.current)
-    if (delay) timer.current = setTimeout(() => show(id, viaMouse), delay)
-    else show(id, viaMouse)
+    if (delay) timer.current = setTimeout(() => show(id, viaMouse, viaTouch), delay)
+    else show(id, viaMouse, viaTouch)
   }
-  const leave = () => { clearTimeout(timer.current); clearTimeout(off.current); off.current = setTimeout(() => { setPointed(null); if (hoverSheet.current) setSheet(false) }, LEAVE_GRACE_MS) }
+  const close = () => { setPointed(null); setActive(null); setSheet(false) }
+  // Salir del nodo o del panel (puntero o foco) vuelve al reposo: sin tarjeta. Tras un toque no hay "salir": el panel sigue hasta otro toque fuera o Esc.
+  const leave = () => { clearTimeout(timer.current); clearTimeout(off.current); off.current = setTimeout(() => { setPointed(null); if (byTouch.current) return; setActive(null); if (hoverSheet.current) setSheet(false) }, LEAVE_GRACE_MS) }
   const stay = () => clearTimeout(off.current)
   const completeTyping = () => {
     if (performance.now() >= typingUntil.current) return false
@@ -124,10 +128,13 @@ export default function FirstScreen({ lang }) {
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== 'Escape') return
-      if (!completeTyping()) { clearTimeout(timer.current); clearTimeout(off.current); setSheet(false); setPointed(null) }
+      if (!completeTyping()) { clearTimeout(timer.current); clearTimeout(off.current); close() }
     }
+    // Un toque fuera de los nodos y de los paneles cierra el panel abierto por toque.
+    const onTap = (e) => { if (byTouch.current && e.pointerType === 'touch' && !e.target.closest('.nodes, .panels')) { clearTimeout(timer.current); clearTimeout(off.current); close() } }
     document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    document.addEventListener('pointerdown', onTap)
+    return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('pointerdown', onTap) }
   }, [])
   const complete = () => { completeTyping() }
   // Táctil: el primer toque abre la vista previa (con su botón "Abrir página"); el segundo toque sobre el mismo nodo navega.
@@ -135,12 +142,13 @@ export default function FirstScreen({ lang }) {
     const type = e.nativeEvent.pointerType
     // Si el navegador emite el clic sin pointerType, un dispositivo sin hover cuenta como táctil.
     const touch = type === 'touch' || (type === undefined && typeof matchMedia === 'function' && matchMedia('(hover: none)').matches)
-    if (touch && !(sheet && active === id)) { e.preventDefault(); preview(id, 0) }
+    if (touch && !(sheet && active === id)) { e.preventDefault(); preview(id, 0, false, true) }
   }
 
   const run = (id) => runs[id]
   const is = (id) => active === id
-  const panelProps = (id) => ({ active: is(id), onClick: complete, onEnter: stay, onLeave: leave })
+  // Al salir el foco del panel hacia otro sitio que no sea un nodo (cuyo foco ya muestra el suyo), el panel se oculta.
+  const panelProps = (id) => ({ active: is(id), onClick: complete, onEnter: stay, onLeave: leave, onBlur: (e) => { if (!e.currentTarget.contains(e.relatedTarget) && !e.relatedTarget?.closest?.('.node-link')) leave() } })
 
   return (
     <section id="inicio" className="first" data-js={enhanced ? 'true' : undefined} aria-labelledby="hero-h">
@@ -175,7 +183,7 @@ export default function FirstScreen({ lang }) {
                   onPointerEnter={(e) => isMouse(e) && preview(n.id, HOVER_DELAY_MS, true)}
                   onPointerLeave={(e) => isMouse(e) && leave()}
                   onFocus={(e) => keyboardFocus(e.target) && preview(n.id, 0)}
-                  onBlur={leave}
+                  onBlur={(e) => { if (!e.relatedTarget?.closest?.('.panel')) leave() }}
                   onClick={(e) => onNodeClick(e, n.id)}
                 >
                   <NodeIcon id={n.id} /><span>{n.label}</span>
@@ -197,7 +205,6 @@ export default function FirstScreen({ lang }) {
             <Open lang={lang} id="code" />
           </Panel>
           <PageCard lang={lang} id="projects" run={run('projects')} skip={skip} {...panelProps('projects')} />
-          <PageCard lang={lang} id="demo" run={run('demo')} skip={skip} {...panelProps('demo')} />
           <PageCard lang={lang} id="journey" run={run('journey')} skip={skip} {...panelProps('journey')} />
           <Panel id="how" {...panelProps('how')} className="has-pre">
             <h2 id="p-how-h">{h.panels.how.title}</h2>

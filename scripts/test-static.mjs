@@ -8,7 +8,7 @@ import { renderHeadersFile, checkHeadersFile } from './static/headers.mjs'
 import { checkViteEnv, scanPatchAdditions } from './static/secrets.mjs'
 import { checkSourceRules } from './static/rules.mjs'
 import { checkSurface } from './static/no-ai-routes.mjs'
-import { checkPrerender, checkMachine, checkLegal, checkStaticExample, checkSvg, checkFonts, checkBudget, checkMarkup, checkNodeIcons, checkNoHiddenRules, checkVisibleMarkers, checkNoPendingHints } from './static/site.mjs'
+import { checkPrerender, checkMachine, checkLegal, checkNoDemo, checkSvg, checkFonts, checkBudget, checkMarkup, checkNodeIcons, checkNoHiddenRules, checkVisibleMarkers, checkNoPendingHints } from './static/site.mjs'
 import { buildStaticExample } from './gen-static-example.mjs'
 import { loadRuleset } from '../core/ruleset.js'
 import { checkUnused } from './static/unused.mjs'
@@ -151,18 +151,19 @@ const home = onDist('home', () => {
   for (const lang of ['en', 'es']) {
     const html = distRead(`${lang}/index.html`) ?? ''
     for (const line of codePanel(ruleset, audit, lang)) if (line.trim() && !html.includes(esc(line))) problems.push(`${lang}/index.html: falta en el panel de Código la línea "${line}"`)
-    if ((html.match(/data-node="/g) ?? []).length !== 6) problems.push(`${lang}/index.html: se esperaban 6 nodos`)
-    if ((html.match(/<a\b[^>]*data-node=/g) ?? []).length !== 6) problems.push(`${lang}/index.html: los seis nodos deben ser enlaces en el HTML prerenderizado`)
+    if ((html.match(/data-node="/g) ?? []).length !== 5) problems.push(`${lang}/index.html: se esperaban 5 nodos`)
+    if ((html.match(/<a\b[^>]*data-node=/g) ?? []).length !== 5) problems.push(`${lang}/index.html: los cinco nodos deben ser enlaces en el HTML prerenderizado`)
   }
   return problems
 })
+const noDemo = onDist('no-demo', () => checkNoDemo(walk('dist').map((f) => f.slice(5)), distRead))
 const budgets = onDist('budgets', () => checkBudget(distRead, distBuf))
 const staticExample = async () => {
-  const problems = onDistProblems(checkStaticExample(distRead))
+  const problems = []
   const fresh = JSON.stringify(await buildStaticExample(), null, 2) + '\n'
   if (readFileSync('src/demo/static-example.json', 'utf8') !== fresh) problems.push('src/demo/static-example.json no coincide con el núcleo (node scripts/gen-static-example.mjs)')
   for (const p of problems) console.error(`static-example: ${p}`)
-  if (!problems.length) console.log('static-example OK — etiquetado como no real, sin entrega, en sincronía con el núcleo')
+  if (!problems.length) console.log('static-example OK — en sincronía con el núcleo')
   return problems.length === 0
 }
 const onDistProblems = (p) => (existsSync('dist/index.html') ? p : ['no hay dist/; ejecuta npm run build'])
@@ -170,10 +171,10 @@ const onDistProblems = (p) => (existsSync('dist/index.html') ? p : ['no hay dist
 const rulesetPublic = async () => {
   const problems = onDistProblems([])
   if (!problems.length) {
-    const pub = (await loadRuleset(JSON.parse(distRead('demo/ruleset.v1.json')))).ruleset
+    const pub = (await loadRuleset(JSON.parse(distRead('data/ruleset.v1.json')))).ruleset
     const example = JSON.parse(readFileSync('src/demo/static-example.json', 'utf8'))
     if (pub.hash !== example.ruleset.hash) problems.push('el hash del ruleset público no coincide con el de la auditoría')
-    if (distRead('demo/explanations.v1.json') !== readFileSync('content/explanations/v1.json', 'utf8')) problems.push('las plantillas públicas difieren de las del código')
+    if (distRead('data/explanations.v1.json') !== readFileSync('content/explanations/v1.json', 'utf8')) problems.push('las plantillas públicas difieren de las del código')
   }
   for (const p of problems) console.error(`ruleset-public: ${p}`)
   if (!problems.length) console.log('ruleset-public OK — el hash público coincide con la auditoría')
@@ -193,7 +194,8 @@ const images = () => {
 
 // T093: sin archivos huérfanos. src/data/ se conserva: es la fuente de los datos reales (constitución, regla 11).
 const unused = () => {
-  const problems = checkUnused({ keep: ['src/data/'] })
+  // La demo salió del sitio (2026-11-09) pero su código de cliente se conserva, sin importar, hasta que se decida retirarlo (docs/superpowers/specs/2026-11-09-quitar-demo.md).
+  const problems = checkUnused({ keep: ['src/data/', 'src/demo/Demo.jsx', 'src/demo/api.js', 'src/demo/demo.css', 'src/demo/format.js', 'src/demo/machine.js', 'src/demo/parts.jsx'] })
   for (const p of problems) console.error(`unused: ${p}`)
   if (!problems.length) console.log('unused OK — sin archivos sin importar ni imágenes sin referencia')
   return problems.length === 0
@@ -214,7 +216,7 @@ async function content() {
   return true
 }
 
-const CHECKS = { secrets, unused, images, headers, content, prerender, machine, legal, svg, fonts, markup, 'hidden-rules': hiddenRules, 'pending-hints': pendingHints, markers, home, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
+const CHECKS = { secrets, unused, images, headers, content, prerender, machine, legal, 'no-demo': noDemo, svg, fonts, markup, 'hidden-rules': hiddenRules, 'pending-hints': pendingHints, markers, home, budgets, 'static-example': staticExample, 'ruleset-public': rulesetPublic, rules, 'no-ai-routes': noAiRoutes, 'explain-review': explainReview }
 const wanted = process.argv.slice(2).filter((a) => a in CHECKS)
 const results = []
 for (const k of wanted.length ? wanted : Object.keys(CHECKS)) results.push(await CHECKS[k]())

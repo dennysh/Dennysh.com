@@ -24,9 +24,10 @@ describe('cada nodo es una página propia (C2) con barra, Volver, un h1 y pie co
         const levels = [...out.matchAll(/<h([1-6])\b/g)].map((m) => Number(m[1]))
         levels.reduce((prev, n) => { expect(n - prev, `salto de h${prev} a h${n}`).toBeLessThanOrEqual(1); return n }, 0)
       })
-      it(`(${lang}) ${view}: barra con las siete páginas, la actual marcada, interruptor de tema e idioma hacia la misma página`, () => {
+      it(`(${lang}) ${view}: barra con las seis páginas (sin Demo), la actual marcada, interruptor de tema e idioma hacia la misma página`, () => {
         const header = /<header[\s\S]*?<\/header>/.exec(out)[0]
-        for (const id of ['code', 'projects', 'demo', 'journey', 'how', 'interest', 'contact']) expect(header).toContain(`href="${pagePaths[lang][id]}"`)
+        for (const id of ['code', 'projects', 'journey', 'how', 'interest', 'contact']) expect(header).toContain(`href="${pagePaths[lang][id]}"`)
+        expect(header).not.toMatch(/\/demo\//)
         expect(header.match(/aria-current="page"/g)).toHaveLength(1)
         expect(header).toContain(`href="${pagePaths[lang][view]}" aria-current="page"`)
         expect(header).toContain('class="theme-toggle"')
@@ -60,9 +61,9 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       expect(out).toContain('# Working rules (llms.txt format)')
       expect(out).toContain(esc(c.howPage.people)); expect(out).toContain(esc(c.howPage.machines))
     })
-    it(`(${lang}) Código: el panel real de la demo y las capacidades con "demostrado" y "declarado", y la nota acotada de agentes`, () => {
+    it(`(${lang}) Código: el panel real (reglas y ejemplo de auditoría) y las capacidades con "demostrado" y "declarado", y la nota acotada de agentes`, () => {
       const out = render(CodePage, lang)
-      expect(out).toMatch(/<pre class="code code-page" tabindex="0">[^<]{200,}/) // el panel de Código: datos reales de la demo
+      expect(out).toMatch(/<pre class="code code-page" tabindex="0">[^<]{200,}/) // el panel de Código: datos reales
       for (const g of c.skills.groups) { expect(out).toContain(esc(g.title)); for (const t of [...g.shown, ...g.declared]) expect(out).toContain(`<li>${esc(t)}</li>`) }
       expect(out).toContain(esc(c.skills.groups.find((g) => g.note).note))
       expect(out).toContain(esc(c.skills.shown)); expect(out).toContain(esc(c.skills.declared))

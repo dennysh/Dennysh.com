@@ -1,8 +1,8 @@
 // Rutas del sitio, compartidas por el prerender (servidor) y la hidratación (cliente).
 // Cada nodo de la primera pantalla es una página propia (correcciones 1, C2).
 export const pagePaths = {
-  en: { code: '/en/code/', projects: '/en/projects/', demo: '/en/demo/', journey: '/en/journey/', how: '/en/how-i-work/', interest: '/en/interest/', contact: '/en/contact/' },
-  es: { code: '/es/codigo/', projects: '/es/proyectos/', demo: '/es/demo/', journey: '/es/trayectoria/', how: '/es/como-trabajo/', interest: '/es/interes/', contact: '/es/contacto/' },
+  en: { code: '/en/code/', projects: '/en/projects/', journey: '/en/journey/', how: '/en/how-i-work/', interest: '/en/interest/', contact: '/en/contact/' },
+  es: { code: '/es/codigo/', projects: '/es/proyectos/', journey: '/es/trayectoria/', how: '/es/como-trabajo/', interest: '/es/interes/', contact: '/es/contacto/' },
 }
 export const legalPaths = { en: { privacy: '/en/privacy/', terms: '/en/terms/' }, es: { privacy: '/es/privacidad/', terms: '/es/terminos/' } }
 
@@ -21,11 +21,15 @@ export function resolveView(pathname) {
   return { lang: 'en', view: 'notfound' }
 }
 
-// Los mensajes de Telegram enviados antes de mover la demo apuntan a /es/?evento=…: se reenvían a la página de la demo.
+// La demo ya no existe en el sitio. Los mensajes de Telegram enviados antes apuntan a /es/?evento=… (o a /es/demo/?evento=…, que ahora
+// es la 404): ambos se reenvían a la portada del mismo idioma, sin la consulta.
+const OLD_DEMO = { '/en/demo/': 'en', '/es/demo/': 'es' }
 export function legacyEventTarget(pathname, search) {
+  const path = norm(pathname)
+  if (OLD_DEMO[path]) return `/${OLD_DEMO[path]}/`
   const { lang, view } = resolveView(pathname)
   if (view !== 'home' || !new URLSearchParams(search).has('evento')) return null
-  return `${pagePaths[lang].demo}${search}`
+  return `/${lang}/`
 }
 
 // Misma página en el otro idioma (para el enlace de idioma y los hreflang).

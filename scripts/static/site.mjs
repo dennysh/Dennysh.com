@@ -6,7 +6,7 @@ import { pagePaths } from '../../src/routes.js'
 
 // El inicio es solo la primera pantalla (correcciones 1, C4): la frase única como h1, los seis nodos hacia sus páginas y nada más.
 const withoutScripts = (html) => html.replace(/<script\b[\s\S]*?<\/script>/g, '')
-const NODE_IDS = ['code', 'projects', 'demo', 'journey', 'how', 'interest']
+const NODE_IDS = ['code', 'projects', 'journey', 'how', 'interest']
 const need = (read, rel, problems) => {
   const t = read(rel)
   if (t == null) problems.push(`falta ${rel}`)
@@ -58,7 +58,7 @@ export function checkMachine(read) {
   }
   const llms = need(read, 'llms.txt', problems)
   if (llms && !/^# Dennys Heras/m.test(llms)) problems.push('llms.txt sin título')
-  if (llms && !llms.includes(`${SITE_URL}/demo/ruleset.v1.json`)) problems.push('llms.txt sin enlace al ruleset')
+  if (llms && !llms.includes(`${SITE_URL}/data/ruleset.v1.json`)) problems.push('llms.txt sin enlace al ruleset')
   const res = need(read, 'dennys.json', problems)
   if (res) {
     try {
@@ -101,10 +101,10 @@ export function checkMachine(read) {
 export function checkLegal(read) {
   const problems = []
   const must = {
-    'en/privacy/index.html': [/HMAC/, /Turnstile/, /Telegram/, /24 hours/, /contact form/i, /25 hours/],
-    'es/privacidad/index.html': [/HMAC/, /Turnstile/, /Telegram/, /24 horas/, /formulario de contacto/i, /25 horas/],
-    'en/terms/index.html': [/simulation/i],
-    'es/terminos/index.html': [/simulaci[oó]n/i],
+    'en/privacy/index.html': [/HMAC/, /Turnstile/, /contact form/i, /25 hours/],
+    'es/privacidad/index.html': [/HMAC/, /Turnstile/, /formulario de contacto/i, /25 horas/],
+    'en/terms/index.html': [/Availability/],
+    'es/terminos/index.html': [/Disponibilidad/],
   }
   for (const [rel, res] of Object.entries(must)) {
     const html = need(read, rel, problems)
@@ -114,15 +114,12 @@ export function checkLegal(read) {
   return problems
 }
 
-export function checkStaticExample(read) {
+// La demo salió del sitio: ni hay rutas /demo/ en el build ni ningún enlace de la capa visible o de máquinas apunta a ellas.
+export function checkNoDemo(paths, read) {
   const problems = []
-  for (const [rel, label] of [[`${pagePaths.en.demo.slice(1)}index.html`, 'not a real send'], [`${pagePaths.es.demo.slice(1)}index.html`, 'no es un envío real']]) {
-    const html = need(read, rel, problems)
-    if (html == null) continue
-    const m = /<noscript>([\s\S]*?)<\/noscript>/.exec(html)
-    if (!m) { problems.push(`${rel}: falta el ejemplo estático en <noscript>`); continue }
-    if (!m[1].toLowerCase().includes(label)) problems.push(`${rel}: el ejemplo estático no está etiquetado como no real`)
-    if (/entregada|delivered to/i.test(m[1])) problems.push(`${rel}: el ejemplo estático afirma una entrega`)
+  for (const rel of paths) {
+    if (/(^|\/)demo(\/|$)/.test(rel)) problems.push(`${rel}: el build no debe tener rutas de demo`)
+    if (/\.(html|xml|txt|json)$/.test(rel) && /\/demo\//.test(read(rel) ?? '')) problems.push(`${rel}: enlace a /demo/ (la demo ya no existe)`)
   }
   return problems
 }
@@ -195,7 +192,7 @@ export function checkNoHiddenRules(files, rules) {
 export function checkNodeIcons(rel, html) {
   const icons = [...html.matchAll(/<svg\b[^>]*class="node-icon"[^>]*>/g)].map((m) => m[0])
   const problems = []
-  if (icons.length !== 6) problems.push(`${rel}: se esperaban 6 iconos de nodo y hay ${icons.length}`)
+  if (icons.length !== 5) problems.push(`${rel}: se esperaban 5 iconos de nodo y hay ${icons.length}`)
   for (const i of icons) {
     if (!/aria-hidden="true"/.test(i)) problems.push(`${rel}: un icono de nodo no es aria-hidden`)
     if (!/stroke-width="1\.5"/.test(i)) problems.push(`${rel}: un icono de nodo no tiene trazo de 1,5`)
