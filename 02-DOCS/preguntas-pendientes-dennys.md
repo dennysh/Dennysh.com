@@ -45,14 +45,14 @@ Origen: `docs/superpowers/specs/2026-10-31-primera-pantalla-design.md`. Mientras
 | P-26 | ¿Qué reglas más quieres sumar a `content/working-rules.json`? | Las 6 del spec más "no hay llamada a un modelo por clic" | Cómo trabajo |
 | P-27 | Retrato `dennys-portrait.webp` | **Entregado 2026-10-31** (900×1210, 87 KB, sin EXIF/XMP/ICC, verificado) | Retrato (TH23) |
 | P-28 | ¿Las URL en inglés de las páginas nuevas usan `projects`/`journey` o los mismos segmentos que en español? | `projects` y `journey` en `/en/`; `proyectos` y `trayectoria` en `/es/` | Rutas |
-| P-29 | Fotos de cada fila de la galería de Trayectoria (cuántas, cuáles, texto alternativo) y empresas que autorizas nombrar (p. ej. la de fibra óptica) | Ninguna foto hasta que las entregues; cada hueco queda como marcador | Trayectoria, Interés |
+| P-29 | Fotos de cada entrada de la línea de tiempo de Trayectoria (cuántas, cuáles, texto alternativo es/en). Se declaran en `src/content/journey-photos.js` (guía: `02-DOCS/guia-fotos-trayectoria.md`) | Ninguna foto hasta que las entregues; la página se ve completa sin ellas (2026-11-09: las empresas del CV público ya se nombran, por encargo de Dennys) | Trayectoria |
 
 **Respuestas de Dennys, 2026-10-31 (resueltas):**
 - **P-23** (otros deportes): además de jiu-jitsu, ha hecho triatlón y pistas de obstáculos (ciclismo, natación y pista), pocas veces, no de forma constante. Publicado así en el nodo Interés (ES y EN), sin "competidor", resultados ni frecuencia. Ya no es pendiente.
 - **P-24** (proyectos adicionales): no añadir más; se queda Caja Cercana y Super Gol Kids. Autorizado como está, sin marcador.
 - **P-25** (Trayectoria): se queda como está, sin añadir nada. Autorizado como está.
 - **P-26** y **P-28**: sin cambio (valores por defecto: las siete reglas del spec; URL `projects`/`journey` en inglés).
-- **P-29** (fotos de la galería): las fotos están en otra computadora y llegan en unos días. Hasta entonces la galería de Trayectoria queda oculta (cada fila muestra solo su texto), sin marcadores ni nombre de la empresa de fibra. P-29 sigue registrado como pendiente y autorizado a publicarse (no bloquea el build) mientras la galería esté oculta. Al añadir las fotos reales a `journeyPage.rows[].photos` (con `src`, `alt`, `width`, `height`), la galería se activa sola.
+- **P-29** (fotos de la línea de tiempo; actualizado el 2026-11-09: la galería por fila se sustituyó por una línea de tiempo con miniaturas y las empresas del CV público ya se nombran, por encargo de Dennys): las fotos están en otra computadora y llegan después. Hasta entonces (texto anterior, sobre la galería) la galería de Trayectoria queda oculta (cada fila muestra solo su texto), sin marcadores ni nombre de la empresa de fibra. P-29 sigue registrado como pendiente y autorizado a publicarse (no bloquea el build) mientras la galería esté oculta. Al añadir las fotos reales a `journeyPage.rows[].photos` (con `src`, `alt`, `width`, `height`), la galería se activa sola.
 
 ## Correcciones 1 (2026-11-01)
 
