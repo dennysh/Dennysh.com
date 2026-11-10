@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { createD1 } from '../helpers/d1.js'
-import { onRequest as simulate } from '../../functions/api/simulate.js'
 import { buildServices } from '../../server/services.js'
+import { simulateHandler } from '../../server/handlers.js'
+import { withSecurityHeaders } from '../../server/security-headers.js'
+const simulate = withSecurityHeaders(simulateHandler) // la ruta pública está retirada (410): estas pruebas ejercen el código de la demo directamente
 
 const wrangler = JSON.parse(readFileSync('wrangler.jsonc', 'utf8').split('\n').filter((l) => !l.trim().startsWith('//')).join('\n'))
 afterEach(() => vi.unstubAllGlobals())

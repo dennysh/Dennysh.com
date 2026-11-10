@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { createD1 } from '../helpers/d1.js'
 import { visitorHash } from '../../server/visitor-hash.js'
-import { onRequest as simulate } from '../../functions/api/simulate.js'
-import { onRequest as intervene } from '../../functions/api/intervene.js'
-import { onRequest as eventRoute } from '../../functions/api/event/[id].js'
+import { eventHandler, interveneHandler, simulateHandler } from '../../server/handlers.js'
+import { withSecurityHeaders } from '../../server/security-headers.js'
+const simulate = withSecurityHeaders(simulateHandler) // la ruta pública está retirada (410): estas pruebas ejercen el código de la demo directamente
+const intervene = withSecurityHeaders(interveneHandler) // la ruta pública está retirada (410): estas pruebas ejercen el código de la demo directamente
+const eventRoute = withSecurityHeaders(eventHandler) // la ruta pública está retirada (410): estas pruebas ejercen el código de la demo directamente
 
 const TOKEN = '123456789:AAH-super-secret-token-value-0000'
 const CHAT = '987654367'

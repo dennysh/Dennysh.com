@@ -13,7 +13,9 @@ import { createVerifier } from '../../server/verifier.js'
 import { createStore, VISITOR_WINDOW_MS, GLOBAL_WINDOW_MS, GLOBAL_MAX, EVENT_TTL_MS, SLOT_TTL_MS } from '../../server/store-d1.js'
 import { createGetEvent } from '../../server/event.js'
 import { createIntervene } from '../../server/intervene.js'
-import { onRequest as simulateRoute } from '../../functions/api/simulate.js'
+import { simulateHandler } from '../../server/handlers.js'
+import { withSecurityHeaders } from '../../server/security-headers.js'
+const simulateRoute = withSecurityHeaders(simulateHandler) // la ruta pública está retirada (410): estas pruebas ejercen el código de la demo directamente
 
 const json = (b, status = 200) => new Response(JSON.stringify(b), { status })
 

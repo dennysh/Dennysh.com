@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { createD1 } from '../helpers/d1.js'
-import { onRequest as simulate } from '../../functions/api/simulate.js'
+import { simulateHandler } from '../../server/handlers.js'
+import { withSecurityHeaders } from '../../server/security-headers.js'
+const simulate = withSecurityHeaders(simulateHandler) // la ruta pública está retirada (410): estas pruebas ejercen el código de la demo directamente
 
 const env = () => ({
   DB: createD1(), TURNSTILE_SECRET: 's', TELEGRAM_BOT_TOKEN: '123456789:AAH-super-secret-token-value-0000', TELEGRAM_CHAT_ID: '987654367',

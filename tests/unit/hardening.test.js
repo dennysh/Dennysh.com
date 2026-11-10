@@ -1,10 +1,12 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { createD1 } from '../helpers/d1.js'
-import { onRequest as simulate } from '../../functions/api/simulate.js'
 import { buildServices } from '../../server/services.js'
 import { visitorHash, visitorKeyFor } from '../../server/visitor-hash.js'
 import { scanText } from '../../scripts/lib/scan-secrets.mjs'
 import { createStore } from '../../server/store-d1.js'
+import { simulateHandler } from '../../server/handlers.js'
+import { withSecurityHeaders } from '../../server/security-headers.js'
+const simulate = withSecurityHeaders(simulateHandler) // la ruta pública está retirada (410): estas pruebas ejercen el código de la demo directamente
 
 const env = (over = {}) => ({ DB: createD1(), TURNSTILE_SECRET: 'real-secret', VISITOR_HMAC_KEY: 'v'.repeat(32), EVENT_HMAC_KEY: 'e'.repeat(32), ALERTS_ENABLED: 'false', ...over })
 afterEach(() => vi.unstubAllGlobals())
