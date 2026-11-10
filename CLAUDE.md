@@ -4,6 +4,8 @@ Sitio de presentación de Dennys Heras. Se trabaja con el arnés RSC (SDD).
 
 La demo de decisión automatizada se quitó del sitio el 2026-11-09 (nodo, tarjeta, página y rutas); el backend (funciones, D1, Telegram) sigue en el repositorio, sin usar. La primera pantalla tiene cinco nodos y ninguna tarjeta en reposo. Detalle: `docs/superpowers/specs/2026-11-09-quitar-demo.md`.
 
+La primera pantalla lleva una red de fondo (canvas, solo escritorio con puntero fino; `src/home/network.js`, `NetworkBackground.jsx`). Nunca se dibuja sobre la cara ni el cuerpo: su zona protegida sale de `src/home/geometry.js`. Detalle: `docs/superpowers/specs/2026-11-09-red-de-fondo.md`.
+
 ## Knowledge map
 
 | Qué | Dónde |

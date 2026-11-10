@@ -106,6 +106,9 @@ describe('el anillo y las líneas van detrás del retrato en escritorio', () => 
     expect(rule(desk, '.nodes')).toContain('z-index: 7')
     expect(rule(home, '.bar')).toContain('z-index: 6')
     expect(rule(home, '.canvas::before')).toContain('z-index: -1')
-    expect(rule(home.slice(home.indexOf('@media (max-width: 760px)')), '.lines')).toContain('display: none')
+    expect(rule(home.slice(home.indexOf('@media (max-width: 760px)')), '.lines, .net')).toContain('display: none')
+    // la red de fondo: detrás de todo salvo el brillo, y sin recibir el puntero
+    expect(rule(desk, '.net')).toContain('z-index: -1')
+    expect(rule(desk, '.net')).toContain('pointer-events: none')
   })
 })

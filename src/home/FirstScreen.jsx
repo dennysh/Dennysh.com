@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { site, links } from '../content/site.js'
 import NodeIcon from './icons.jsx'
+import NetworkBackground from './NetworkBackground.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import TelegramBots from '../components/TelegramBots.jsx'
 import { codePanel } from './code-panel.js'
@@ -165,6 +166,7 @@ export default function FirstScreen({ lang }) {
           fetchpriority="high"
           decoding="async"
         />
+        <NetworkBackground />
         <svg className="lines" viewBox={`0 0 ${VIEW.w} ${VIEW.h}`} aria-hidden="true" focusable="false">
           <path className="arc" d={arcPath()} />
           <circle className="ring" cx={HEAD.x} cy={HEAD.y} r={RING_R} pathLength="1" data-on={pointed ? 'true' : undefined} />
