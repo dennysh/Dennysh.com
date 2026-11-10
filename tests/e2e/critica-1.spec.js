@@ -231,3 +231,99 @@ test('móvil: la barra del inicio mantiene su altura aunque sus enlaces midan 44
   expect((await page.locator('.bar').boundingBox()).height).toBeLessThanOrEqual(48)
   for (const name of ['CV', 'EN']) expect((await page.locator('.bar').getByRole('link', { name, exact: true }).boundingBox()).height).toBeGreaterThanOrEqual(44)
 })
+
+// El anillo (y las líneas) quedan detrás del retrato: rodea la cabeza y pasa tras el cuello y los hombros; nodos y paneles siguen encima.
+test.describe('anillo detrás del retrato (escritorio)', () => {
+  for (const theme of ['light', 'dark']) {
+    test(`1280×800 (${theme}): con un nodo señalado, el anillo queda por debajo del retrato; nodos, barra y panel por encima`, async ({ page }, info) => {
+      await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: theme })
+      await page.setViewportSize({ width: 1280, height: 800 })
+      await page.goto('/es/')
+      await hydrated(page)
+      await page.getByRole('link', { name: 'Trayectoria', exact: true }).hover()
+      await expect(page.locator('.ring')).toHaveAttribute('data-on', 'true')
+      await expect(page.locator('.panel[data-active="true"]')).toBeVisible()
+      const m = await page.evaluate(() => {
+        const q = (s) => document.querySelector(s)
+        const svg = q('svg.lines'), img = q('.portrait'), ring = q('.ring')
+        svg.style.pointerEvents = 'auto' // el SVG no recibe puntero; para medir el orden de pintado se le da puntero solo en esta prueba
+        // Orden de apilamiento real: lo que el navegador pinta arriba en un punto donde el anillo cruza el cuerpo.
+        const ctm = svg.getScreenCTM(), pr = img.getBoundingClientRect()
+        const L = ring.getTotalLength()
+        const pts = Array.from({ length: 720 }, (_, i) => { const p = ring.getPointAtLength((L * i) / 719); const d = new DOMPoint(p.x, p.y).matrixTransform(ctm); return [d.x, d.y] })
+        const onBody = pts.filter(([x, y]) => x >= pr.left && x <= pr.right && y >= pr.top && y <= pr.bottom)
+        const tops = onBody.map(([x, y]) => { const st = document.elementsFromPoint(x, y); return st.indexOf(ring) === -1 || st.indexOf(img) < st.indexOf(ring) })
+        const seen = onBody.filter(([x, y]) => document.elementsFromPoint(x, y).includes(ring)).length
+        const z = (s) => getComputedStyle(q(s)).zIndex
+        return { onBody: onBody.length, seen, imgAboveRing: tops.every(Boolean), svgZ: z('svg.lines'), navZ: z('nav.nodes'), barZ: z('.bar'), imgZ: z('.portrait'), nodeHit: !!document.elementFromPoint(...(() => { const r = q('.node-link').getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2] })())?.closest('.node-link') }
+      })
+      expect(m.onBody, 'el anillo cruza el cuerpo del retrato (si no, la prueba no mide nada)').toBeGreaterThan(0)
+      expect(m.seen, 'el anillo es detectable bajo el retrato (la medición no es vacía)').toBeGreaterThan(0)
+      expect(m.imgAboveRing, 'en todo punto del anillo sobre el retrato, el retrato se pinta encima').toBe(true)
+      expect(m.svgZ).toBe('-1')
+      expect(m.navZ).toBe('7'); expect(m.barZ).toBe('6')
+      expect(m.nodeHit).toBe(true) // el nodo sigue recibiendo el puntero
+      const panel = await page.locator('.panel[data-active="true"]').boundingBox()
+      const hit = await page.evaluate(([x, y]) => !!document.elementFromPoint(x, y)?.closest('.panel'), [panel.x + panel.width / 2, panel.y + 20])
+      expect(hit, 'el panel sigue encima').toBe(true)
+      await page.locator('.canvas').screenshot({ path: info.outputPath(`anillo-${theme}.png`) })
+    })
+  }
+})
+
+// La Demo salió de la primera pantalla: cinco nodos equilibrados, ninguna tarjeta en reposo y la tarjeta solo mientras se señala o enfoca un nodo.
+test.describe('primera pantalla sin Demo (escritorio)', () => {
+  for (const theme of ['light', 'dark']) {
+    test(`1280×800 (${theme}): cinco nodos, reposo sin tarjeta, tarjeta al señalar y de vuelta al reposo al salir`, async ({ page }, info) => {
+      await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: theme })
+      await page.setViewportSize({ width: 1280, height: 800 })
+      await page.goto('/es/')
+      await hydrated(page)
+      await expect(page.locator('a[data-node]')).toHaveCount(5)
+      await expect(page.getByRole('link', { name: 'Demo', exact: true })).toHaveCount(0)
+      await expect(page.locator('.panel:visible')).toHaveCount(0)
+      await expect(page.locator('.ring')).not.toHaveAttribute('data-on', 'true')
+      await page.locator('.canvas').screenshot({ path: info.outputPath(`reposo-${theme}.png`) })
+      await page.getByRole('link', { name: 'Proyectos', exact: true }).hover()
+      await expect(page.locator('#p-projects')).toBeVisible()
+      await expect(page.locator('.panel:visible')).toHaveCount(1)
+      await page.locator('.canvas').screenshot({ path: info.outputPath(`señalado-${theme}.png`) })
+      await page.mouse.move(5, 5)
+      await expect(page.locator('.panel:visible')).toHaveCount(0)
+      await expect(page.locator('.ring')).not.toHaveAttribute('data-on', 'true')
+    })
+  }
+  test('el reparto es equilibrado: nodos simétricos respecto al retrato, Trayectoria sobre el eje y sin pisar la barra', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 })
+    await page.goto('/es/')
+    await hydrated(page)
+    const m = await page.evaluate(() => {
+      const c = (s) => { const r = document.querySelector(s).getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, r: r.right, l: r.left, b: r.bottom, t: r.top } }
+      const pr = document.querySelector('.portrait').getBoundingClientRect()
+      const hit = (a, b) => !(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)
+      const jr = document.querySelector('.n-journey .node-link').getBoundingClientRect()
+      const overlapsBar = [...document.querySelectorAll('.bar a, .bar button, .bar-brand')].some((e) => hit(jr, e.getBoundingClientRect()))
+      return { axis: pr.x + pr.width / 2, code: c('.n-code .node-icon'), projects: c('.n-projects .node-icon'), journey: c('.n-journey .node-icon'), how: c('.n-how .node-icon'), interest: c('.n-interest .node-icon'), overlapsBar }
+    })
+    expect(Math.abs(m.journey.x - m.axis)).toBeLessThanOrEqual(1.5)
+    expect(m.code.x + m.interest.x).toBeCloseTo(2 * m.axis, -0.3)
+    expect(m.projects.x + m.how.x).toBeCloseTo(2 * m.axis, -0.3)
+    expect(Math.abs(m.code.y - m.interest.y)).toBeLessThanOrEqual(1.5)
+    expect(Math.abs(m.projects.y - m.how.y)).toBeLessThanOrEqual(1.5)
+    expect(m.journey.y).toBeLessThan(m.projects.y) // el arco sube hacia el centro
+    expect(m.overlapsBar).toBe(false) // Trayectoria no pisa nada de la barra superior
+  })
+  for (const [w, h] of [[360, 640], [390, 844]]) {
+    test(`móvil ${w}×${h}: sin tarjeta en reposo, cinco nodos en una fila, sin desbordes ni desplazamiento`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h })
+      await page.goto('/es/')
+      await hydrated(page)
+      const m = await page.evaluate(() => ({ nodes: [...document.querySelectorAll('.node-link')].map((n) => { const r = n.getBoundingClientRect(); return [r.top, r.left, r.right] }), sw: document.documentElement.scrollWidth, iw: innerWidth, sh: document.documentElement.scrollHeight, vh: innerHeight }))
+      expect(m.nodes).toHaveLength(5)
+      expect(new Set(m.nodes.map((n) => Math.round(n[0]))).size).toBe(1) // misma fila
+      for (const n of m.nodes) { expect(n[1]).toBeGreaterThanOrEqual(0); expect(n[2]).toBeLessThanOrEqual(w) }
+      expect(m.sw).toBeLessThanOrEqual(m.iw); expect(m.sh).toBeLessThanOrEqual(m.vh)
+      await expect(page.locator('.panel:visible')).toHaveCount(0)
+    })
+  }
+})

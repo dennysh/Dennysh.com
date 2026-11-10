@@ -73,7 +73,8 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; }
   .canvas { width: min(100% - 24px, 1180px, calc(100svh * 1100 / 720)); aspect-ratio: 1100 / 720; margin: 12px auto 0; border: .5px solid var(--line); border-radius: 14px; overflow: hidden; }
   .bar { position: absolute; top: 0; left: 0; right: 0; padding: 1.8% 3.2%; }
   .portrait { position: absolute; left: 33.5%; bottom: 0; width: 33%; height: auto; -webkit-mask-image: linear-gradient(#000 74%, transparent); mask-image: linear-gradient(#000 74%, transparent); }
-  .lines { position: absolute; inset: 0; width: 100%; height: 100%; }
+  /* Las líneas, el arco y el anillo van detrás del retrato (z-index -1, sobre el brillo que queda antes en el DOM): el anillo rodea la cabeza y pasa tras el cuello y los hombros. */
+  .lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; }
   .nodes { position: absolute; inset: 0; pointer-events: none; z-index: 7; }
   .node { position: absolute; pointer-events: auto; transform: translate(-50%, -28px); }
   .n-code { left: 10.909%; top: 31.861%; } .n-projects { left: 21.091%; top: 18.375%; } .n-demo { left: 35.636%; top: 10.694%; }
