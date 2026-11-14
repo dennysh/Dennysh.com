@@ -51,16 +51,16 @@ export const site = {
     lang: 'en',
     meta: {
       title: 'Dennys Heras — AI systems that explain themselves and can be audited',
-      description: 'Dennys Heras builds AI systems that explain their decisions in plain language, leave an audit trail and hand control to a person. Comes from 7 years in fiber-optic networks.',
+      description: 'Dennys Heras builds AI systems that explain their decisions in plain language, leave an audit trail and hand control to a person. Comes from more than 7 years in fiber-optic networks.',
     },
     nav: { code: 'Code', projects: 'Projects', journey: 'Journey', how: 'How I work', interest: 'About me', contact: 'Contact', menu: 'Sections', skip: 'Skip to content', lang: 'Español', theme: 'Dark mode', home: 'Home' },
     hero: {
       thesis: 'I build AI systems that explain themselves and can be audited.',
-      who: ['I come from 7 years in fiber-optic networks, where things have to work in the field.'],
+      who: ['I come from more than 7 years in fiber-optic networks, where things have to work in the field.'],
       summaryTitle: 'Summary in 5 lines',
       summary: [
         'Dennys Heras builds AI systems that explain themselves and can be audited.',
-        'Comes from 7 years in fiber-optic networks, where things have to work in the field.',
+        'Comes from more than 7 years in fiber-optic networks, where things have to work in the field.',
         'In production: a Telegram bot for ISP technicians that finds the nearest network box, and a football-championships platform.',
         'Works with AI coding agents under limits, with automatic review and human checks.',
         'Contact: dennys@dennysh.com, LinkedIn and GitHub (dennysh).',
@@ -70,7 +70,7 @@ export const site = {
       phrase: 'A little of what I do, in a few minutes.',
       offer: 'Software, automation, bots and AI agents for businesses.',
       cta: 'Write to me',
-      tagline: ['7 years in fiber optics', 'Remote · Spanish native · English B1'],
+      tagline: ['More than 7 years in fiber optics', 'Remote · Spanish native · English B1'],
       bar: { cv: 'CV' },
       portraitAlt: 'Portrait of Dennys Heras',
       hint: 'Swipe',
@@ -82,7 +82,7 @@ export const site = {
       panels: {
         code: { title: 'Code', note: 'Real data: the public ruleset and the static audit example.', github: 'View on GitHub ↗', opens: 'opens a new page', go: 'Open Code →' },
         projects: { title: 'Work in production', text: 'Telegram bot for ISP technicians. A children\'s football championships site for a client. Criden, for businesses and websites.', opens: 'opens a new page', go: 'Open Projects →' },
-        journey: { title: 'From fiber to AI', text: 'Seven years in fiber-optic networks, where things have to work in the field.', opens: 'opens a new page', go: 'Open Journey →' },
+        journey: { title: 'From fiber to AI', text: 'More than 7 years in fiber-optic networks, where things have to work in the field.', opens: 'opens a new page', go: 'Open Journey →' },
         how: { title: 'How I work', tabs: { people: 'People', machines: 'Machines' }, opens: 'opens a new page', go: 'Open How I work →' },
         interest: {
           title: 'About me',
@@ -97,8 +97,8 @@ export const site = {
     interestPage: {
       back: 'Back to the home screen',
       title: 'About me',
-      intro: 'Hi, I\'m Dennys Heras. I come from seven years in fiber-optic networks, and from there I started programming to solve real problems. Today I develop software, automated systems, websites, bots and AI agents with human control. Right now I am building Criden, a platform where I sell websites and automations.',
-      description: 'About Dennys Heras: seven years in fiber-optic networks, now building software, automation, websites, bots and AI agents with human control. How to contact him.',
+      intro: 'Hi, I\'m Dennys Heras. I come from more than 7 years in fiber-optic networks, and from there I started programming to solve real problems. Today I develop software, automated systems, websites, bots and AI agents with human control. Right now I am building Criden, a platform where I sell websites and automations.',
+      description: 'About Dennys Heras: more than 7 years in fiber-optic networks, now building software, automation, websites, bots and AI agents with human control. How to contact him.',
       audio: { title: 'Listen to this introduction', aiNote: 'Part of this audio is spoken by an AI-generated voice.', fallback: 'Your browser cannot play this audio.' },
       whatTitle: 'What I do',
       what: [
@@ -206,7 +206,7 @@ export const site = {
     journey: {
       title: 'Journey',
       lines: [
-        '7 years in the field working with fiber optics.',
+        'More than 7 years in the field working with fiber optics.',
         'There I ran into problems that software could solve.',
         'I learned Python to solve them myself.',
         'Today I build AI systems that explain themselves and can be audited.',
@@ -354,16 +354,16 @@ export const site = {
     lang: 'es',
     meta: {
       title: 'Dennys Heras — Sistemas con IA que se explican y se auditan',
-      description: 'Dennys Heras construye sistemas con IA que explican sus decisiones en lenguaje claro, dejan rastro y ceden el control a una persona. Viene de 7 años en redes de fibra óptica.',
+      description: 'Dennys Heras construye sistemas con IA que explican sus decisiones en lenguaje claro, dejan rastro y ceden el control a una persona. Viene de más de 7 años en redes de fibra óptica.',
     },
     nav: { code: 'Código', projects: 'Proyectos', journey: 'Trayectoria', how: 'Cómo trabajo', interest: 'Sobre mí', contact: 'Contacto', menu: 'Secciones', skip: 'Saltar al contenido', lang: 'English', theme: 'Modo oscuro', home: 'Inicio' },
     hero: {
       thesis: 'Construyo sistemas con IA que se explican y se auditan.',
-      who: ['Vengo de 7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.'],
+      who: ['Vengo de más de 7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.'],
       summaryTitle: 'Resumen en 5 líneas',
       summary: [
         'Dennys Heras construye sistemas con IA que se explican y se auditan.',
-        'Viene de 7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.',
+        'Viene de más de 7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.',
         'En producción: un bot de Telegram para técnicos de ISP que encuentra la caja de red más cercana, y una plataforma de campeonatos de fútbol.',
         'Trabaja con agentes de IA que programan, bajo límites, con revisión automática y verificación humana.',
         'Contacto: dennys@dennysh.com, LinkedIn y GitHub (dennysh).',
@@ -373,7 +373,7 @@ export const site = {
       phrase: 'Un poco sobre mí.',
       offer: 'Software, automatizaciones, bots y agentes de IA para empresas.',
       cta: 'Escríbeme',
-      tagline: ['7 años en fibra óptica', 'Remoto · Español nativo · Inglés B1'],
+      tagline: ['Más de 7 años en fibra óptica', 'Remoto · Español nativo · Inglés B1'],
       bar: { cv: 'CV' },
       portraitAlt: 'Retrato de Dennys Heras',
       hint: 'Desliza',
@@ -385,7 +385,7 @@ export const site = {
       panels: {
         code: { title: 'Código', note: 'Datos reales: el conjunto de reglas público y el ejemplo de auditoría estático.', github: 'Ver en GitHub ↗', opens: 'abre una página nueva', go: 'Abrir Código →' },
         projects: { title: 'Trabajo en producción', text: 'Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente. Criden, para negocios y páginas web.', opens: 'abre una página nueva', go: 'Abrir Proyectos →' },
-        journey: { title: 'De la fibra a la IA', text: 'Siete años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', opens: 'abre una página nueva', go: 'Abrir Trayectoria →' },
+        journey: { title: 'De la fibra a la IA', text: 'Más de 7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', opens: 'abre una página nueva', go: 'Abrir Trayectoria →' },
         how: { title: 'Cómo trabajo', tabs: { people: 'Personas', machines: 'Máquinas' }, opens: 'abre una página nueva', go: 'Abrir Cómo trabajo →' },
         interest: {
           title: 'Sobre mí',
@@ -400,8 +400,8 @@ export const site = {
     interestPage: {
       back: 'Volver a la primera pantalla',
       title: 'Sobre mí',
-      intro: 'Hola, soy Dennys Heras. Vengo de siete años en redes de fibra óptica y desde ahí empecé a programar para resolver problemas reales. Hoy desarrollo software, sistemas automatizados, páginas web, bots y agentes de IA con control humano. Ahora mismo estoy construyendo Criden, una plataforma donde vendo páginas web y automatizaciones.',
-      description: 'Sobre Dennys Heras: siete años en redes de fibra óptica, hoy desarrolla software, automatizaciones, páginas web, bots y agentes de IA con control humano. Cómo contactarlo.',
+      intro: 'Hola, soy Dennys Heras. Vengo de más de 7 años en redes de fibra óptica y desde ahí empecé a programar para resolver problemas reales. Hoy desarrollo software, sistemas automatizados, páginas web, bots y agentes de IA con control humano. Ahora mismo estoy construyendo Criden, una plataforma donde vendo páginas web y automatizaciones.',
+      description: 'Sobre Dennys Heras: más de 7 años en redes de fibra óptica, hoy desarrolla software, automatizaciones, páginas web, bots y agentes de IA con control humano. Cómo contactarlo.',
       audio: { title: 'Escucha esta presentación', aiNote: 'Parte de este audio está dicha por una voz generada con IA.', fallback: 'Tu navegador no puede reproducir este audio.' },
       whatTitle: 'Qué hago',
       what: [
@@ -509,7 +509,7 @@ export const site = {
     journey: {
       title: 'Trayectoria',
       lines: [
-        '7 años en el campo trabajando con fibra óptica.',
+        'Más de 7 años en el campo trabajando con fibra óptica.',
         'Ahí me topé con problemas que el software podía resolver.',
         'Aprendí Python para resolverlos yo mismo.',
         'Hoy construyo sistemas con IA que se explican y se auditan.',

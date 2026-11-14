@@ -14,7 +14,7 @@ export const content = {
 
   hero: {
     title: 'Empecé en el campo. Ahora construyo el software que me hubiera gustado tener.',
-    subtitle: 'Técnico con 7 años en fibra óptica que aprendió a programar para resolver sus propios problemas. Hoy hago lo mismo para otros negocios.',
+    subtitle: 'Técnico con más de 7 años en fibra óptica que aprendió a programar para resolver sus propios problemas. Hoy hago lo mismo para otros negocios.',
     cta_primary: 'Ver proyecto destacado',
     cta_secondary: 'Descargar CV',
     cta_primary_href: '#proyecto',
@@ -23,7 +23,7 @@ export const content = {
 
   about: {
     title: 'Sobre mí',
-    intro: 'Llevo 7 años en el campo instalando y diagnosticando redes de fibra óptica. En ese tiempo vi de cerca todos los problemas que nadie había resuelto con software.',
+    intro: 'Llevo más de 7 años en el campo instalando y diagnosticando redes de fibra óptica. En ese tiempo vi de cerca todos los problemas que nadie había resuelto con software.',
     body1: 'Aprendí Python para resolverlos yo mismo. El primer bot que hice indexó 1,719 cajas de fibra y hoy lo usan técnicos reales en Ecuador.',
     body2: 'Eso es lo que hago ahora para otros negocios: entender el problema desde adentro y construir la herramienta que realmente lo resuelve.',
     stats: [

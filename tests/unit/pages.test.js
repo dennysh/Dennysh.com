@@ -174,7 +174,7 @@ describe('Sobre mí (encargo 2026-11-14): presentación, audio opcional, qué ha
       expect([...order].sort((a, b) => a - b)).toEqual(order)
     })
     it(`(${lang}) la presentación es el texto aprobado y siempre está visible`, () => {
-      expect(p.intro).toContain(lang === 'es' ? 'Hola, soy Dennys Heras. Vengo de siete años en redes de fibra óptica' : 'Hi, I\'m Dennys Heras. I come from seven years in fiber-optic networks')
+      expect(p.intro).toContain(lang === 'es' ? 'Hola, soy Dennys Heras. Vengo de más de 7 años en redes de fibra óptica' : 'Hi, I\'m Dennys Heras. I come from more than 7 years in fiber-optic networks')
       expect(out).toContain(`<p class="lead">${esc(p.intro)}</p>`)
       expect(c.home.panels.interest.text).toBe(lang === 'es' ? 'Quién soy, a qué me dedico y cómo contactarme.' : 'Who I am, what I do and how to reach me.') // la tarjeta no repite la presentación
       expect(c.home.panels.interest.text).not.toContain(p.intro.slice(0, 30))
