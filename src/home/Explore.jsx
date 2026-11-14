@@ -29,6 +29,7 @@ export default function Explore({ lang }) {
       const r = el.getBoundingClientRect()
       // Al llegar al final de la página no queda más scroll con el que seguir iluminando: la línea se completa (la maqueta se quedaba en ≈ .8).
       const end = scrollY + innerHeight >= document.documentElement.scrollHeight - 2
+      if (end) cards.forEach((c) => c.classList.add('on')) // con la tarjeta de Sobre mí más corta la última puede no alcanzar el umbral del observador: al final de la página todas están encendidas
       el.style.setProperty('--p', (end ? 1 : Math.min(1, Math.max(0, (innerHeight * .72 - r.top) / r.height))).toFixed(3))
     }
     let io = null
