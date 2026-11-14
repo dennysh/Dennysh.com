@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { stubTurnstile } from './helpers.js'
+import { stubTurnstile, setStoredTheme } from './helpers.js'
 
 // Formulario de contacto adaptativo (correcciones 2, D4) con la API simulada: el flujo completo, el teclado, Atrás, errores y el estado desactivado.
 const L = { es: { path: '/es/contacto/', web: 'Hacer una página web', bots: 'Automatizar con bots o IA', other: 'Otra cosa', next: 'Siguiente', back: 'Atrás', send: 'Enviar', sent: 'Mensaje enviado. Te responderé lo antes posible.' },
@@ -170,6 +170,7 @@ test.describe('sin JavaScript', () => {
 for (const scheme of ['light', 'dark']) {
   test.describe(`axe, tema ${scheme}`, () => {
     test.use({ colorScheme: scheme, reducedMotion: 'reduce' })
+    test.beforeEach(({ page }) => setStoredTheme(page, scheme))
     test('cada paso de la ruta web, con error visible y el estado enviado, sin violaciones (WCAG 2.2 AA)', async ({ page }) => {
       const { default: AxeBuilder } = await import('@axe-core/playwright')
       await mockContact(page)

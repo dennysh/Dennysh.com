@@ -30,3 +30,7 @@ export async function mockApi(page, handlers = {}) {
   })
   return calls
 }
+
+// El tema por defecto es oscuro y no depende del sistema (2026-11-14): para ver el claro hay que guardar la preferencia, como hace el interruptor.
+// `target` es una página o un contexto de Playwright; se llama antes de `goto`.
+export const setStoredTheme = (target, theme) => target.addInitScript((t) => { try { localStorage.setItem('theme', t) } catch { /* sin almacenamiento */ } }, theme)

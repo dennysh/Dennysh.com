@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { setStoredTheme } from './helpers.js'
 
 // Crítica Impeccable 1 (02-DOCS/critica-impeccable-1.md): lo que el CSS promete se mide en el navegador (estilos calculados, no texto de la hoja).
 const PAGES = ['/es/', '/en/', '/es/codigo/', '/es/proyectos/', '/es/trayectoria/', '/es/como-trabajo/', '/es/interes/', '/es/contacto/', '/en/contact/']
@@ -101,6 +102,7 @@ test('el enlace de salto del inicio tiene contraste suficiente con foco, en clar
   const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]) }
   for (const scheme of ['light', 'dark']) {
     const ctx = await browser.newContext({ colorScheme: scheme })
+    await setStoredTheme(ctx, scheme)
     const page = await ctx.newPage()
     await page.goto('/es/')
     await page.keyboard.press('Tab')
@@ -126,6 +128,7 @@ test('el brillo de fondo de las páginas interiores no baja el contraste del tex
   const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05)
   for (const scheme of ['light', 'dark']) {
     const ctx = await browser.newContext({ colorScheme: scheme })
+    await setStoredTheme(ctx, scheme)
     const page = await ctx.newPage()
     await page.goto('/es/interes/')
     const t = await page.evaluate(() => {
@@ -237,6 +240,7 @@ test.describe('anillo detrás del retrato (escritorio)', () => {
   for (const theme of ['light', 'dark']) {
     test(`1280×800 (${theme}): con un nodo señalado, el anillo queda por debajo del retrato; nodos, barra y panel por encima`, async ({ page }, info) => {
       await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: theme })
+      await setStoredTheme(page, theme)
       await page.setViewportSize({ width: 1280, height: 800 })
       await page.goto('/es/')
       await hydrated(page)
@@ -276,6 +280,7 @@ test.describe('primera pantalla sin Demo (escritorio)', () => {
   for (const theme of ['light', 'dark']) {
     test(`1280×800 (${theme}): cinco nodos, reposo sin tarjeta, tarjeta al señalar y de vuelta al reposo al salir`, async ({ page }, info) => {
       await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: theme })
+      await setStoredTheme(page, theme)
       await page.setViewportSize({ width: 1280, height: 800 })
       await page.goto('/es/')
       await hydrated(page)

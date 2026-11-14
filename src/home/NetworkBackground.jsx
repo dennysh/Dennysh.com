@@ -27,7 +27,6 @@ export default function NetworkBackground() {
     const ctx = cv?.getContext('2d')
     if (!on || !host || !ctx) return undefined
     const reduceMq = mq('(prefers-reduced-motion: reduce)')
-    const darkMq = mq('(prefers-color-scheme: dark)')
     const reduced = () => !!reduceMq?.matches
     const net = createNetwork()
     let rgb = FALLBACK_RGB, raf = 0, visible = true, dpr = 1
@@ -72,10 +71,9 @@ export default function NetworkBackground() {
     if (!ro) window.addEventListener('resize', resize)
     const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(([en]) => { visible = en.isIntersecting; start() }) : null
     io?.observe(host)
-    // El tema cambia con el interruptor (data-theme en <html>) o con el sistema.
+    // El tema cambia con el interruptor (data-theme en <html>); el sistema operativo ya no decide.
     const mo = new MutationObserver(retheme)
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
-    darkMq?.addEventListener('change', retheme)
     reduceMq?.addEventListener('change', start)
     return () => {
       stop()
@@ -84,7 +82,6 @@ export default function NetworkBackground() {
       document.removeEventListener('visibilitychange', start)
       ro?.disconnect(); io?.disconnect(); mo.disconnect()
       window.removeEventListener('resize', resize)
-      darkMq?.removeEventListener('change', retheme)
       reduceMq?.removeEventListener('change', start)
     }
   }, [on])

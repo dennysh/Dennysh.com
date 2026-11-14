@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { VIEW, HEAD_RECT, PORTRAIT_PX } from '../../src/home/geometry.js'
+import { setStoredTheme } from './helpers.js'
 
 // Red de fondo (trabajo A): canvas solo con puntero fino, detrás del retrato y de los nodos, sin cubrir cara ni cuerpo.
 const hydrated = (page) => page.waitForSelector('.first[data-js]')
@@ -92,10 +93,9 @@ test.describe('puntero fino (escritorio)', () => {
   })
 
   test('el color sale del acento del tema y reacciona al cambio de tema', async ({ page }) => {
+    await setStoredTheme(page, 'light') // claro por preferencia guardada (el oscuro es el tema por defecto)
     await page.goto('/es/')
     await hydrated(page)
-    await page.emulateMedia({ colorScheme: 'light' })
-    await page.evaluate(() => { document.documentElement.dataset.theme = 'light' })
     const box = await page.locator('.canvas').boundingBox()
     const dominant = () => page.evaluate(() => {
       const c = document.querySelector('canvas.net'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data

@@ -82,7 +82,7 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       const bar = /<div class="bar">[\s\S]*?<\/nav><\/div>/.exec(out)[0]
       expect(bar).toContain('/cv-dennys-heras.pdf')
       expect(bar).toContain(`hrefLang="${lang === 'es' ? 'en' : 'es'}"`)
-      expect(bar).toMatch(/<button[^>]*class="theme-toggle"[^>]*aria-pressed="false"[^>]*aria-label="[^"]+"/)
+      expect(bar).toMatch(/<button[^>]*class="theme-toggle"[^>]*aria-pressed="true"[^>]*aria-label="[^"]+"/)
       expect(bar).not.toMatch(/contact/i)
     })
     it(`(${lang}) Interés trae solo el pensamiento y ningún deporte ni marcador`, () => {

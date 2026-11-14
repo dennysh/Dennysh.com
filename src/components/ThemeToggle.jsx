@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { site } from '../content/site.js'
 
-const effective = () => {
-  const forced = document.documentElement.dataset.theme
-  if (forced === 'dark' || forced === 'light') return forced
-  return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
+// El tema por defecto es oscuro (no depende del sistema): solo es claro si /theme-init.js puso data-theme="light".
+const effective = () => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
+const THEME_COLOR = { dark: '#15130f', light: '#f6f3ee' }
 
-// Interruptor claro/oscuro (correcciones 1, C9). Por defecto sigue al sistema; el clic fuerza un tema y lo guarda (con try/catch).
+// Interruptor claro/oscuro. Parte en oscuro; el clic cambia el tema, lo guarda (con try/catch) y ajusta el color de la barra del navegador.
 export default function ThemeToggle({ lang }) {
-  const [dark, setDark] = useState(false)
+  const [dark, setDark] = useState(true) // igual que el HTML del servidor; el efecto corrige si la persona había elegido claro
   useEffect(() => setDark(effective() === 'dark'), [])
   const toggle = () => {
     const next = dark ? 'light' : 'dark'
     document.documentElement.dataset.theme = next
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_COLOR[next])
     try { localStorage.setItem('theme', next) } catch { /* sin almacenamiento: vale para esta visita */ }
     setDark(next === 'dark')
   }

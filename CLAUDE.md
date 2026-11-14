@@ -8,6 +8,8 @@ La primera pantalla lleva una red de fondo (canvas, solo escritorio con puntero 
 
 Trayectoria es una línea de tiempo con fotos opcionales (`src/components/Timeline.jsx`; las fotos se declaran en `src/content/journey-photos.js`, guía en `02-DOCS/guia-fotos-trayectoria.md`). Detalle: `docs/superpowers/specs/2026-11-09-trayectoria-linea-de-tiempo.md`.
 
+El tema por defecto es oscuro para todo visitante nuevo, sin mirar el sistema; el claro solo con la preferencia guardada (`data-theme="light"`). Detalle y cómo revertir: `docs/superpowers/specs/2026-11-14-tema-oscuro-por-defecto.md`.
+
 ## Knowledge map
 
 | Qué | Dónde |

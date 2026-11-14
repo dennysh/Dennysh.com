@@ -1,58 +1,9 @@
-/* Atmósfera cálida con dos temas (correcciones 1, C9). Claro por defecto; oscuro si el sistema lo pide o si la persona lo fuerza con el
-   interruptor (data-theme en <html>, que fija /theme-init.js antes de pintar). Todo el color y el espacio salen de estas variables.
-   Los textos usan --accent (contraste AA sobre el fondo del tema); --accent-line es solo para trazos y bordes decorativos.
-   Las dos paletas oscuras (media query y data-theme) deben ser idénticas: lo comprueba tests/unit/theme.test.js. */
+/* Atmósfera cálida con dos temas. OSCURO por defecto (decisión 2026-11-14, ver docs/superpowers/specs/2026-11-14-tema-oscuro-por-defecto.md):
+   todo visitante nuevo abre en oscuro, sin importar el tema de su sistema. El tema claro solo se aplica con data-theme="light" en <html>,
+   que fija /theme-init.js antes de pintar cuando la persona lo eligió con el interruptor. Sin JavaScript manda el oscuro.
+   Todo el color y el espacio salen de estas variables. Los textos usan --accent (contraste AA sobre el fondo del tema);
+   --accent-line es solo para trazos y bordes decorativos. Lo comprueba tests/unit/theme.test.js. */
 :root {
-  color-scheme: light;
-  --bg: #f6f3ee;
-  --surface: #ede7dc;
-  --text: #1b1a17;
-  --muted: #5f5a52;
-  --line: #d3cbbd;
-  --accent: #b3301d;
-  --accent-line: #e5432d;
-  --accent-ink: #ffffff;
-  --accent-soft: rgba(179, 48, 29, 0.1);
-  --amber: #d9822b;
-  --olive: #a9c58f;
-  --ok: #1d6b3d;
-  --warn: #8a5400;
-  --danger: #b3261e;
-  --code-bg: rgb(255 255 255 / .55);
-  --glow-core: rgba(229, 67, 45, .34);
-  --glow-mid: rgba(217, 130, 43, .22);
-  --glow-edge: rgba(232, 185, 61, .08);
-  --glow-side: rgb(169 197 143 / .28);
-  --radius: 10px;
-  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 40px; --space-7: 72px;
-  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #15130f;
-    --surface: #211e18;
-    --text: #f3efe7;
-    --muted: #c6beb0;
-    --line: #3b362d;
-    --accent: #ff8268;
-    --accent-line: #ff6a4d;
-    --accent-ink: #15130f;
-    --accent-soft: rgba(255, 130, 104, 0.14);
-    --amber: #e89a45;
-    --olive: #6f8c58;
-    --ok: #62d08c;
-    --warn: #f0b24a;
-    --danger: #ff8d85;
-    --code-bg: rgb(0 0 0 / .35);
-    --glow-core: rgba(255, 90, 60, .5);
-    --glow-mid: rgba(232, 140, 50, .34);
-    --glow-edge: rgba(240, 195, 70, .12);
-    --glow-side: rgb(111 140 88 / .22);
-  }
-}
-:root[data-theme="dark"] {
   color-scheme: dark;
   --bg: #15130f;
   --surface: #211e18;
@@ -73,4 +24,30 @@
   --glow-mid: rgba(232, 140, 50, .34);
   --glow-edge: rgba(240, 195, 70, .12);
   --glow-side: rgb(111 140 88 / .22);
+  --radius: 10px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 40px; --space-7: 72px;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f3ee;
+  --surface: #ede7dc;
+  --text: #1b1a17;
+  --muted: #5f5a52;
+  --line: #d3cbbd;
+  --accent: #b3301d;
+  --accent-line: #e5432d;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(179, 48, 29, 0.1);
+  --amber: #d9822b;
+  --olive: #a9c58f;
+  --ok: #1d6b3d;
+  --warn: #8a5400;
+  --danger: #b3261e;
+  --code-bg: rgb(255 255 255 / .55);
+  --glow-core: rgba(229, 67, 45, .34);
+  --glow-mid: rgba(217, 130, 43, .22);
+  --glow-edge: rgba(232, 185, 61, .08);
+  --glow-side: rgb(169 197 143 / .28);
 }

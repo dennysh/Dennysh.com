@@ -11,9 +11,10 @@ const block = (re) => {
   expect(m, String(re)).not.toBeNull()
   return Object.fromEntries([...m[1].matchAll(/(--[\w-]+):\s*([^;]+);/g)].map((x) => [x[1], x[2].trim()]))
 }
-const light = block(/:root \{([^}]*)\}/)
-const darkMedia = block(/@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme="light"\]\) \{([^}]*)\}/)
-const darkForced = block(/:root\[data-theme="dark"\] \{([^}]*)\}/)
+// Oscuro es el tema por defecto (":root"); el claro solo se aplica con data-theme="light" (decisión 2026-11-14).
+const darkForced = block(/:root \{([^}]*)\}/)
+const light = { ...darkForced, ...block(/:root\[data-theme="light"\] \{([^}]*)\}/) }
+const lightOnly = block(/:root\[data-theme="light"\] \{([^}]*)\}/)
 
 // Contraste WCAG 2.x. `over` mezcla un color con alfa sobre el fondo (peor caso del brillo detrás del retrato).
 const rgb = (c) => {
@@ -26,24 +27,29 @@ const over = (fg, bg) => { const a = alpha(fg); const f = rgb(fg); const b = rgb
 const lum = (c) => rgb(c).map((v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4 }).reduce((t, v, i) => t + v * [0.2126, 0.7152, 0.0722][i], 0)
 const contrast = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + 0.05) / (y + 0.05) }
 
-describe('tokens de tema (C9): claro, oscuro por sistema y oscuro forzado', () => {
-  it('las dos paletas oscuras (media query y data-theme) son idénticas y completas', () => {
-    const dm = darkMedia
-    expect(Object.keys(darkForced).sort()).toEqual(Object.keys(darkMedia).sort())
-    expect(darkMedia).toEqual(darkForced)
-    expect(dm['--bg']).toBeDefined()
-    // todo lo que cambia entre temas existe en el tema claro (si no, el claro heredaría un valor oscuro)
-    for (const k of Object.keys(darkForced)) expect(Object.keys(light), k).toContain(k)
+describe('tokens de tema: oscuro por defecto, claro solo con data-theme="light"', () => {
+  it('el tema claro redefine todos los colores del oscuro (si no, heredaría un valor oscuro)', () => {
+    const colorKeys = Object.keys(darkForced).filter((k) => !['--radius', '--font-sans', '--font-mono'].includes(k) && !k.startsWith('--space-'))
+    for (const k of colorKeys) expect(Object.keys(lightOnly), k).toContain(k)
+    expect(darkForced['--bg']).toBeDefined()
   })
-  it('el tema oscuro sí es oscuro y el claro es claro; cada uno declara su color-scheme', () => {
+  it('el tema por defecto es oscuro y el claro es claro; cada uno declara su color-scheme', () => {
     expect(lum(darkForced['--bg'])).toBeLessThan(0.05)
-    expect(lum(light['--bg'])).toBeGreaterThan(0.8)
-    expect(/:root \{\s*color-scheme: light;/.test(css)).toBe(true)
-    expect(/:root:not\(\[data-theme="light"\]\) \{\s*color-scheme: dark;/.test(css)).toBe(true)
-    expect(/:root\[data-theme="dark"\] \{\s*color-scheme: dark;/.test(css)).toBe(true)
+    expect(lum(lightOnly['--bg'])).toBeGreaterThan(0.8)
+    expect(/:root \{\s*color-scheme: dark;/.test(css)).toBe(true)
+    expect(/:root\[data-theme="light"\] \{\s*color-scheme: light;/.test(css)).toBe(true)
   })
-  it('el media query respeta la elección explícita de claro (no pisa data-theme="light")', () => {
-    expect(css).toMatch(/@media \(prefers-color-scheme: dark\) \{\s*:root:not\(\[data-theme="light"\]\)/)
+  it('el sistema operativo no decide el tema: no hay ninguna media query prefers-color-scheme', () => {
+    expect(css).not.toMatch(/prefers-color-scheme/)
+    expect(css).not.toMatch(/:not\(\[data-theme/)
+  })
+  it('index.html (y con él la 404 y las páginas legales) declara el oscuro: color-scheme y un solo theme-color', () => {
+    const html = readFileSync('index.html', 'utf8')
+    expect(html).toContain('<meta name="color-scheme" content="dark" />')
+    expect(html.match(/<meta name="theme-color"[^>]*>/g)).toEqual(['<meta name="theme-color" content="#15130f" />'])
+    expect(html).not.toMatch(/prefers-color-scheme/)
+    expect(darkForced['--bg']).toBe('#15130f') // el theme-color es el fondo del tema oscuro
+    expect(lightOnly['--bg']).toBe('#f6f3ee')
   })
   for (const [name, t] of [['claro', light], ['oscuro', darkForced]]) {
     it(`contraste AA en el tema ${name}: texto, apagado, acento, botones y estados sobre fondo y superficie`, () => {
@@ -97,8 +103,9 @@ describe('brillo detrás del retrato (C8): el del boceto aprobado', () => {
 
 describe('/theme-init.js (aplica la preferencia guardada antes de pintar)', () => {
   const src = readFileSync('public/theme-init.js', 'utf8')
-  const run = (storage) => {
-    const doc = { documentElement: { dataset: {} } }
+  const meta = () => { const m = { c: '#15130f', setAttribute(k, v) { if (k === 'content') m.c = v } }; return m }
+  const run = (storage, m = meta()) => {
+    const doc = { documentElement: { dataset: {} }, querySelector: (s) => (s === 'meta[name="theme-color"]' ? m : null) }
     vm.runInNewContext(src, { document: doc, localStorage: storage })
     return doc.documentElement.dataset.theme
   }
@@ -106,9 +113,14 @@ describe('/theme-init.js (aplica la preferencia guardada antes de pintar)', () =
     expect(run({ getItem: () => 'dark' })).toBe('dark')
     expect(run({ getItem: () => 'light' })).toBe('light')
   })
-  it('sin valor, o con un valor raro, no fuerza nada (sigue al sistema)', () => {
+  it('sin valor, o con un valor raro, no fuerza nada (queda el oscuro por defecto)', () => {
     expect(run({ getItem: () => null })).toBeUndefined()
     expect(run({ getItem: () => 'rojo' })).toBeUndefined()
+  })
+  it('con "light" guardado, el theme-color de la barra del navegador pasa al fondo claro; con "dark" o sin valor se queda oscuro', () => {
+    const l = meta(); run({ getItem: () => 'light' }, l); expect(l.c).toBe('#f6f3ee')
+    const d = meta(); run({ getItem: () => 'dark' }, d); expect(d.c).toBe('#15130f')
+    const n = meta(); run({ getItem: () => null }, n); expect(n.c).toBe('#15130f')
   })
   it('con el almacenamiento bloqueado no lanza ni fuerza nada', () => {
     expect(run({ getItem: () => { throw new Error('SecurityError') } })).toBeUndefined()
@@ -125,7 +137,8 @@ describe('interruptor de tema', () => {
   it('es un botón con aria-pressed y etiqueta accesible, con icono SVG en línea oculto a lectores', () => {
     for (const [lang, label] of [['en', 'Dark mode'], ['es', 'Modo oscuro']]) {
       const out = renderToString(React.createElement(ThemeToggle, { lang }))
-      expect(out).toMatch(/^<button type="button" class="theme-toggle" aria-pressed="false" aria-label="[^"]+"/)
+      // El tema por defecto es oscuro: el HTML del servidor ya sale pulsado.
+      expect(out).toMatch(/^<button type="button" class="theme-toggle" aria-pressed="true" aria-label="[^"]+"/)
       expect(out).toContain(`aria-label="${label}"`)
       expect(out).toMatch(/<svg aria-hidden="true"/)
       expect(out).not.toMatch(/<img|\.png|\.svg/)

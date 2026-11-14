@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { setStoredTheme } from './helpers.js'
 
 // Trayectoria como línea de tiempo (trabajo B). La compilación e2e declara fotos de relleno solo en Fibratelecom (2) y MS@Net (1);
 // el resto de las entradas no tiene, así que cada prueba ve a la vez entradas con y sin fotos.
@@ -148,10 +149,11 @@ test('Presente: el indicador de la entrada actual se distingue; al pasar el punt
   const op = () => page.locator('.tl-item').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity))
   await item(page, 4).hover()
   expect((await op()).every((o) => o === '1')).toBe(true)
-  const c = await item(page, 4).locator('.tl-title').evaluate((e) => getComputedStyle(e).color)
+  // El título pasa al acento con una transición de 0,2 s: se espera a que termine en vez de leer el color a medio camino (prueba intermitente).
+  const color = (i) => item(page, i).locator('.tl-title').evaluate((e) => getComputedStyle(e).color)
   const accent = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim())
   expect(accent).toMatch(/^#/)
-  expect(c).not.toBe(await item(page, 5).locator('.tl-title').evaluate((e) => getComputedStyle(e).color))
+  await expect.poll(async () => (await color(4)) !== (await color(5))).toBe(true)
 })
 
 test('movimiento reducido: sin transiciones en la línea de tiempo', async ({ page }) => {
@@ -177,6 +179,7 @@ for (const scheme of ['light', 'dark']) {
   for (const lang of ['es', 'en']) {
     test.describe(`axe y contraste (${lang}, tema ${scheme})`, () => {
       test.use({ colorScheme: scheme, reducedMotion: 'reduce' })
+      test.beforeEach(({ page }) => setStoredTheme(page, scheme))
       test('la página y el diálogo abierto no tienen violaciones WCAG 2.2 AA; el texto mide AA', async ({ page }) => {
         const { default: AxeBuilder } = await import('@axe-core/playwright')
         await page.setViewportSize({ width: 1280, height: 800 })
