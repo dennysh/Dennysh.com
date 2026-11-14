@@ -64,6 +64,7 @@ export default function MobileNetwork({ hostRef }) {
       stop()
       syncVisible()
       if (!reduce() || !visible || document.hidden) { cancelAnimationFrame(pending); pending = 0 } // un dibujo pendiente no convive con el bucle ni con la pausa
+      if (reduce() && visible && !document.hidden) draw() // al reanudar con movimiento reducido el lienzo se vuelve a pintar
       if (reduce() || !visible || document.hidden) return
       last = performance.now()
       raf = requestAnimationFrame(loop)
@@ -110,7 +111,7 @@ export default function MobileNetwork({ hostRef }) {
     io?.observe(host)
     // Sin IntersectionObserver la visibilidad se calcula con el scroll (la animación no sigue fuera de pantalla).
     const onScroll = () => { if (syncVisible()) start() }
-    if (!io) window.addEventListener('scroll', onScroll, { passive: true })
+    if (!io) { window.addEventListener('scroll', onScroll, { passive: true }); window.addEventListener('resize', onScroll) }
     const mo = new MutationObserver(retheme)
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
     reduceMq?.addEventListener('change', start)
@@ -125,7 +126,7 @@ export default function MobileNetwork({ hostRef }) {
       document.removeEventListener('visibilitychange', start)
       ro?.disconnect(); io?.disconnect(); mo.disconnect()
       window.removeEventListener('resize', measure)
-      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll)
       reduceMq?.removeEventListener('change', start)
     }
   }, [mounted, cv, hostRef])
