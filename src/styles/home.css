@@ -27,7 +27,7 @@
 .node-icon { width: 56px; height: 56px; padding: 14px; border-radius: 50%; background: var(--bg); border: .8px solid var(--line); flex: none; }
 .node-link[aria-expanded="true"] { color: var(--accent); }
 .node-link[aria-expanded="true"] .node-icon { border-color: var(--accent-line); }
-h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; }
+h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; text-wrap: balance; }
 .tagline { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .12em; color: var(--muted); line-height: 1.6; }
 
 .panel { --panel-pad-y: 14px; background: var(--surface); border-radius: 12px; padding: var(--panel-pad-y) 16px; display: none; }

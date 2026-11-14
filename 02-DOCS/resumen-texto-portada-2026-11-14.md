@@ -22,3 +22,7 @@ Encargo pequeño de Dennys. Sobre main 05a7b18, un commit aparte, sin push.
 ## Revisión visual
 - Móvil 390×844 y 360×640: h1 en 3 líneas, la línea de datos cabe en una línea sin huérfanas, retrato intacto.
 - Escritorio 1440×900: línea de datos bien. El h1 en español queda en 3 líneas con «minutos.» sola en la última. Es el ajuste natural de la frase nueva; arreglarlo pide CSS (`text-wrap: balance`) y quedó fuera del alcance. Pendiente de decisión de Dennys.
+
+## Seguimiento: h1 balanceado en escritorio
+- `src/styles/home.css`: `text-wrap: balance` en la regla base de `h1#hero-h` (en móvil ya estaba). En 1440×900 el h1 en español queda «Te cuento lo que / hago en unos / pocos minutos.», sin palabra suelta.
+- Compuertas: vitest 1051/1051, e2e 75/75, `verify.sh` verde. Astra aprueba el diff (la primera pasada rechazó solo por el `.rsc.json` ajeno del árbol, que no entra en el commit).
