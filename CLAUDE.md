@@ -10,6 +10,8 @@ Trayectoria es una línea de tiempo con fotos opcionales (`src/components/Timeli
 
 El tema por defecto es oscuro para todo visitante nuevo, sin mirar el sistema; el claro solo con la preferencia guardada (`data-theme="light"`). Detalle y cómo revertir: `docs/superpowers/specs/2026-11-14-tema-oscuro-por-defecto.md`.
 
+En móvil (≤ 760 px) la primera pantalla es una landing vertical: Dennys con una red propia (`network-mobile.js`, `MobileNetwork.jsx`) y, debajo, «Explorar» con cinco tarjetas sobre una línea de fibra (`Explore.jsx`). La lógica común de las dos redes está en `src/home/net-core.js`. Detalle: `docs/superpowers/specs/2026-11-14-movil-landing-vertical.md`.
+
 ## Knowledge map
 
 | Qué | Dónde |
