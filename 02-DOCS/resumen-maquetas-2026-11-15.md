@@ -10,7 +10,7 @@ Dos commits locales en `main`, sin push.
 - Alt actualizado (ejemplo con datos de muestra, sin cifras).
 - Pruebas unitarias y e2e de Sobre mí actualizadas (sin marco, ancho 340–420, lado a lado en escritorio, una por fila en móvil).
 
-## 2. «Más de 7 años»
+## 2. «Más de 8 años»
 - `src/content/site.js` (es/en): resumen, quién soy, tagline de la portada, tarjeta de Trayectoria, intro y descripción de Sobre mí, línea de tiempo. De ahí salen solos los meta (title/og/description), llms.txt, dennys.json y JSON-LD. Revisado en `dist`: no queda «7 años», «siete años» ni «seven years» sin «más de / more than».
 - `src/data/content.js` (copia sin uso) también. Pruebas que fijaban el texto, actualizadas.
 - Las specs históricas en `docs/` no se tocaron (reflejan lo decidido en su fecha).
@@ -21,3 +21,6 @@ Dos commits locales en `main`, sin push.
 
 ## Capturas (`02-DOCS/evidencia/`)
 `maquetas-sobre-mi-es-{390,1440}-{oscuro,claro}.png`, `maquetas-portada-es-{390,1440}-oscuro.png`.
+
+## 3. Corrección: «Más de 8 años»
+Por decisión de Dennys la cifra pasa de «Más de 7 años» a «Más de 8 años» (es) y de «More than 7 years» a «More than 8 years» (en) en `site.js`, `content.js` y las pruebas que la fijan (meta, llms.txt, dennys.json y JSON-LD salen de `site.js`); vitest 1074 verdes, e2e first-screen y sections 91 verdes, y la línea de datos de la portada sigue en dos líneas sin huérfanas en 390×844, 360×640 y 1440×900 (es y en).

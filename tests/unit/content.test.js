@@ -29,12 +29,12 @@ describe('contenido bilingüe (spec §3, §9)', () => {
     expect(all).not.toMatch(/\b\d+\s?%/)
     expect(all).not.toMatch(/clientes? (satisfech|reales)|years of experience in AI/i)
   })
-  it('los únicos números son los más de 7 años de fibra óptica y el año 2025 del bot (verificados por Dennys)', () => {
+  it('los únicos números son los más de 8 años de fibra óptica y el año 2025 del bot (verificados por Dennys)', () => {
     // El formulario de contacto lleva rangos de presupuesto neutros (USD) y plazos, que el spec pide: se prueban aparte.
     // La línea de tiempo de Trayectoria lleva las fechas del CV público: sus números se prueban aparte (más abajo).
     const noForm = (c) => { const { contactForm, journeyPage, ...rest } = c; return { ...rest, journeyPage: { ...journeyPage, timeline: undefined } } }
     const digits = walk([noForm(site.en), noForm(site.es)]).join(' ').match(/\b\d{1,4}\b/g) ?? []
-    expect(digits.filter((d) => !['2026', '2025', '5', '7', '27'].includes(d))).toEqual([])
+    expect(digits.filter((d) => !['2026', '2025', '5', '8', '27'].includes(d))).toEqual([])
   })
   it('cada estado de trabajo que existe está en la tabla de estados (Criden no declara estado: no consta)', () => {
     for (const lang of ['en', 'es']) for (const it of site[lang].work.items) if (it.status) expect(Object.keys(site[lang].work.status)).toContain(it.status)
@@ -113,11 +113,11 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
     expect(site.es.home.phrase).toBe('Un poco sobre mí.')
     expect(site.en.home.phrase).toBe('A little of what I do, in a few minutes.')
   })
-  it('una sola línea de origen bajo el titular: más de 7 años de fibra óptica, en campo; la fibra no es una etiqueta', () => {
+  it('una sola línea de origen bajo el titular: más de 8 años de fibra óptica, en campo; la fibra no es una etiqueta', () => {
     for (const lang of ['es', 'en']) {
       const who = site[lang].hero.who
       expect(who).toHaveLength(1)
-      expect(who[0]).toMatch(lang === 'es' ? /más de 7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo/ : /more than 7 years in fiber-optic networks, where things have to work in the field/)
+      expect(who[0]).toMatch(lang === 'es' ? /más de 8 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo/ : /more than 8 years in fiber-optic networks, where things have to work in the field/)
     }
   })
   it('nada de técnico de telecomunicaciones ni de tono visionario fuera de Contacto', () => {
@@ -252,11 +252,11 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
     expect(es.projects.text).toBe('Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente. Criden, para negocios y páginas web.')
     expect(es).not.toHaveProperty('demo')
     expect(es.journey.title).toBe('De la fibra a la IA')
-    expect(es.journey.text).toBe('Más de 7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.')
+    expect(es.journey.text).toBe('Más de 8 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.')
   })
-  it('las líneas mono del Hero: más de 7 años en fibra óptica y perfil confirmado', () => {
-    expect(site.es.home.tagline).toEqual(['Más de 7 años en fibra óptica', 'Remoto · Español nativo · Inglés B1'])
-    expect(site.en.home.tagline).toEqual(['More than 7 years in fiber optics', 'Remote · Spanish native · English B1'])
+  it('las líneas mono del Hero: más de 8 años en fibra óptica y perfil confirmado', () => {
+    expect(site.es.home.tagline).toEqual(['Más de 8 años en fibra óptica', 'Remoto · Español nativo · Inglés B1'])
+    expect(site.en.home.tagline).toEqual(['More than 8 years in fiber optics', 'Remote · Spanish native · English B1'])
   })
   it('Sobre mí (antes Interés): la tarjeta lleva la presentación; el pensamiento cerebro–IA vive solo en su sección final; ningún deporte (C6, Dennys 2026-11-01)', () => {
     for (const lang of ['en', 'es']) {
