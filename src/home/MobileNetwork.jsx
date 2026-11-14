@@ -48,7 +48,7 @@ export default function MobileNetwork({ hostRef }) {
     const readColor = () => { rgb = accentRgb(getComputedStyle(document.documentElement).getPropertyValue('--accent')) ?? FALLBACK_RGB }
     // Con movimiento reducido solo se dibuja por eventos (tocar, arrastrar, tema, tamaño): se juntan en un único dibujo por cuadro del navegador.
     let pending = 0
-    const draw = () => { if (!pending) pending = requestAnimationFrame(() => { pending = 0; net.frame(ctx, performance.now(), .016, rgb, true) }) }
+    const draw = () => { if (!pending) pending = requestAnimationFrame(() => { pending = 0; if (reduce()) net.frame(ctx, performance.now(), .016, rgb, true) }) } // si la preferencia cambió entre tanto, el bucle normal manda
     const stop = () => { cancelAnimationFrame(raf); raf = 0 }
     const dispose = () => { stop(); cancelAnimationFrame(pending); pending = 0 }
     const loop = (t) => {
@@ -57,8 +57,11 @@ export default function MobileNetwork({ hostRef }) {
       if (acc < 1 / P.fps) return // tope estricto de cuadros por segundo (30) para cuidar la batería
       net.frame(ctx, t, acc, rgb, false); acc = 0
     }
+    const hasIO = typeof IntersectionObserver === 'function'
     const start = () => {
       stop()
+      if (!hasIO) { const r = host.getBoundingClientRect(); visible = r.bottom > 0 && r.top < innerHeight } // sin observer se calcula aquí (montaje, scroll, tamaño)
+      if (!reduce()) { cancelAnimationFrame(pending); pending = 0 } // un dibujo por evento pendiente no convive con el bucle normal
       if (reduce() || !visible || document.hidden) return
       last = performance.now()
       raf = requestAnimationFrame(loop)
@@ -100,10 +103,10 @@ export default function MobileNetwork({ hostRef }) {
     const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(measure) : null
     ro?.observe(host)
     if (!ro) window.addEventListener('resize', measure)
-    const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(([en]) => { visible = en.isIntersecting; start() }, { threshold: 0 }) : null
+    const io = hasIO ? new IntersectionObserver(([en]) => { visible = en.isIntersecting; start() }, { threshold: 0 }) : null
     io?.observe(host)
     // Sin IntersectionObserver la visibilidad se calcula con el scroll (la animación no sigue fuera de pantalla).
-    const onScroll = () => { const r = host.getBoundingClientRect(), v = r.bottom > 0 && r.top < innerHeight; if (v !== visible) { visible = v; start() } }
+    const onScroll = () => start()
     if (!io) window.addEventListener('scroll', onScroll, { passive: true })
     const mo = new MutationObserver(retheme)
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
