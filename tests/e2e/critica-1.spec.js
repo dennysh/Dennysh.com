@@ -74,7 +74,7 @@ for (const [label, vp, min] of [['móvil 390×844', { width: 390, height: 844 },
       for (const path of PAGES) {
         await page.goto(path)
         await page.waitForLoadState('networkidle')
-        if (path.includes('contact')) await expect(page.locator(enabled ? 'form[data-contact-form]' : '[data-contact-form="disabled"]')).toBeVisible()
+        if (path.includes('contact')) await expect(page.locator(enabled ? 'form[data-contact-form]' : '[data-contact-form="disabled"]')).toBeAttached()
         const found = await page.evaluate((m) => [...document.querySelectorAll('a[href], button, summary, input:not([type=hidden]), select, textarea')]
           // radios y casillas: el objetivo es la etiqueta que los envuelve, no el círculo de 20 px
           .map((e) => (e.matches('input[type=radio], input[type=checkbox]') && e.closest('label') ? e.closest('label') : e))
@@ -163,8 +163,8 @@ test('las reglas no tienen pestaña lateral y un aviso "por confirmar" no parece
   await page.goto('/es/como-trabajo/')
   const r = await page.locator('.rules li').first().evaluate((e) => { const c = getComputedStyle(e); return [c.borderLeftWidth, c.borderRightWidth, c.borderTopWidth] })
   expect(new Set(r).size).toBe(1) // el borde izquierdo mide lo mismo que los demás
-  await page.goto('/es/contacto/')
-  const pend = await page.locator('.pending').first().evaluate((e) => { const c = getComputedStyle(e); return { style: c.borderTopStyle, bg: c.backgroundColor, bottom: c.borderBottomStyle } })
+  // Contacto ya no lleva ningún «por confirmar»: se mide el estilo de la clase con un elemento de prueba.
+  const pend = await page.evaluate(() => { const e = document.createElement('span'); e.className = 'pending'; document.body.appendChild(e); const c = getComputedStyle(e); return { style: c.borderTopStyle, bg: c.backgroundColor, bottom: c.borderBottomStyle } })
   expect(pend.style).not.toBe('dashed')
   expect(pend.bottom).not.toBe('dashed')
   expect(pend.bg).toBe('rgba(0, 0, 0, 0)')

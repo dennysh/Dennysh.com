@@ -123,22 +123,27 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       expect(out.indexOf(esc(lt.thought))).toBe(out.lastIndexOf(esc(lt.thought)))
       expect(out).not.toMatch(/jiu|triat|triath|obst[aá]cul|obstacle|deporte|sport/i)
     })
-    it(`(${lang}) Contacto: la sección completa (correo, LinkedIn, GitHub, CV, rol, interés, ubicación, idiomas, disponibilidad)`, () => {
+    it(`(${lang}) Contacto: la sección completa (correo y WhatsApp juntos, LinkedIn, GitHub, CV, rol, ubicación, idiomas); sin disponibilidad, sin interés a largo plazo y sin aviso de formulario`, () => {
       const out = render(ContactPage, lang).replace(/<!-- -->/g, '')
       const k = c.contact
-      for (const t of [k.role, k.interest, k.languages, k.cv, k.linkedin, k.github]) expect(out).toContain(esc(t))
+      for (const t of [k.role, k.languages, k.cv, k.linkedin, k.github, c.contactPage.lead]) expect(out).toContain(esc(t))
       expect(out).toContain(`${esc(k.location)} · ${k.timezone}`)
       expect(out).toContain(`href="${links.email}"`)
-      expect(out).toContain('data-pending="P-09"')
+      expect(out).not.toMatch(/data-pending|por confirmar|to be confirmed|Cuándo puedo empezar|When I can start/)
+      expect(out).not.toMatch(/cerebro|brain|largo plazo|long-term/i) // «Interés a largo plazo» vive una sola vez, al final de Sobre mí
+      // correo y WhatsApp en el mismo bloque, el correo primero, y la frase ya no dice que el correo es «la forma más directa»
+      const block = out.slice(out.indexOf('class="contact-direct"'), out.indexOf('<h2', out.indexOf('class="contact-direct"')))
+      expect(block.indexOf('href="mailto:')).toBeGreaterThan(-1)
+      expect(block.indexOf('href="mailto:')).toBeLessThan(block.indexOf('wa.me'))
+      expect(block).toContain(esc(c.contactPage.lead))
       // WhatsApp junto al correo (encargo 2026-11-14): pestaña nueva, noopener noreferrer, sin número a la vista
       expect(out).toContain('<a class="btn btn-secondary" href="https://wa.me/593960664347" target="_blank" rel="noopener noreferrer"')
       expect(out.match(/href="mailto:/g)).toHaveLength(2) // la barra de pie y el correo de la página; el botón de correo sigue siendo único en el cuerpo (C-01)
       expect(out).toContain(`aria-label="${esc(c.contactPage.buttons.whatsappLabel)}"`)
       expect(out.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ')).not.toMatch(/593960664347|960664347/)
       expect(c.contactPage.buttons).toEqual({ email: c.interestPage.contact.email, whatsapp: c.interestPage.contact.whatsapp, whatsappLabel: c.interestPage.contact.whatsappLabel })
-      expect(out).toContain(`${esc(k.availabilityLabel)}: <span class="pending" data-pending="P-09"`) // el aviso "por confirmar" lleva su etiqueta
-      expect(out).toContain(esc(c.contactForm.leadOff)) // sin JS el formulario no está: no se promete
-      expect(out).not.toContain(esc(c.contactForm.lead))
+      expect(out).not.toContain(esc(c.contactForm.lead)) // sin JS el formulario no está: no se promete, y tampoco se avisa de que falta
+      expect(out).not.toMatch(/no está disponible|not available/i)
     })
   }
 })

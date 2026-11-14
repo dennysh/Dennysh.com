@@ -47,17 +47,17 @@ async function walk(c, intent) {
 }
 
 describe('degradación: sin JavaScript, mientras comprueba y desactivado', () => {
-  it('el HTML del servidor muestra el enlace de correo y no el formulario', () => {
+  it('el HTML del servidor no pinta ni formulario ni aviso (solo un marcador oculto): los botones de la página bastan', () => {
     for (const lang of ['es', 'en']) {
       const html = renderToString(React.createElement(ContactForm, { lang }))
-      expect(html).toContain(`href="${links.email}"`); expect(html).toContain(site[lang].contactForm.fallback)
-      expect(html).not.toMatch(/<form|<input|<button/); expect(html).not.toMatch(/\sstyle="/)
+      expect(html).toContain('hidden=""'); expect(html).toContain('data-contact-form="pending"')
+      expect(html).not.toContain('mailto:'); expect(html).not.toMatch(/\sstyle="|<form|<input|<button|<a /); expect(html.replace(/<[^>]+>/g, '')).toBe('')
     }
   })
-  it('servidor desactivado, caído o con respuesta rara → enlace de correo con el aviso', async () => {
+  it('servidor desactivado, caído o con respuesta rara → no se pinta el formulario ni ningún aviso de que falta', async () => {
     const { c } = await mount('es', { enabled: false })
-    expect(c.container.textContent).toContain(site.es.contactForm.disabled)
-    expect(c.container.querySelector(`a[href="${links.email}"]`)).not.toBeNull()
+    expect(c.container.textContent).toBe('')
+    expect(c.container.querySelector('[data-contact-form="disabled"]')).not.toBeNull()
     expect(form(c)).toBeNull()
   })
   it('el cliente real: cualquier fallo de red o respuesta que no sea {enabled:true} cuenta como desactivado', async () => {
@@ -209,19 +209,14 @@ describe('envío y respuestas del servidor', () => {
       if (kind === 'unavailable') expect(c.container.querySelector(`.cf-error a[href="${links.email}"]`)).not.toBeNull()
     })
   }
-  it('apagado: el texto no promete pasos y el correo es un único botón principal; encendido: sí lleva el texto de pasos', async () => {
+  it('apagado: no se promete nada ni se pinta ningún enlace; encendido: sí lleva el texto de pasos', async () => {
     for (const lang of ['es', 'en']) {
       const off = await mount(lang, { enabled: false })
-      const text = off.c.container.textContent
-      expect(text).toContain(site[lang].contactForm.leadOff)
-      expect(text).not.toContain(site[lang].contactForm.lead)
-      const cta = off.c.container.querySelectorAll('a.btn.btn-primary[href^="mailto:"]')
-      expect(cta).toHaveLength(1)
-      expect(off.c.container.querySelectorAll('a[href^="mailto:"]')).toHaveLength(1)
+      expect(off.c.container.textContent).toBe('')
+      expect(off.c.container.querySelectorAll('a')).toHaveLength(0)
       cleanup()
       const on = await mount(lang)
       expect(on.c.container.textContent).toContain(site[lang].contactForm.lead)
-      expect(on.c.container.textContent).not.toContain(site[lang].contactForm.leadOff)
       cleanup()
     }
   })
@@ -229,7 +224,7 @@ describe('envío y respuestas del servidor', () => {
     const { c } = await toSend('en', { result: { ok: false, kind: 'disabled' } })
     await act(async () => { next(c) })
     await waitFor(() => expect(c.container.querySelector('[data-contact-form="disabled"]')).not.toBeNull())
-    expect(c.container.textContent).toContain(site.en.contactForm.disabled)
+    expect(c.container.textContent).toBe('')
   })
   it('si Turnstile falla no se envía nada y se avisa', async () => {
     const { c, client } = await toSend('es', { getToken: async () => { throw new Error('turnstile') } })

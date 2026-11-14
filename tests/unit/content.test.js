@@ -11,7 +11,7 @@ const walk = (n, out = []) => {
   return out
 }
 // Interés (panel y página) es el único lugar con el pensamiento cerebro–IA; Contacto lo menciona como interés.
-const nonInterest = (c) => { const { contact, interestPage, ...rest } = c; return { ...rest, home: { ...rest.home, panels: { ...rest.home.panels, interest: undefined } } } }
+const nonInterest = (c) => { const { interestPage, ...rest } = c; return { ...rest, home: { ...rest.home, panels: { ...rest.home.panels, interest: undefined } } } }
 const shape = (n) => (Array.isArray(n) ? n.map(shape) : n && typeof n === 'object' && !isPending(n) ? Object.fromEntries(Object.entries(n).map(([k, v]) => [k, shape(v)])) : isPending(n) ? 'P' : typeof n)
 
 describe('contenido bilingüe (spec §3, §9)', () => {
@@ -147,17 +147,14 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
     expect(resumeJson().projects.map((p) => p.name).join(' ')).toMatch(/Super Gol Kids/)
     expect(resumeJson().projects.map((p) => p.name).join(' ')).toMatch(/Naunturia/)
   })
-  it('la frase IA y cerebro solo vive en Contacto y en el nodo Interés (D-H5, spec 2026-10-31), como interés', () => {
+  it('la frase IA y cerebro solo vive en «Sobre mí» (D-H5; Contacto la quitó el 2026-11-14), como interés', () => {
     for (const lang of ['es', 'en']) {
       const { contact } = site[lang]
       expect(walk(nonInterest(site[lang])).join(' ')).not.toMatch(/cerebro|brain/i)
       const th = site[lang].interestPage.longTerm.thought
       expect(th).toMatch(/cerebro|brain/i)
       expect(th).toMatch(lang === 'es' ? /una idea, no una capacidad/i : /an idea, not a capability/i)
-      const i = contact.interest
-      expect(i).toMatch(/cerebro|brain/i)
-      expect(i).toMatch(lang === 'es' ? /interés/i : /interest/i)
-      expect(i.length).toBeLessThan(120)
+      expect(contact).not.toHaveProperty('interest')
       expect(contact.role).not.toMatch(/cerebro|brain/i)
     }
   })
@@ -175,16 +172,15 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
       expect(all).not.toMatch(/(constru[ií]|desarroll[eé]|logr[eé]|demostr|built|developed|achieved|proved|demonstrated)[^.]*(cerebro|brain|neuro)/i)
     }
   })
-  it('ubicación, idiomas y zona horaria son datos confirmados por Dennys (2026-10-30); solo la disponibilidad sigue pendiente', () => {
+  it('ubicación, idiomas y zona horaria son datos confirmados por Dennys (2026-10-30); la disponibilidad se quitó de Contacto (2026-11-14: no hay dato real)', () => {
     const en = site.en.contact; const es = site.es.contact
     expect(en.location).toMatch(/remote/i); expect(en.location).toMatch(/anywhere|worldwide|any/i)
     expect(es.location).toMatch(/remoto/i)
     expect(en.timezone).toBe('UTC-5'); expect(es.timezone).toBe('UTC-5')
     expect(en.languages).toMatch(/Spanish/); expect(en.languages).toMatch(/native/i)
     expect(es.languages).toMatch(/Español/); expect(es.languages).toMatch(/nativo/i)
-    const left = collectPending(site.en.contact)
-    expect(left.map((p) => p.id)).toEqual(['P-09'])
-    expect(left[0].hint).toMatch(/availab/i)
+    expect(collectPending(site.en.contact)).toEqual([])
+    expect(site.en.contact).not.toHaveProperty('availability'); expect(site.es.contact).not.toHaveProperty('availability')
   })
   it('el inglés se declara como B1, sin inflarlo', () => {
     for (const lang of ['en', 'es']) {
@@ -211,17 +207,17 @@ describe('marcadores pending (T080, K2)', () => {
   it('en desarrollo lista los pending y pasa', () => {
     const r = gate('development')
     expect(r.status).toBe(0)
-    expect(r.stdout).toContain('P-09')
+    expect(r.stdout).toContain('P-04')
   })
-  it('el sitio muestra "por confirmar" (no pistas internas) en los marcadores autorizados', () => {
-    // Con el inicio limpio, los marcadores autorizados se ven en sus páginas: Contacto (P-09) y Cómo trabajo (P-04).
+  it('el sitio no muestra pistas internas ni marcadores P-xx (Contacto ya no lleva ningún «por confirmar»)', () => {
+    // Con el inicio limpio, los marcadores autorizados se ven en sus páginas: Cómo trabajo (P-04).
     const html = ['contact', 'how-i-work'].map((p) => readFileSync(`dist/en/${p}/index.html`, 'utf8')).join('\n')
     const visible = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ') // solo el texto visible, sin atributos ni JSON-LD
-    expect(visible).toContain('to be confirmed')
+    expect(visible).not.toMatch(/to be confirmed|When I can start/)
     expect(visible).not.toMatch(/\bP-\d+\b|Public evidence of the factory|Location, time zone and availability/)
   })
-  it('Dennys autorizó publicar con P-04, P-06 y P-09 (2026-10-30) y P-29 mientras la galería esté oculta (2026-10-31); P-22 (Criden) se resolvió el 2026-11-14', () => {
-    expect([...AUTHORIZED_PENDING].sort()).toEqual(['P-04', 'P-06', 'P-09', 'P-29'])
+  it('Dennys autorizó publicar con P-04 y P-06 (2026-10-30; P-09, la disponibilidad, se quitó el 2026-11-14) y P-29 mientras la galería esté oculta (2026-10-31); P-22 (Criden) se resolvió el 2026-11-14', () => {
+    expect([...AUTHORIZED_PENDING].sort()).toEqual(['P-04', 'P-06', 'P-29'])
   })
   it('en producción pasa: no queda ningún marcador sin autorizar', () => {
     const r = gate('production')

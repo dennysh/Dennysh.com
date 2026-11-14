@@ -18,7 +18,7 @@ export const profile = {
 
 // Marcadores que Dennys autoriza a publicar como "por confirmar". Autorizados el 2026-10-30 para la primera publicación
 // (razón y alcance en 02-DOCS/wiki/sdd/decisions.md, D-IMPL-11; P-29 el 2026-10-31, D-H12: la galería de Trayectoria queda oculta mientras no haya fotos reales). Cualquier marcador nuevo debe autorizarse aquí a propósito.
-export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-09', 'P-29']
+export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-29']
 
 // Fotos de la línea de tiempo de Trayectoria (P-29): Dennys las entrega después. Se declaran en src/content/journey-photos.json, por id de entrada:
 // { "fibratelecom": [{ "src": "/images/trayectoria/fibratelecom-1.webp", "thumb": "/images/trayectoria/fibratelecom-1-thumb.webp", "width": 1600, "height": 1067, "alt": { "es": "…", "en": "…" } }] }
@@ -124,7 +124,7 @@ export const site = {
         notice: 'It is an interest, not a demonstrated skill.',
       },
     },
-    contactPage: { back: 'Back to the home screen', title: 'Contact', buttons: BUTTONS.en, description: 'Contact Dennys Heras: email, WhatsApp, LinkedIn, GitHub and CV.' },
+    contactPage: { back: 'Back to the home screen', title: 'Contact', lead: 'You can write to me by email or on WhatsApp.', buttons: BUTTONS.en, description: 'Contact Dennys Heras: email, WhatsApp, LinkedIn, GitHub and CV.' },
     projectsPage: {
       back: 'Back to the home screen',
       title: 'Work in production', lead: 'What is confirmed so far.', ids: ['telegram-bots', 'super-gol-kids', 'criden'],
@@ -215,18 +215,11 @@ export const site = {
       title: 'Contact',
       email: 'Email', linkedin: 'LinkedIn', github: 'GitHub', cv: 'Download CV (PDF)', otherWays: 'Other ways to reach me',
       location: 'Remote, from anywhere in the world.',
-      availabilityLabel: 'When I can start',
-      availability: pending('P-09', 'Availability'),
       role: 'I look for work with artificial intelligence: designing and building systems under human control.',
-      interest: 'Long-term interest: how AI relates to the human brain. An interest, not a demonstrated skill.',
       languages: 'Spanish: native. English: B1.', timezone: 'UTC-5',
     },
     contactForm: {
       "lead": "Tell me what you need in a few short steps. The questions change with what you choose.",
-      "leadOff": "The most direct way to reach me is email.",
-      "fallback": "Write to me by email:",
-      "disabled": "The form is not available right now. Write to me by email:",
-      "loading": "Checking whether the form is available…",
       "progress": "Step {k} of {n}",
       "next": "Next",
       "back": "Back",
@@ -433,7 +426,7 @@ export const site = {
         notice: 'Es un interés, no una capacidad demostrada.',
       },
     },
-    contactPage: { back: 'Volver a la primera pantalla', title: 'Contacto', buttons: BUTTONS.es, description: 'Contacta a Dennys Heras: correo, WhatsApp, LinkedIn, GitHub y CV.' },
+    contactPage: { back: 'Volver a la primera pantalla', title: 'Contacto', lead: 'Puedes escribirme por correo o por WhatsApp.', buttons: BUTTONS.es, description: 'Contacta a Dennys Heras: correo, WhatsApp, LinkedIn, GitHub y CV.' },
     projectsPage: {
       back: 'Volver a la primera pantalla',
       title: 'Trabajo en producción', lead: 'Lo confirmado hasta ahora.', ids: ['telegram-bots', 'super-gol-kids', 'criden'],
@@ -524,18 +517,11 @@ export const site = {
       title: 'Contacto',
       email: 'Correo', linkedin: 'LinkedIn', github: 'GitHub', cv: 'Descargar CV (PDF)', otherWays: 'Otras formas de contactarme',
       location: 'Remoto, desde cualquier parte del mundo.',
-      availabilityLabel: 'Cuándo puedo empezar',
-      availability: pending('P-09', 'Disponibilidad'),
       role: 'Busco trabajar con inteligencia artificial: diseñar y construir sistemas con control humano.',
-      interest: 'Interés a largo plazo: cómo se relaciona la IA con el cerebro humano. Es un interés, no una capacidad demostrada.',
       languages: 'Español: nativo. Inglés: B1.', timezone: 'UTC-5',
     },
     contactForm: {
       "lead": "Cuéntame qué necesitas en unos pasos cortos. Las preguntas cambian según lo que elijas.",
-      "leadOff": "La forma más directa de contactarme es el correo.",
-      "fallback": "Escríbeme por correo:",
-      "disabled": "El formulario no está disponible por ahora. Escríbeme por correo:",
-      "loading": "Comprobando si el formulario está disponible…",
       "progress": "Paso {k} de {n}",
       "next": "Siguiente",
       "back": "Atrás",

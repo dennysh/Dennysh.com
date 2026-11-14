@@ -9,7 +9,7 @@ const PREVIEW_STEPS = 7 // antes de elegir la opción, el recorrido más largo
 const fill = (t, vars) => t.replace(/\{(\w+)\}/g, (_, k) => vars[k])
 
 // Formulario adaptativo por pasos (D4): una pregunta por paso, las preguntas dependen de la opción, barra de progreso y botón Atrás.
-// Sin JavaScript (o mientras se comprueba, o si el servidor lo tiene desactivado) se muestra el enlace de correo en su lugar.
+// Sin JavaScript (o mientras se comprueba, o si el servidor lo tiene desactivado) no se pinta nada: los botones de correo y WhatsApp de la página bastan.
 export default function ContactForm({ lang, client, getToken, sitekey = import.meta.env?.VITE_TURNSTILE_SITEKEY }) {
   const t = site[lang].contactForm
   const [phase, setPhase] = useState('pending') // pending | disabled | form | sent
@@ -79,17 +79,9 @@ export default function ContactForm({ lang, client, getToken, sitekey = import.m
   }
   const onSubmit = (e) => { e.preventDefault(); if (busy) return; if (stepId === 'send') submit(); else next() }
 
-  if (phase === 'pending' || phase === 'disabled') {
-    return (
-      <>
-        <p className="lead">{t.leadOff}</p>
-        <div className="cf-fallback" data-contact-form={phase}>
-          <p>{phase === 'disabled' ? t.disabled : t.fallback}</p>
-          <a className="btn btn-primary btn-xl" href={links.email}>{links.emailAddress}</a>
-        </div>
-      </>
-    )
-  }
+  // Sin JavaScript, mientras se comprueba o con el formulario apagado no se pinta nada: la página ya lleva los botones de correo y WhatsApp.
+  // El marcador oculto solo deja constancia del estado (pruebas); el aviso de «no disponible» ya no se muestra.
+  if (phase === 'pending' || phase === 'disabled') return <span hidden data-contact-form={phase} />
   if (phase === 'sent') {
     return <p className="cf-done" role="status" tabIndex={-1} ref={heading} data-contact-form="sent">{t.status.sent}</p>
   }

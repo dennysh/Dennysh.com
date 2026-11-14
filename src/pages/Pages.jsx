@@ -137,17 +137,21 @@ export function ContactPage({ lang }) {
   const p = c.contactPage
   return (
     <Page lang={lang} view="contact" id="contact" title={p.title} back={p.back}>
-      <ContactButtons ui={p.buttons} withEmail={false} />
+      <div className="contact-direct">
+        <p className="lead">{p.lead}</p>
+        <ContactButtons ui={p.buttons} />
+      </div>
       <ContactForm lang={lang} />
-      <h2>{k.otherWays}</h2>
+      <h2 className="contact-more">{k.otherWays}</h2>
+      <ul className="contact-links">
+        <li><a className="btn btn-secondary" href={links.linkedin} rel="noopener noreferrer">{k.linkedin}</a></li>
+        <li><a className="btn btn-secondary" href={links.github} rel="noopener noreferrer">{k.github}</a></li>
+        <li><a className="btn btn-secondary" href={links.cv}>{k.cv}</a></li>
+      </ul>
       <ul className="contact-list">
-        <li><a href={links.linkedin} rel="noopener noreferrer">{k.linkedin}</a> · <a href={links.github} rel="noopener noreferrer">{k.github}</a></li>
-        <li><a href={links.cv}>{k.cv}</a></li>
         <li>{k.role}</li>
-        <li>{k.interest}</li>
         <li>{k.location} · {k.timezone}</li>
         <li>{k.languages}</li>
-        <li>{k.availabilityLabel}: <Txt lang={lang} v={k.availability} /></li>
       </ul>
     </Page>
   )

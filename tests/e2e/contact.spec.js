@@ -141,11 +141,13 @@ test.describe('formulario activo', () => {
   })
 })
 
-test('desactivado por falta de configuración: se muestra el enlace de correo en lugar del formulario y los enlaces siguen debajo', async ({ page }) => {
+test('desactivado por falta de configuración: no se pinta el formulario ni ningún aviso, los botones de correo y WhatsApp siguen y los enlaces van debajo', async ({ page }) => {
   await mockContact(page, { enabled: false })
   await page.goto(L.es.path)
-  await expect(page.locator('[data-contact-form="disabled"]')).toContainText('El formulario no está disponible por ahora')
-  await expect(page.locator('[data-contact-form="disabled"] a[href="mailto:dennys@dennysh.com"]')).toBeVisible()
+  await expect(page.locator('[data-contact-form="disabled"]')).toBeAttached()
+  await expect(page.locator('main')).not.toContainText('no está disponible')
+  await expect(page.locator('.contact-direct a[href="mailto:dennys@dennysh.com"]')).toBeVisible()
+  await expect(page.locator('.contact-direct a[href^="https://wa.me/"]')).toBeVisible()
   await expect(page.locator('form.cf')).toHaveCount(0)
   await expect(page.locator('main a[href*="linkedin.com"]')).toHaveCount(1)
   await expect(page.locator('main a[href="/cv-dennys-heras.pdf"]')).toHaveCount(1)
@@ -154,15 +156,16 @@ test('desactivado por falta de configuración: se muestra el enlace de correo en
 test('si la API no responde (caída o ruta ausente) el formulario tampoco aparece', async ({ page }) => {
   await page.route('**/api/contact', (r) => r.abort())
   await page.goto(L.en.path)
-  await expect(page.locator('[data-contact-form="disabled"]')).toBeVisible()
+  await expect(page.locator('[data-contact-form="disabled"]')).toBeAttached()
   await expect(page.locator('form.cf')).toHaveCount(0)
 })
 
 test.describe('sin JavaScript', () => {
   test.use({ javaScriptEnabled: false })
-  test('muestra el enlace de correo en lugar del formulario', async ({ page }) => {
+  test('muestra los botones de correo y WhatsApp y ningún formulario ni aviso', async ({ page }) => {
     await page.goto(L.es.path)
-    await expect(page.locator('[data-contact-form="pending"] a[href="mailto:dennys@dennysh.com"]')).toBeVisible()
+    await expect(page.locator('.contact-direct a.btn-primary[href="mailto:dennys@dennysh.com"]')).toBeVisible()
+    await expect(page.locator('main')).not.toContainText('no está disponible')
     await expect(page.locator('form')).toHaveCount(0)
   })
 })
@@ -201,6 +204,9 @@ for (const lang of ['es', 'en']) {
     expect((await wa.boundingBox()).height).toBeGreaterThanOrEqual(44)
     await expect(page.locator('main a[href^="mailto:"]')).toHaveCount(1) // sigue habiendo un solo botón de correo en el cuerpo (C-01)
     expect(await page.evaluate(() => document.body.innerText)).not.toMatch(/593\s?96|960\s?664/)
-    await expect(page.locator('main')).toContainText(lang === 'es' ? 'Cuándo puedo empezar' : 'When I can start')
+    await expect(page.locator('main')).not.toContainText(lang === 'es' ? 'Cuándo puedo empezar' : 'When I can start')
+    // correo y WhatsApp en el mismo bloque, correo primero
+    const [em, w] = await Promise.all([page.locator('.contact-direct a[href^="mailto:"]').boundingBox(), wa.boundingBox()])
+    expect(em.x).toBeLessThan(w.x)
   })
 }
