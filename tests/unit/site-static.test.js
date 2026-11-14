@@ -91,10 +91,14 @@ describe('perfil en datos de máquina (idiomas)', () => {
 
 describe('legales (AC-31)', () => {
   const files = {
-    'en/privacy/index.html': 'HMAC Turnstile contact form 25 hours', 'es/privacidad/index.html': 'HMAC Turnstile formulario de contacto 25 horas',
+    'en/privacy/index.html': 'HMAC Turnstile contact form 25 hours WhatsApp (Meta)', 'es/privacidad/index.html': 'HMAC Turnstile formulario de contacto 25 horas WhatsApp (Meta)',
     'en/terms/index.html': 'Availability', 'es/terminos/index.html': 'Disponibilidad', '404.html': '404',
   }
   it('pasa con las menciones', () => expect(checkLegal(reader(files))).toEqual([]))
+  it('falla si la privacidad no menciona WhatsApp (Meta)', () => {
+    expect(checkLegal(reader({ ...files, 'en/privacy/index.html': 'HMAC Turnstile contact form 25 hours' })).join(' ')).toMatch(/WhatsApp/)
+    expect(checkLegal(reader({ ...files, 'es/privacidad/index.html': 'HMAC Turnstile formulario de contacto 25 horas' })).join(' ')).toMatch(/WhatsApp/)
+  })
   it('falla si privacidad no menciona Turnstile', () => {
     expect(checkLegal(reader({ ...files, 'en/privacy/index.html': 'HMAC contact form 25 hours' })).length).toBeGreaterThan(0)
   })

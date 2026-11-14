@@ -40,6 +40,12 @@ const GITHUB = 'https://github.com/dennysh'
 // WhatsApp: el número va solo en el enlace (wa.me), nunca como texto visible ni en las salidas de máquina.
 export const links = { email: `mailto:${EMAIL}`, emailAddress: EMAIL, linkedin: LINKEDIN, github: GITHUB, cv: '/cv-dennys-heras.pdf', whatsapp: 'https://wa.me/593960664347', criden: 'https://criden.com' }
 
+// Botones de contacto compartidos por «Sobre mí» y Contacto (un solo texto por idioma).
+const BUTTONS = {
+  en: { email: 'Write to me', whatsapp: 'WhatsApp', whatsappLabel: 'Write on WhatsApp (opens in another tab)' },
+  es: { email: 'Escríbeme', whatsapp: 'WhatsApp', whatsappLabel: 'Escribir por WhatsApp (se abre en otra pestaña)' },
+}
+
 export const site = {
   en: {
     lang: 'en',
@@ -110,7 +116,7 @@ export const site = {
         ],
       },
       criden: { text: 'Criden, a platform where I sell websites and similar things.', link: 'Visit Criden ↗' },
-      contact: { title: 'Contact', email: 'Write to me', whatsapp: 'WhatsApp', whatsappLabel: 'Write on WhatsApp (opens in another tab)' },
+      contact: { title: 'Contact', ...BUTTONS.en },
       longTerm: {
         title: 'Long-term interest',
         lead: 'Where I would like to go in the long run.',
@@ -118,7 +124,7 @@ export const site = {
         notice: 'It is an interest, not a demonstrated skill.',
       },
     },
-    contactPage: { back: 'Back to the home screen', title: 'Contact', description: 'Contact Dennys Heras: email, LinkedIn, GitHub and CV.' },
+    contactPage: { back: 'Back to the home screen', title: 'Contact', buttons: BUTTONS.en, description: 'Contact Dennys Heras: email, WhatsApp, LinkedIn, GitHub and CV.' },
     projectsPage: {
       back: 'Back to the home screen',
       title: 'Work in production', lead: 'What is confirmed so far.', ids: ['telegram-bots', 'super-gol-kids', 'criden'],
@@ -419,7 +425,7 @@ export const site = {
         ],
       },
       criden: { text: 'Criden, plataforma donde vendo páginas web y cosas así.', link: 'Visitar Criden ↗' },
-      contact: { title: 'Contacto', email: 'Escríbeme', whatsapp: 'WhatsApp', whatsappLabel: 'Escribir por WhatsApp (se abre en otra pestaña)' },
+      contact: { title: 'Contacto', ...BUTTONS.es },
       longTerm: {
         title: 'Interés a largo plazo',
         lead: 'Hacia dónde me gustaría ir a largo plazo.',
@@ -427,7 +433,7 @@ export const site = {
         notice: 'Es un interés, no una capacidad demostrada.',
       },
     },
-    contactPage: { back: 'Volver a la primera pantalla', title: 'Contacto', description: 'Contacta a Dennys Heras: correo, LinkedIn, GitHub y CV.' },
+    contactPage: { back: 'Volver a la primera pantalla', title: 'Contacto', buttons: BUTTONS.es, description: 'Contacta a Dennys Heras: correo, WhatsApp, LinkedIn, GitHub y CV.' },
     projectsPage: {
       back: 'Volver a la primera pantalla',
       title: 'Trabajo en producción', lead: 'Lo confirmado hasta ahora.', ids: ['telegram-bots', 'super-gol-kids', 'criden'],

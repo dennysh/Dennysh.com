@@ -101,8 +101,8 @@ export function checkMachine(read) {
 export function checkLegal(read) {
   const problems = []
   const must = {
-    'en/privacy/index.html': [/HMAC/, /Turnstile/, /contact form/i, /25 hours/],
-    'es/privacidad/index.html': [/HMAC/, /Turnstile/, /formulario de contacto/i, /25 horas/],
+    'en/privacy/index.html': [/HMAC/, /Turnstile/, /contact form/i, /25 hours/, /WhatsApp \(Meta\)/],
+    'es/privacidad/index.html': [/HMAC/, /Turnstile/, /formulario de contacto/i, /25 horas/, /WhatsApp \(Meta\)/],
     'en/terms/index.html': [/Availability/],
     'es/terminos/index.html': [/Disponibilidad/],
   }

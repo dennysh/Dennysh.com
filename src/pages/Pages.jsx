@@ -137,6 +137,7 @@ export function ContactPage({ lang }) {
   const p = c.contactPage
   return (
     <Page lang={lang} view="contact" id="contact" title={p.title} back={p.back}>
+      <ContactButtons ui={p.buttons} withEmail={false} />
       <ContactForm lang={lang} />
       <h2>{k.otherWays}</h2>
       <ul className="contact-list">

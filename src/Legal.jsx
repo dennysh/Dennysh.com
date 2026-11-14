@@ -11,6 +11,7 @@ const TEXT = {
       items: [
         ['Cloudflare Turnstile', 'To tell people from bots, the contact form uses Cloudflare Turnstile. It runs only when you press Send, and Cloudflare processes the check under its own terms.'],
         ['Contact form', 'The contact form (on the Contact page, when it is enabled) asks for the option you choose, your answers to a few short questions, your name, your email address, an optional message and your consent. It is used only to reply to you. The message is sent by email to dennys@dennysh.com and is not stored on this site. To enforce limits on sending, I keep for 25 hours only an HMAC of your IP address and an HMAC of your email address (with a secret key), plus the time; never the text, the name or the address itself. The Cloudflare Turnstile check described above runs when you press Send. Only the recipient of the email, the site owner, sees what you wrote.'],
+        ['WhatsApp', 'The WhatsApp button opens a chat in WhatsApp (Meta), which processes data under its own terms. This site does not receive your number until you write.'],
         ['Your data', 'If you write to me by email or through the contact form, I use your message only to reply.'],
       ],
     },
@@ -32,6 +33,7 @@ const TEXT = {
       items: [
         ['Cloudflare Turnstile', 'Para distinguir personas de bots, el formulario de contacto usa Cloudflare Turnstile. Solo se ejecuta cuando pulsas Enviar, y Cloudflare procesa la comprobación bajo sus propios términos.'],
         ['Formulario de contacto', 'El formulario de contacto (en la página Contacto, cuando está activo) pide la opción que eliges, tus respuestas a unas pocas preguntas cortas, tu nombre, tu correo, un mensaje opcional y tu consentimiento. Se usa solo para responderte. El mensaje se envía por correo a dennys@dennysh.com y no se guarda en este sitio. Para aplicar los límites de envío guardo durante 25 horas solo un HMAC de tu dirección IP y un HMAC de tu correo (con una clave secreta), más la hora; nunca el texto, el nombre ni la dirección. Al pulsar Enviar se ejecuta la comprobación de Cloudflare Turnstile descrita arriba. Solo quien recibe el correo, el dueño del sitio, ve lo que escribiste.'],
+        ['WhatsApp', 'El botón de WhatsApp abre un chat en WhatsApp (Meta), que trata los datos según sus propias condiciones. Este sitio no recibe tu número hasta que tú escribes.'],
         ['Tus datos', 'Si me escribes por correo o por el formulario de contacto, uso tu mensaje solo para responderte.'],
       ],
     },

@@ -44,6 +44,13 @@ describe('cada nodo es una página propia (C2) con barra, Volver, un h1 y pie co
       })
     }
   }
+  it('la privacidad menciona el botón de WhatsApp: chat en WhatsApp (Meta), sus propias condiciones y que el sitio no recibe el número', () => {
+    const en = renderToString(React.createElement(LegalPage, { lang: 'en', kind: 'privacy' })).replace(/<!-- -->/g, '')
+    const es = renderToString(React.createElement(LegalPage, { lang: 'es', kind: 'privacy' })).replace(/<!-- -->/g, '')
+    expect(en).toMatch(/WhatsApp button opens a chat in WhatsApp \(Meta\), which processes data under its own terms\. This site does not receive your number until you write\./)
+    expect(es).toMatch(/botón de WhatsApp abre un chat en WhatsApp \(Meta\), que trata los datos según sus propias condiciones\. Este sitio no recibe tu número hasta que tú escribes\./)
+    expect(en + es).not.toMatch(/593960664347|960664347/)
+  })
   it('las páginas legales y la 404 llevan la misma barra y el mismo pie', () => {
     for (const out of [renderToString(React.createElement(LegalPage, { lang: 'es', kind: 'privacy' })), renderToString(React.createElement(NotFound, { lang: 'en' }))]) {
       expect(out).toContain('class="theme-toggle"')
@@ -123,6 +130,12 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       expect(out).toContain(`${esc(k.location)} · ${k.timezone}`)
       expect(out).toContain(`href="${links.email}"`)
       expect(out).toContain('data-pending="P-09"')
+      // WhatsApp junto al correo (encargo 2026-11-14): pestaña nueva, noopener noreferrer, sin número a la vista
+      expect(out).toContain('<a class="btn btn-secondary" href="https://wa.me/593960664347" target="_blank" rel="noopener noreferrer"')
+      expect(out.match(/href="mailto:/g)).toHaveLength(2) // la barra de pie y el correo de la página; el botón de correo sigue siendo único en el cuerpo (C-01)
+      expect(out).toContain(`aria-label="${esc(c.contactPage.buttons.whatsappLabel)}"`)
+      expect(out.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ')).not.toMatch(/593960664347|960664347/)
+      expect(c.contactPage.buttons).toEqual({ email: c.interestPage.contact.email, whatsapp: c.interestPage.contact.whatsapp, whatsappLabel: c.interestPage.contact.whatsappLabel })
       expect(out).toContain(`${esc(k.availabilityLabel)}: <span class="pending" data-pending="P-09"`) // el aviso "por confirmar" lleva su etiqueta
       expect(out).toContain(esc(c.contactForm.leadOff)) // sin JS el formulario no está: no se promete
       expect(out).not.toContain(esc(c.contactForm.lead))

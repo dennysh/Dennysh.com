@@ -189,3 +189,18 @@ for (const scheme of ['light', 'dark']) {
     })
   })
 }
+
+// Botón de WhatsApp junto al correo (encargo 2026-11-14): pestaña nueva, noopener noreferrer, táctil y sin número a la vista.
+for (const lang of ['es', 'en']) {
+  test(`${lang}: Contacto tiene el botón de WhatsApp junto al formulario y al correo, sin mostrar el número`, async ({ page }) => {
+    await page.goto(L[lang].path)
+    const wa = page.getByRole('link', { name: lang === 'es' ? 'Escribir por WhatsApp (se abre en otra pestaña)' : 'Write on WhatsApp (opens in another tab)' })
+    await expect(wa).toHaveAttribute('href', 'https://wa.me/593960664347')
+    await expect(wa).toHaveAttribute('target', '_blank')
+    await expect(wa).toHaveAttribute('rel', 'noopener noreferrer')
+    expect((await wa.boundingBox()).height).toBeGreaterThanOrEqual(44)
+    await expect(page.locator('main a[href^="mailto:"]')).toHaveCount(1) // sigue habiendo un solo botón de correo en el cuerpo (C-01)
+    expect(await page.evaluate(() => document.body.innerText)).not.toMatch(/593\s?96|960\s?664/)
+    await expect(page.locator('main')).toContainText(lang === 'es' ? 'Cuándo puedo empezar' : 'When I can start')
+  })
+}
