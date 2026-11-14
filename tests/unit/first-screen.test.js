@@ -24,6 +24,16 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       expect(out).not.toContain(esc(c.hero.thesis))
       for (const t of c.home.tagline) expect(out).toContain(esc(t))
     })
+    it(`(${lang}) propuesta bajo el h1 y antes de la línea de datos, y botón «${c.home.cta}» hacia Contacto (encargo 2026-11-14)`, () => {
+      expect(c.home.offer).toBe(lang === 'es' ? 'Software, automatizaciones, bots y agentes de IA para empresas.' : 'Software, automation, bots and AI agents for businesses.')
+      expect(c.home.cta).toBe(lang === 'es' ? 'Escríbeme' : 'Write to me')
+      const at = (t) => out.indexOf(esc(t))
+      expect(at(c.home.phrase)).toBeLessThan(at(c.home.offer))
+      expect(at(c.home.offer)).toBeLessThan(at(c.home.tagline[0]))
+      expect(out).toContain(`<a class="btn btn-primary first-cta" href="${pagePaths[lang].contact}">${esc(c.home.cta)}</a>`)
+      expect(out).not.toContain('mailto:') // el inicio sigue sin mostrar el correo (checkPrerender)
+      expect(out.match(/<h1\b/g)).toHaveLength(1)
+    })
     it(`(${lang}) cinco nodos como enlaces (sin Demo), con nombre accesible y destino`, () => {
       expect(nodeLinks.map((n) => n.id)).toEqual(['code', 'projects', 'journey', 'how', 'interest'])
       expect(nodeLinks.map((n) => n.label)).toEqual(c.home.nodes.map((n) => esc(n.label)))
@@ -70,12 +80,14 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       expect(out).not.toMatch(/\sstyle="/)
       expect(/<svg\b[^>]*class="lines"[^>]*aria-hidden="true"/.test(out)).toBe(true)
     })
-    it(`(${lang}) el inicio es solo la primera pantalla: sin resumen, sin botones de demo ni de contacto, sin secciones largas, sin pie y sin correo`, () => {
+    it(`(${lang}) el inicio es solo la primera pantalla: sin resumen, sin botones de demo ni formulario de contacto (solo el botón «Escríbeme»), sin secciones largas, sin pie y sin correo`, () => {
       for (const id of ['demo', 'factory', 'governance', 'work', 'skills', 'journey', 'criden', 'contact', 'footer', 'summary']) expect(out).not.toContain(`id="${id}"`)
       expect(out).not.toContain('class="cta"')
       expect(out).not.toContain('<footer')
       expect(out).not.toContain(esc(c.hero.summary[0]))
-      expect(out).not.toMatch(/dennys@dennysh\.com|mailto:|#contact|\/contact|\/contacto/)
+      expect(out).not.toMatch(/dennys@dennysh\.com|mailto:|#contact/)
+      // Desde el 2026-11-14 hay un único camino a Contacto en el inicio: el botón de la primera pantalla (ni formulario, ni correo, ni pie).
+      expect(out.match(/href="\/(en\/contact|es\/contacto)\/"/g)).toHaveLength(1)
       expect(out).not.toContain('Scroll')
     })
     it(`(${lang}) la barra del inicio: CV, idioma e interruptor de tema; sin Contacto`, () => {

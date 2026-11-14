@@ -62,6 +62,8 @@ export const site = {
     },
     home: {
       phrase: 'A little of what I do, in a few minutes.',
+      offer: 'Software, automation, bots and AI agents for businesses.',
+      cta: 'Write to me',
       tagline: ['7 years in fiber optics', 'Remote · Spanish native · English B1'],
       bar: { cv: 'CV' },
       portraitAlt: 'Portrait of Dennys Heras',
@@ -369,6 +371,8 @@ export const site = {
     },
     home: {
       phrase: 'Un poco sobre mí.',
+      offer: 'Software, automatizaciones, bots y agentes de IA para empresas.',
+      cta: 'Escríbeme',
       tagline: ['7 años en fibra óptica', 'Remoto · Español nativo · Inglés B1'],
       bar: { cv: 'CV' },
       portraitAlt: 'Retrato de Dennys Heras',

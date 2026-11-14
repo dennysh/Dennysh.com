@@ -420,3 +420,51 @@ test.describe('sin JavaScript (AC-H2)', () => {
     await expect(page.locator('h1')).toHaveText('Un poco sobre mí.')
   })
 })
+
+// Propuesta y botón «Escríbeme» (encargo 2026-11-14): visibles en la primera pantalla de móvil y escritorio, táctiles y sin pisar el retrato.
+for (const [w, h] of [[390, 844], [360, 640], [1440, 900], [1180, 800]]) {
+  for (const lang of ['es', 'en']) {
+    test(`${lang} ${w}×${h}: la propuesta y el botón de contacto se ven enteros, miden ≥ 44 px, no se pisan con el h1 ni la línea de datos`, async ({ page }) => {
+      await page.setViewportSize({ width: w, height: h })
+      await page.goto(`/${lang}/`)
+      const cta = page.locator('.first-cta')
+      await expect(cta).toHaveText(lang === 'es' ? 'Escríbeme' : 'Write to me')
+      await expect(page.locator('.offer')).toBeInViewport({ ratio: 1 })
+      await expect(cta).toBeInViewport({ ratio: 1 })
+      const [c, o, t, h1] = await Promise.all(['.first-cta', '.offer', '.tagline', 'h1'].map((s) => page.locator(s).boundingBox()))
+      expect(c.height).toBeGreaterThanOrEqual(44); expect(c.width).toBeGreaterThanOrEqual(44)
+      const hit = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+      for (const other of [o, t, h1]) expect(hit(c, other)).toBe(false)
+      expect(h1.y + h1.height).toBeLessThanOrEqual(o.y + 1); expect(o.y + o.height).toBeLessThanOrEqual(t.y + 1)
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      // El botón recibe el puntero (nada lo tapa) y lleva a Contacto.
+      expect(await cta.evaluate((el) => { const r = el.getBoundingClientRect(); return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2) === el })).toBe(true)
+      await cta.click()
+      await page.waitForURL(lang === 'es' ? '**/es/contacto/' : '**/en/contact/')
+    })
+  }
+}
+
+test('el botón de contacto tiene foco visible por teclado', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/es/')
+  await hydrated(page)
+  await page.locator('.first-cta').focus()
+  await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab')
+  await expect(page.locator('.first-cta')).toBeFocused()
+  const o = await page.locator('.first-cta').evaluate((el) => { const s = getComputedStyle(el); return { w: parseFloat(s.outlineWidth), st: s.outlineStyle } })
+  expect(o.st).not.toBe('none'); expect(o.w).toBeGreaterThanOrEqual(2)
+})
+
+test('contraste del botón de contacto ≥ 4,5:1 en oscuro y claro', async ({ browser }) => {
+  const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]) }
+  for (const theme of ['dark', 'light']) {
+    const ctx = await browser.newContext()
+    await ctx.addInitScript((t) => { try { localStorage.setItem('theme', t) } catch {} }, theme)
+    const page = await ctx.newPage()
+    await page.goto('/es/')
+    const [fg, bg] = await page.locator('.first-cta').evaluate((el) => { const s = getComputedStyle(el); const n = (x) => x.match(/[\d.]+/g).slice(0, 3).map(Number); return [n(s.color), n(s.backgroundColor)] })
+    expect((Math.max(lum(fg), lum(bg)) + 0.05) / (Math.min(lum(fg), lum(bg)) + 0.05), theme).toBeGreaterThanOrEqual(4.5)
+    await ctx.close()
+  }
+})

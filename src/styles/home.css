@@ -28,6 +28,8 @@
 .node-link[aria-expanded="true"] { color: var(--accent); }
 .node-link[aria-expanded="true"] .node-icon { border-color: var(--accent-line); }
 h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; text-wrap: balance; }
+.offer { margin: 0; color: var(--text); line-height: 1.4; text-wrap: balance; }
+.first-cta { text-shadow: none; }
 .tagline { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .12em; color: var(--muted); line-height: 1.6; }
 
 .panel { --panel-pad-y: 14px; background: var(--surface); border-radius: 12px; padding: var(--panel-pad-y) 16px; display: none; }
@@ -82,7 +84,9 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; text-wrap: bala
   .n-how { left: 74%; top: 16.306%; } .n-interest { left: 89.091%; top: 32.389%; }
   .phrase { position: absolute; left: 3.2%; top: 58%; width: 31%; }
   h1#hero-h { font-size: max(1.5rem, 2.6cqw); }
+  .offer { margin-top: .9cqw; font-size: max(15px, 1.3cqw); }
   .tagline { margin: 1.2cqw 0 0; font-size: max(12px, 1cqw); }
+  .first-cta { margin-top: 1.6cqw; }
   /* El panel nunca sube hasta la fila de nodos (su techo es el 43 % del lienzo, bajo la etiqueta de Interés): si el contenido no cabe, el panel se desplaza. */
   .panels { position: absolute; right: 3.2%; top: 43%; bottom: 6%; width: 27%; font-size: max(12px, 1.05cqw); display: flex; flex-direction: column; justify-content: flex-end; }
   .panel { max-height: 100%; overflow: auto; } /* un solo scroll: el del panel (el pie con "Abrir" queda fijo) */
@@ -109,7 +113,12 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; text-wrap: bala
   .lines, .net, .nodes, .panels { display: none; }
   .phrase { position: absolute; z-index: 4; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); top: 76px; }
   h1#hero-h { max-width: 11em; font-size: clamp(26px, 8vw, 34px); font-weight: 800; text-wrap: balance; }
+  .phrase { bottom: 0; pointer-events: none; } /* cubre el lienzo para anclar el botón abajo; solo el botón recibe el puntero */
+  .offer { max-width: 22em; margin-top: 10px; font-size: 16px; }
   .tagline { margin: 10px 0 0; font-size: 12px; letter-spacing: .08em; }
+  .first-cta { position: absolute; z-index: 5; left: 50%; bottom: 64px; transform: translateX(-50%); pointer-events: auto; min-width: 200px; box-shadow: 0 6px 22px color-mix(in srgb, var(--bg) 70%, transparent); }
+  /* Pantallas bajas (360×640): la propuesta y el título se compactan para no llegar a la cabeza del retrato. */
+  @media (max-height: 700px) { h1#hero-h { font-size: 25px; } .offer { font-size: 15px; margin-top: 8px; } .tagline { margin-top: 8px; } }
   .hint { display: block; position: absolute; z-index: 4; left: 0; right: 0; bottom: 12px; text-align: center; font: 12px/1.5 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--text); text-shadow: 0 1px 8px var(--bg); pointer-events: none; }
   .hint i { display: block; width: 1px; height: 18px; margin: 6px auto 0; background: var(--accent-line); animation: drip 2.2s ease-in-out infinite; }
 
