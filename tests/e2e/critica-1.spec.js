@@ -28,18 +28,20 @@ test.describe('panel de vista previa (C-03)', () => {
 })
 
 test.describe('Proyectos (C-02, C-06)', () => {
-  test('la tarjeta de bots anuncia "Ver los 4 bots" (se oculta al abrir), mide 44 px y los títulos de tarjeta son h2 sin margen', async ({ page }) => {
+  test('la tarjeta de bots nace abierta (pista oculta), al cerrarla anuncia "Ver los 4 bots", mide 44 px y los títulos de tarjeta son h2 sin margen', async ({ page }) => {
     await page.goto('/es/proyectos/')
     const d = page.locator('details.bots')
-    await expect(d.locator('.bots-hint')).toHaveText('Ver los 4 bots')
+    await expect(d).toHaveAttribute('open', '')
+    await expect(d.locator('.bots-hint')).toBeHidden()
     expect((await d.locator('summary').boundingBox()).height).toBeGreaterThanOrEqual(44)
     await d.locator('summary').click()
-    await expect(d.locator('.bots-hint')).toBeHidden()
+    await expect(d.locator('.bots-hint')).toHaveText('Ver los 4 bots')
     const h2 = page.locator('.card h2').first()
     await expect(h2).toHaveCSS('margin-top', '0px')
     expect(await h2.evaluate((e) => parseFloat(getComputedStyle(e).fontSize))).toBeLessThan(20)
     await page.goto('/en/projects/')
     await expect(page.locator('details.bots .bots-hint')).toHaveText('See the 4 bots')
+    await expect(page.locator('details.bots')).toHaveAttribute('open', '')
   })
   test('en el panel de la portada la pista no es más grande que el título', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' })

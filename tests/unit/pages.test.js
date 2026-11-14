@@ -93,10 +93,10 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       expect(out).toContain(esc(c.projectsPage.title))
       expect(out).not.toMatch(/contable|accounting|football manager|f[uú]tbol manager|hardlock/i)
     })
-    it(`(${lang}) Proyectos: "Bots para Telegram" es un <details> cerrado con los cuatro bots en orden, accesible sin JavaScript`, () => {
+    it(`(${lang}) Proyectos: "Bots para Telegram" es un <details> abierto de origen con los cuatro bots en orden, accesible sin JavaScript`, () => {
       const out = render(ProjectsPage, lang)
       const d = /<details class="bots"[\s\S]*?<\/details>/.exec(out)[0]
-      expect(d).not.toMatch(/<details[^>]*\sopen/)
+      expect(d).toMatch(/<details[^>]*\sopen=""/)
       expect(d).toMatch(/<summary><h2>[^<]+<\/h2><span class="bots-hint">[^<]+<\/span><\/summary>/)
       const titles = [...d.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])
       expect(titles).toEqual(c.work.items[0].bots.map((b) => esc(b.title)))
@@ -105,7 +105,7 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       expect(d.match(/class="badge/g)).toHaveLength(1)
       // una línea por bot: cada bot con texto lo muestra (Caja Cercana reutiliza el suyo); el de planificación solo lleva nombre
       const bots = c.work.items[0].bots
-      for (const b of bots.filter((x) => x.text)) expect(d, b.id).toContain(esc(b.text))
+      for (const b of bots.filter((x) => x.text)) expect(d, b.id).toContain(esc(b.text.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? b.text)) // un renglón: la primera frase
       expect(d.match(/class="bot-text"/g)).toHaveLength(bots.filter((x) => x.text).length)
       expect(/<li data-bot="planificacion">([\s\S]*?)<\/li>/.exec(d)[1]).toBe(`<strong>${esc(bots[3].title)}</strong>`)
     })

@@ -88,7 +88,7 @@ export default function Site({ lang = 'en' }) {
 
 export function WorkCard({ lang, it }) {
   const c = site[lang]
-  if (it.bots) return <article className="card card-bots"><TelegramBots lang={lang} group={it} heading /></article>
+  if (it.bots) return <article className="card card-bots"><TelegramBots lang={lang} group={it} heading open /></article>
   return (
     <article className="card">
       {it.status && <span className={`badge badge-${it.status}`}>{c.work.status[it.status]}</span>}

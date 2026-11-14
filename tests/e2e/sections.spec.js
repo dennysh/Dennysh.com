@@ -68,23 +68,28 @@ test('Proyectos: Bots para Telegram (desplegable), Super Gol Kids y Criden en pr
   await expect(page.locator('main')).not.toContainText(/contable|football manager|f[uú]tbol manager|hardlock|pr[óo]ximamente/i)
 })
 
-test('Bots para Telegram: cerrado al cargar, se abre con Enter o Espacio y con clic, muestra los cuatro bots en orden y no mueve lo de arriba', async ({ page }) => {
+test('Bots para Telegram: abierto al cargar con los cuatro bots en orden, un renglón por bot, sin hueco; se cierra y abre con Enter, Espacio y clic sin mover lo de arriba', async ({ page }) => {
   await page.goto('/es/proyectos/')
   const d = page.locator('details.bots')
   const items = d.locator('li strong')
-  await expect(d).not.toHaveAttribute('open', '')
-  await expect(items.first()).toBeHidden()
+  await expect(d).toHaveAttribute('open', '')
+  await expect(items).toHaveText(['Bot de registro de cajas', 'Bot de caja más cercana', 'Bot de reportes', 'Bot de planificación'])
+  await expect(items.first()).toBeVisible()
+  await expect(d.locator('.badge-production')).toHaveCount(1) // solo Caja Cercana declara estado
+  for (const t of await d.locator('.bot-text').allTextContents()) expect(t.split(/[.!?]\s/).length).toBe(1) // un renglón (una frase) por bot
+  // la tarjeta ocupa la fila entera: ninguna tarjeta vecina queda más baja que su contenido
+  const cards = await page.locator('.cards > .card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { x: r.x, w: r.width, h: r.height } }))
+  expect(cards[0].w).toBeGreaterThan(cards[1].w)
   const above = await page.locator('h1').boundingBox()
   await d.locator('summary').focus()
   await page.keyboard.press('Enter')
-  await expect(d).toHaveAttribute('open', '')
-  await expect(items).toHaveText(['Bot de registro de cajas', 'Bot de caja más cercana', 'Bot de reportes', 'Bot de planificación'])
-  await expect(d.locator('.badge-production')).toHaveCount(1) // solo Caja Cercana declara estado
+  await expect(d).not.toHaveAttribute('open', '')
+  await expect(items.first()).toBeHidden()
   expect(await page.locator('h1').boundingBox()).toEqual(above)
   await page.keyboard.press('Space')
-  await expect(d).not.toHaveAttribute('open', '')
+  await expect(d).toHaveAttribute('open', '')
   await d.locator('summary').click()
-  await expect(items.first()).toBeVisible()
+  await expect(items.first()).toBeHidden()
 })
 
 test('Bots para Telegram también se abre en el panel "Trabajo en producción" de la portada, y sin JavaScript', async ({ page, browser }) => {
@@ -100,6 +105,7 @@ test('Bots para Telegram también se abre en el panel "Trabajo en producción" d
   const ctx = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1280, height: 800 } })
   const p2 = await ctx.newPage()
   await p2.goto('http://localhost:4173/es/proyectos/')
+  await expect(p2.locator('details.bots li strong').first()).toBeVisible() // abierta de origen, también sin JS
   await p2.locator('details.bots summary').click() // <details> nativo: funciona sin JS
   await expect(p2.locator('details.bots li strong')).toHaveCount(4)
   await ctx.close()

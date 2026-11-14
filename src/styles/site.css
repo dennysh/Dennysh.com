@@ -124,7 +124,8 @@ footer.site a { color: var(--muted); display: inline-flex; align-items: center; 
 .bots-list li { display: grid; gap: 2px; justify-items: start; }
 .bots-list .badge { font-size: .75rem; }
 .bots-list .bot-text { color: var(--muted); font-size: .9rem; }
-.card-bots { align-content: start; }
+.card-bots { align-content: start; grid-column: 1 / -1; } /* ocupa toda la fila: abierta no deja hueco en las tarjetas vecinas */
+@media (min-width: 700px) { .card-bots .bots-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-5); } }
 
 /* Formulario de contacto por pasos (D4) */
 .cf { max-width: 36rem; margin-bottom: var(--space-5); }
