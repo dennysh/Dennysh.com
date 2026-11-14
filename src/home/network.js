@@ -3,6 +3,14 @@
 // Cambios respecto a la maqueta, por requisito: la zona protegida sale de la geometría real (geometry.js), no de fracciones de la maqueta;
 // los segmentos y triángulos también comprueban su tramo intermedio (no solo los extremos), para que nunca crucen la cara ni el cuerpo.
 import { VIEW, HEAD, HEAD_RECT, PORTRAIT_PX } from './geometry.js'
+import { soft, quietAlong as quietAlongWith, clampLen, approach, nearestLinks, triangles, triQuiet } from './net-core.js'
+
+// Desplazamiento máximo de un punto hacia el puntero, en px a 1180 px de ancho (se escala con W / REF_W), y vecinos y triángulos por cuadro.
+// Maqueta v2 (/tmp/red-referencia-v2.html): cada punto tiene una posición base y un desplazamiento acotado que vuelve solo; ya no hay atracción
+// acumulativa (con el puntero quieto los puntos se juntaban en una mancha densa y el resto de la pantalla se quedaba sin red).
+export const PULL = 22
+export const MAX_LINKS = 3
+export const MAX_TRIS = 12
 
 // Intensidades de la maqueta. Está fija la nº 2 ("Sutil"); las otras quedan aquí solo como constantes.
 export const PRESETS = [
@@ -14,8 +22,6 @@ export const PRESETS = [
 export const LEVEL = 2
 // Ancho de referencia de la maqueta: el número de puntos, el enlace y el alcance escalan con W / REF_W.
 export const REF_W = 1180
-
-const soft = (v) => Math.min(1, Math.max(0, v))
 
 // Zona protegida, en el lienzo de 1100×720 de geometry.js. Cabeza: elipse que contiene entera la caja de la cabeza (HEAD_RECT, diagonal ≈ √2).
 // Cuerpo: franja bajo la cabeza, estrecha en el cuello (0,20 del ancho del retrato) y ancha en los hombros (0,50).
@@ -44,11 +50,7 @@ export function lit(x, y, mouse, R, active = 1) {
 }
 
 // Lo más restrictivo de la zona protegida a lo largo de un segmento (extremos y tres puntos intermedios).
-function quietAlong(ax, ay, bx, by, qa, qb, W, H) {
-  let k = Math.min(qa, qb)
-  for (const t of [.25, .5, .75]) { if (k === 0) break; k = Math.min(k, quiet(ax + (bx - ax) * t, ay + (by - ay) * t, W, H)) }
-  return k
-}
+const quietAlong = (ax, ay, bx, by, qa, qb, W, H) => quietAlongWith((x, y) => quiet(x, y, W, H), ax, ay, bx, by, qa, qb)
 
 // "#b3301d" / "#fa8" / "rgb(179, 48, 29)" → "179,48,29" (null si no se entiende). El acento sale de los tokens CSS del tema.
 export function accentRgb(value) {
@@ -72,56 +74,51 @@ export function createNetwork({ level = LEVEL, rand = Math.random } = {}) {
     const n = Math.round(p.n * (W / REF_W))
     for (let i = 0; i < Math.max(n, 18); i++) {
       const a = rand() * Math.PI * 2, v = p.speed * (.4 + rand())
-      pts.push({ x: rand() * W, y: rand() * H, vx: Math.cos(a) * v * 60, vy: Math.sin(a) * v * 60, r: .6 + rand() * 1.1, lit: 0, q: 1 })
+      const x = rand() * W, y = rand() * H
+      pts.push({ i, bx: x, by: y, ox: 0, oy: 0, x, y, vx: Math.cos(a) * v * 60, vy: Math.sin(a) * v * 60, r: .6 + rand() * 1.1, lit: 0, q: 1 })
     }
   }
   const pointer = (x, y) => { mouse = x == null ? null : { x, y } }
   const snap = () => { active = mouse ? 1 : 0 }
 
-  // Un cuadro. `rgb` = "r,g,b"; `reduce` = sin movimiento (los puntos no se mueven ni se acercan al puntero).
+  // Un cuadro. `rgb` = "r,g,b"; `reduce` = sin movimiento (los puntos no derivan ni se acercan al puntero; la luz sí sigue al puntero).
   function frame(ctx, t, rgb, reduce = false) {
     const dt = Math.min(.05, (t - last) / 1000 || .016); last = t
     ctx.clearRect(0, 0, W, H)
     if (!p || !W) return
-    const L = p.link * (W / REF_W), R = p.reach * (W / REF_W)
+    const L = p.link * (W / REF_W), R = p.reach * (W / REF_W), pull = PULL * (W / REF_W)
     active += ((mouse ? 1 : 0) - active) * Math.min(1, dt * 6)
-    const L2 = L * L, T2 = L2 * .64 // distancias al cuadrado: el mismo criterio que hypot sin la raíz
-    const on = []
-    for (const q of pts) {
-      if (!reduce) { q.x += q.vx * dt; q.y += q.vy * dt }
-      // los puntos cercanos se acercan un poco al puntero y se agrupan en figuras
-      if (mouse && !reduce) { const dx = mouse.x - q.x, dy = mouse.y - q.y, d = Math.hypot(dx, dy); if (d < R && d > 50) { const g = (1 - d / R) * 90 * dt * active; q.x += dx / d * g; q.y += dy / d * g } }
-      if (q.x < -20) q.x = W + 20; if (q.x > W + 20) q.x = -20; if (q.y < -20) q.y = H + 20; if (q.y > H + 20) q.y = -20
-      q.lit = lit(q.x, q.y, mouse, R, active); q.q = quiet(q.x, q.y, W, H)
-      if (q.lit >= .01) on.push(q)
-    }
-    // Solo los puntos encendidos entran en los bucles de segmentos y triángulos.
-    for (let i = 0; i < on.length; i++) {
-      const a = on[i]
-      for (let j = i + 1; j < on.length; j++) {
-        const b = on[j]
-        const dx = a.x - b.x, dy = a.y - b.y
-        if (dx * dx + dy * dy > L2) continue
-        const d = Math.hypot(dx, dy)
-        const k0 = (1 - d / L) * Math.min(a.lit, b.lit) * p.line
-        if (k0 < .012) continue
-        const k = k0 * quietAlong(a.x, a.y, b.x, b.y, a.q, b.q, W, H)
-        if (k < .012) continue
-        ctx.strokeStyle = `rgba(${rgb},${k})`; ctx.lineWidth = .8
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke()
-        if (p.tri) for (let m = j + 1; m < on.length; m++) {
-          const e = on[m]
-          const ax = a.x - e.x, ay = a.y - e.y, bx = b.x - e.x, by = b.y - e.y
-          if (ax * ax + ay * ay < T2 && bx * bx + by * by < T2) {
-            const kt = k * p.tri * Math.min(e.q, quiet((a.x + b.x + e.x) / 3, (a.y + b.y + e.y) / 3, W, H), quietAlong(a.x, a.y, e.x, e.y, a.q, e.q, W, H), quietAlong(b.x, b.y, e.x, e.y, b.q, e.q, W, H))
-            if (kt < .001) continue
-            ctx.fillStyle = `rgba(${rgb},${kt})`; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(e.x, e.y); ctx.fill()
-          }
-        }
+    const q = (x, y) => quiet(x, y, W, H)
+    for (const pt of pts) {
+      if (!reduce) { pt.bx += pt.vx * dt; pt.by += pt.vy * dt }
+      if (pt.bx < -20) pt.bx = W + 20; if (pt.bx > W + 20) pt.bx = -20; if (pt.by < -20) pt.by = H + 20; if (pt.by > H + 20) pt.by = -20
+      // El puntero solo empuja un poco cada punto (máx. `pull` px) y el punto vuelve a su sitio: la densidad no se acumula en un lugar.
+      let tx = 0, ty = 0
+      pt.lit = lit(pt.bx, pt.by, mouse, R, active)
+      if (mouse && !reduce) {
+        const dx = mouse.x - pt.bx, dy = mouse.y - pt.by, d = Math.hypot(dx, dy)
+        if (d > 1 && d < R) { const g = soft(1 - d / R) * pull * active; tx = dx / d * g; ty = dy / d * g }
       }
+      ;[tx, ty] = clampLen(tx, ty, pull)
+      approach(pt, tx, ty, Math.min(1, dt * 6))
+      pt.x = pt.bx + pt.ox; pt.y = pt.by + pt.oy; pt.q = q(pt.x, pt.y)
+    }
+    // Solo los puntos encendidos entran en los enlaces: cada uno se une como máximo a sus MAX_LINKS vecinos más cercanos (figuras ligeras, no una mancha).
+    const graph = nearestLinks(pts.filter((pt) => pt.lit >= .01), L, MAX_LINKS)
+    for (const [a, b, d] of graph.edges.values()) {
+      const k0 = (1 - d / L) * Math.min(a.lit, b.lit) * p.line
+      if (k0 < .012) continue
+      const k = k0 * quietAlong(a.x, a.y, b.x, b.y, a.q, b.q, W, H)
+      if (k < .012) continue
+      ctx.strokeStyle = `rgba(${rgb},${k})`; ctx.lineWidth = .8
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke()
+    }
+    // Los triángulos solo salen de tríos ya conectados, como máximo MAX_TRIS por cuadro.
+    if (p.tri) for (const [a, b, e, k] of triangles(graph, MAX_TRIS, (a, b, e) => Math.min(a.lit, b.lit, e.lit) * p.tri * triQuiet(q, a, b, e))) {
+      ctx.fillStyle = `rgba(${rgb},${k})`; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(e.x, e.y); ctx.fill()
     }
     // Puntos tenues en reposo; más visibles cuanto más encendidos.
-    for (const q of pts) { const k = q.q * (.10 + .90 * q.lit) * p.dot; if (k < .02) continue; ctx.fillStyle = `rgba(${rgb},${k})`; ctx.beginPath(); ctx.arc(q.x, q.y, q.r, 0, 7); ctx.fill() }
+    for (const pt of pts) { const k = pt.q * (.10 + .90 * pt.lit) * p.dot; if (k < .02) continue; ctx.fillStyle = `rgba(${rgb},${k})`; ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.r, 0, 7); ctx.fill() }
   }
   return { resize, pointer, snap, frame, get points() { return pts }, get active() { return active } }
 }

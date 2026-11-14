@@ -4,7 +4,7 @@ Trabajo A de la noche del 2026-11-09. Dennys aprobó el efecto en una maqueta fu
 
 ## Qué es
 
-Un canvas decorativo detrás del retrato: una red de puntos y segmentos que se **enciende alrededor del puntero** (radio amplio), con puntos que se acercan al puntero, relleno tenue de triángulos, puntos tenues en reposo y apagado suave al salir. Nunca se dibuja sobre la cara ni el cuerpo; sí sobre los lados, la frase y los iconos de los nodos.
+Un canvas decorativo detrás del retrato: una red de puntos y segmentos que se **enciende alrededor del puntero** (radio amplio), con puntos que se desplazan un poco hacia el puntero y vuelven (ver «Corrección 2026-11-14»), relleno tenue de triángulos, puntos tenues en reposo y apagado suave al salir. Nunca se dibuja sobre la cara ni el cuerpo; sí sobre los lados, la frase y los iconos de los nodos.
 
 - Lógica: `src/home/network.js` (puro, sin DOM): `PRESETS`, `LEVEL`, `quiet()`, `lit()`, `accentRgb()`, `createNetwork()`.
 - Componente: `src/home/NetworkBackground.jsx` (canvas, listeners, ciclo de vida). Se monta dentro de `.canvas` en `FirstScreen.jsx`, antes del SVG de líneas.
@@ -44,3 +44,28 @@ Intensidad fija nº 2 «Sutil» (`n 170, link 140, line .75, dot .40, speed .06,
 ## Evidencia (`02-DOCS/evidencia/`)
 
 `red-reposo-light|dark.png` (solo puntos tenues), `red-encendida-light|dark.png` (puntero junto al lado izquierdo, sobre Código), `red-cara-light|dark.png` (puntero sobre la cara: la red se queda fuera de la cabeza y el cuerpo).
+
+## Corrección 2026-11-14: la red ya no se acumula en una mancha
+
+**Problema (visto en producción):** con el puntero quieto, los puntos cercanos eran atraídos cada cuadro y se acumulaban en un solo lugar formando una mancha densa; el resto de la pantalla se quedaba sin red.
+
+**Solución (maqueta v2 aprobada, `/tmp/red-referencia-v2.html`, función `frame()`):**
+
+| Qué | Antes | Ahora |
+| --- | --- | --- |
+| Movimiento hacia el puntero | Se sumaba a la posición del punto en cada cuadro (acumulativo: la densidad crecía sin límite) | Cada punto tiene posición **base** (`bx, by`, con su deriva y envoltura) y un **desplazamiento** (`ox, oy`) que se acerca al puntero como máximo `PULL` = 22 px a 1180 px de ancho (escalado con `W / REF_W`) y vuelve solo. La densidad no cambia |
+| Enlaces | Todos los pares encendidos a menos de `link` | Cada punto encendido se une como máximo a sus **3 vecinos más cercanos** (`MAX_LINKS`), enlaces deduplicados |
+| Triángulos | Cualquier trío de puntos cercanos | Solo **tríos ya conectados**, como máximo **12** por cuadro (`MAX_TRIS`) |
+| Encendido | `lit()` sobre la posición del punto | `lit()` sobre la posición **base** (no cambia al desplazarse) |
+
+Sin cambios: intensidad nº 2, `quiet()` (zona protegida desde `geometry.js`), `lit()` con `min(1, s·1,7)`, apagado suave, movimiento reducido, solo cliente y puntero fino, capas y limpieza.
+
+Decisiones:
+- **Movimiento reducido:** los puntos no derivan **ni se desplazan** hacia el puntero (la luz sí sigue al puntero y se dibuja un cuadro al moverlo). La maqueta v2 sí desplazaba los puntos con movimiento reducido; se conserva la regla de este spec («sin movimiento»).
+- **«Enlaces por punto ≤ 3» significa que cada punto elige a lo sumo 3 vecinos.** Un punto puede ser elegido por otros, así que su grado total puede ser mayor; es el comportamiento de la maqueta.
+- Las zonas protegidas de los lados y los triángulos siguen comprobándose a lo largo de cada segmento (decisión 2), y ahora el interior de un triángulo también (centroide y puntos hacia cada vértice).
+- El código común (vecinos, triángulos, desplazamiento acotado) vive en `src/home/net-core.js` y lo comparte con la red del móvil (`2026-11-14-movil-landing-vertical.md`).
+
+Pruebas (`tests/unit/network.test.js`): 300 cuadros con el puntero fijo, en tres semillas: ningún punto se aleja más de `PULL` de su base y la base solo avanza por su deriva; el tope escala con el ancho; ≤ 3 vecinos por punto y ≤ 12 triángulos por cuadro; la densidad no se concentra (ninguna celda de la rejilla guarda más de un cuarto de los puntos, y cerca del puntero no hay más del doble de lo esperado por azar); al quitar el puntero los puntos vuelven a su base. **Mutante:** al reintroducir la atracción acumulativa fallan la prueba de la cota y la de densidad; además hay una prueba de sensibilidad con el algoritmo antiguo. Medición por píxeles en navegador (`tests/e2e/network.spec.js`): cara y cuerpo = 0.
+
+Cómo revertir: `git revert` del commit «la red de escritorio ya no se acumula en una mancha».

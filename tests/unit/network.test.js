@@ -174,3 +174,101 @@ describe('coste por cuadro (medida, no umbral estricto)', () => {
     expect(ms).toBeLessThan(6)
   }, 20000)
 })
+
+// ---------------------------------------------------------------------------------------------------------------------------------------
+// Corrección de la red de escritorio (maqueta v2 /tmp/red-referencia-v2.html): con el puntero quieto los puntos se acumulaban en una mancha.
+// Ahora cada punto tiene una posición base y un desplazamiento hacia el puntero que nunca pasa de PULL px y vuelve solo.
+// ---------------------------------------------------------------------------------------------------------------------------------------
+import { PULL, MAX_LINKS, MAX_TRIS } from '../../src/home/network.js'
+import { nearestLinks } from '../../src/home/net-core.js'
+
+const lcg = (seed = 7) => () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)
+// Un contexto 2D de mentira que cuenta cuántos triángulos se rellenan por cuadro (un relleno con dos lineTo; los puntos usan arc).
+const counting = () => {
+  let ops = [], tris = 0, perFrame = []
+  return {
+    perFrame: () => perFrame,
+    clearRect() { perFrame.push(tris); tris = 0 }, beginPath() { ops = [] }, moveTo() {}, lineTo() { ops.push('l') }, arc() { ops.push('a') },
+    stroke() {}, fill() { if (ops.filter((o) => o === 'l').length === 2) tris++ },
+    set strokeStyle(v) {}, set fillStyle(v) {}, set lineWidth(v) {},
+  }
+}
+const W = 1180, H = 773
+const run = ({ frames = 300, dt = 1000 / 60, mouse = { x: 880, y: 330 }, reduce = false, seed = 21 } = {}) => {
+  const net = createNetwork({ rand: lcg(seed) })
+  net.resize(W, H)
+  net.pointer(mouse.x, mouse.y); if (reduce) net.snap()
+  const ctx = counting()
+  const start = net.points.map((p) => ({ bx: p.bx, by: p.by }))
+  let worst = 0, t = 0, baseDrift = 0
+  for (let f = 0; f < frames; f++) {
+    t += dt
+    net.frame(ctx, t, '179,48,29', reduce)
+    for (const p of net.points) worst = Math.max(worst, Math.hypot(p.ox, p.oy), Math.hypot(p.x - p.bx, p.y - p.by))
+  }
+  // La posición base solo avanza por su deriva constante: el puntero no la mueve (los puntos que dieron la vuelta al lienzo no cuentan).
+  net.points.forEach((p, i) => {
+    const ex = start[i].bx + p.vx * (frames * dt / 1000), ey = start[i].by + p.vy * (frames * dt / 1000)
+    if (ex > -20 && ex < W + 20 && ey > -20 && ey < H + 20) baseDrift = Math.max(baseDrift, Math.hypot(p.bx - ex, p.by - ey))
+  })
+  return { net, ctx, worst, baseDrift }
+}
+
+describe('red de escritorio: desplazamiento acotado (no hay atracción acumulativa)', () => {
+  it('constantes de la maqueta v2: pull 22 px a 1180 px, máx. 3 vecinos, máx. 12 triángulos', () => {
+    expect([PULL, MAX_LINKS, MAX_TRIS]).toEqual([22, 3, 12])
+  })
+  it('con el puntero fijo 300 cuadros, ningún punto se aleja más de «pull» de su base (y sí se mueve)', () => {
+    for (const seed of [21, 22, 23]) {
+      const { worst, baseDrift } = run({ seed })
+      expect(worst, `semilla ${seed}`).toBeLessThanOrEqual(PULL + 1e-6)
+      expect(baseDrift, `semilla ${seed}: la base solo deriva`).toBeLessThan(.5)
+      expect(worst).toBeGreaterThan(1)
+    }
+  })
+  it('el tope escala con el ancho del lienzo: a 590 px el desplazamiento máximo es la mitad', () => {
+    const net = createNetwork({ rand: lcg(4) }); net.resize(590, 386); net.pointer(440, 165)
+    const ctx = counting(); let worst = 0
+    for (let f = 0; f < 300; f++) { net.frame(ctx, f * 16.7, '1,1,1'); for (const p of net.points) worst = Math.max(worst, Math.hypot(p.ox, p.oy)) }
+    expect(worst).toBeLessThanOrEqual(PULL / 2 + 1e-6)
+  })
+  it('cada punto encendido se une como máximo a sus 3 vecinos más cercanos y nunca hay más de 12 triángulos por cuadro', () => {
+    const { net, ctx } = run()
+    const on = net.points.filter((p) => p.lit >= .01)
+    expect(on.length).toBeGreaterThan(10) // la prueba mide algo
+    const { chosen } = nearestLinks(on, PRESETS[LEVEL].link * (W / REF_W), MAX_LINKS)
+    for (const [, n] of chosen) expect(n).toBeLessThanOrEqual(3)
+    expect(Math.max(...ctx.perFrame())).toBeLessThanOrEqual(MAX_TRIS)
+  })
+  it('la densidad no cambia con el puntero quieto: ninguna celda de la rejilla retiene una fracción grande de los puntos', () => {
+    const { net } = run()
+    const cells = new Map()
+    for (const p of net.points) { const k = `${Math.floor(p.x / (W / 4))},${Math.floor(p.y / (H / 3))}`; cells.set(k, (cells.get(k) ?? 0) + 1) }
+    expect(Math.max(...cells.values())).toBeLessThan(net.points.length * .25)
+    // y la nube junta cerca del puntero no supera el doble de lo que habría por azar en ese radio
+    const R = PRESETS[LEVEL].reach, near = net.points.filter((p) => Math.hypot(p.x - 880, p.y - 330) < R / 2).length
+    const expected = net.points.length * (Math.PI * (R / 2) ** 2) / (W * H)
+    expect(near).toBeLessThan(expected * 2.2 + 3)
+  })
+  it('al quitar el puntero los puntos vuelven a su base (el desplazamiento se agota solo)', () => {
+    const { net } = run({ frames: 120 })
+    net.pointer(null)
+    const ctx = counting()
+    for (let f = 0; f < 240; f++) net.frame(ctx, 10000 + f * 16.7, '1,1,1')
+    for (const p of net.points) expect(Math.hypot(p.ox, p.oy)).toBeLessThan(.05)
+  })
+  it('movimiento reducido: los puntos no derivan ni se desplazan hacia el puntero', () => {
+    const { net, worst } = run({ reduce: true, frames: 60 })
+    expect(worst).toBe(0)
+    for (const p of net.points) { expect(p.x).toBe(p.bx); expect(p.y).toBe(p.by) }
+  })
+  it('sensibilidad (mutante): la atracción acumulativa de la versión anterior sí rompe la cota, así que esta prueba la detectaría', () => {
+    const r = lcg(3)
+    const base = Array.from({ length: 170 }, () => ({ x: r() * W, y: r() * H }))
+    const pts = base.map((p) => ({ ...p }))
+    const R = PRESETS[LEVEL].reach
+    for (let f = 0; f < 300; f++) for (const q of pts) { const dx = 880 - q.x, dy = 330 - q.y, d = Math.hypot(dx, dy); if (d < R && d > 50) { const g = (1 - d / R) * 90 / 60; q.x += dx / d * g; q.y += dy / d * g } }
+    const worst = Math.max(...pts.map((q, i) => Math.hypot(q.x - base[i].x, q.y - base[i].y)))
+    expect(worst).toBeGreaterThan(PULL * 3)
+  })
+})
