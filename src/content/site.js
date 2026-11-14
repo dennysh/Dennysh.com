@@ -64,6 +64,7 @@ export const site = {
       tagline: ['7 years in fiber optics', 'Remote · UTC-5 · Spanish native · English B1'],
       bar: { cv: 'CV' },
       portraitAlt: 'Portrait of Dennys Heras',
+      hint: 'Swipe',
       nodesLabel: 'Explore',
       nodes: [
         { id: 'code', label: 'Code' }, { id: 'projects', label: 'Projects' },
@@ -340,6 +341,7 @@ export const site = {
       tagline: ['7 años en fibra óptica', 'Remoto · UTC-5 · Español nativo · Inglés B1'],
       bar: { cv: 'CV' },
       portraitAlt: 'Retrato de Dennys Heras',
+      hint: 'Desliza',
       nodesLabel: 'Explorar',
       nodes: [
         { id: 'code', label: 'Código' }, { id: 'projects', label: 'Proyectos' },

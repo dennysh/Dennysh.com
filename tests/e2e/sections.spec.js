@@ -111,10 +111,10 @@ test('Interés: solo el pensamiento cerebro–IA, sin deportes', async ({ page }
   await expect(page.locator('main')).not.toContainText(/jiu|triathlon|obstacle|sport/i)
 })
 
-test('con viewport 360×640 el inicio muestra frase, nodos y retrato sin desplazarse (AC-01)', async ({ page }) => {
+test('con viewport 360×640 el inicio muestra frase y retrato en la primera pantalla y no se desplaza de lado (AC-01)', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 })
   await page.goto('/en/')
-  for (const loc of [page.locator('h1'), page.locator('.nodes'), page.locator('.portrait')]) await expect(loc).toBeInViewport({ ratio: 1 })
+  for (const loc of [page.locator('h1'), page.locator('.portrait')]) await expect(loc).toBeInViewport({ ratio: 1 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 })
 

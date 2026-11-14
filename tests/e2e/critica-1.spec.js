@@ -25,17 +25,6 @@ test.describe('panel de vista previa (C-03)', () => {
     }
   })
 
-  test('móvil 390×844: ningún panel tiene scroll sobrante (el pie compensa el relleno de móvil)', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' })
-    await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/es/')
-    await hydrated(page)
-    for (const name of ['Código', 'Proyectos', 'Trayectoria', 'Cómo trabajo', 'Interés']) {
-      await page.getByRole('link', { name, exact: true }).hover()
-      const extra = await page.locator('.panel[data-active="true"]').evaluate((p) => p.scrollHeight - p.clientHeight)
-      expect(extra, `${name}: scrollHeight − clientHeight`).toBeLessThanOrEqual(1)
-    }
-  })
 })
 
 test.describe('Proyectos (C-02, C-06)', () => {
@@ -215,7 +204,7 @@ test('texto visible de 12 px como mínimo en todas las páginas, salvo las etiqu
   expect(bad).toEqual([])
 })
 
-test('los nodos dejan de flotar al apuntarlos y al enfocarlos (con movimiento permitido) y no flotan en móvil (C-24)', async ({ page }) => {
+test('los nodos dejan de flotar al apuntarlos y al enfocarlos (con movimiento permitido) (C-24)', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/es/')
   await hydrated(page)
@@ -223,8 +212,6 @@ test('los nodos dejan de flotar al apuntarlos y al enfocarlos (con movimiento pe
   expect(await play('Trayectoria')).toBe('running')
   await page.getByRole('link', { name: 'Trayectoria', exact: true }).focus()
   expect(await play('Trayectoria')).toBe('paused')
-  await page.setViewportSize({ width: 390, height: 844 })
-  expect(await page.getByRole('link', { name: 'Trayectoria', exact: true }).evaluate((e) => getComputedStyle(e).animationName)).toBe('none')
 })
 
 test('móvil: la barra del inicio mantiene su altura aunque sus enlaces midan 44 px (C-07)', async ({ page }) => {
@@ -318,17 +305,4 @@ test.describe('primera pantalla sin Demo (escritorio)', () => {
     expect(m.journey.y).toBeLessThan(m.projects.y) // el arco sube hacia el centro
     expect(m.overlapsBar).toBe(false) // Trayectoria no pisa nada de la barra superior
   })
-  for (const [w, h] of [[360, 640], [390, 844]]) {
-    test(`móvil ${w}×${h}: sin tarjeta en reposo, cinco nodos en una fila, sin desbordes ni desplazamiento`, async ({ page }) => {
-      await page.setViewportSize({ width: w, height: h })
-      await page.goto('/es/')
-      await hydrated(page)
-      const m = await page.evaluate(() => ({ nodes: [...document.querySelectorAll('.node-link')].map((n) => { const r = n.getBoundingClientRect(); return [r.top, r.left, r.right] }), sw: document.documentElement.scrollWidth, iw: innerWidth, sh: document.documentElement.scrollHeight, vh: innerHeight }))
-      expect(m.nodes).toHaveLength(5)
-      expect(new Set(m.nodes.map((n) => Math.round(n[0]))).size).toBe(1) // misma fila
-      for (const n of m.nodes) { expect(n[1]).toBeGreaterThanOrEqual(0); expect(n[2]).toBeLessThanOrEqual(w) }
-      expect(m.sw).toBeLessThanOrEqual(m.iw); expect(m.sh).toBeLessThanOrEqual(m.vh)
-      await expect(page.locator('.panel:visible')).toHaveCount(0)
-    })
-  }
 })

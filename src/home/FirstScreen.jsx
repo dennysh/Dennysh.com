@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { site, links } from '../content/site.js'
 import NodeIcon from './icons.jsx'
 import NetworkBackground from './NetworkBackground.jsx'
+import MobileNetwork from './MobileNetwork.jsx'
+import Explore from './Explore.jsx'
 import ThemeToggle from '../components/ThemeToggle.jsx'
 import TelegramBots from '../components/TelegramBots.jsx'
 import { codePanel } from './code-panel.js'
@@ -88,6 +90,7 @@ export default function FirstScreen({ lang }) {
   const [skip, setSkip] = useState(0)
   const typingUntil = useRef(0) // instante hasta el que se está escribiendo el panel elegido (0 = nada que completar)
   const timer = useRef(0) // retraso de intención
+  const canvasRef = useRef(null) // el contenedor de la primera pantalla: la red del móvil escucha el dedo aquí
   const off = useRef(0) // margen de salida
   const hoverSheet = useRef(false) // la hoja la abrió el ratón: se cierra al apartarlo
   const byTouch = useRef(false) // el panel lo abrió un toque: no hay "salir", se cierra con otro toque fuera o con Esc
@@ -152,14 +155,15 @@ export default function FirstScreen({ lang }) {
   const panelProps = (id) => ({ active: is(id), onClick: complete, onEnter: stay, onLeave: leave, onBlur: (e) => { if (!e.currentTarget.contains(e.relatedTarget) && !e.relatedTarget?.closest?.('.node-link')) leave() } })
 
   return (
+    <>
     <section id="inicio" className="first" data-js={enhanced ? 'true' : undefined} aria-labelledby="hero-h">
-      <div className="canvas" data-sheet={sheet ? 'open' : undefined}>
+      <div className="canvas" ref={canvasRef} data-sheet={sheet ? 'open' : undefined}>
         <FirstBar lang={lang} />
         <img
           className="portrait"
           src="/images/dennys-portrait.webp"
           srcSet="/images/dennys-portrait-360.webp 360w, /images/dennys-portrait.webp 900w"
-          sizes="(max-width: 760px) 96px, 33vw"
+          sizes="(max-width: 760px) 80vw, 33vw"
           width="900"
           height="1210"
           alt={h.portraitAlt}
@@ -167,6 +171,7 @@ export default function FirstScreen({ lang }) {
           decoding="async"
         />
         <NetworkBackground />
+        <MobileNetwork hostRef={canvasRef} />
         <svg className="lines" viewBox={`0 0 ${VIEW.w} ${VIEW.h}`} aria-hidden="true" focusable="false">
           <path className="arc" d={arcPath()} />
           <circle className="ring" cx={HEAD.x} cy={HEAD.y} r={RING_R} pathLength="1" data-on={pointed ? 'true' : undefined} />
@@ -198,6 +203,7 @@ export default function FirstScreen({ lang }) {
           <h1 id="hero-h">{h.phrase}</h1>
           <p className="tagline">{h.tagline[0]}<br />{h.tagline[1]}</p>
         </div>
+        <div className="hint" aria-hidden="true">{h.hint}<i /></div>
         <div className="panels">
           <Panel id="code" {...panelProps('code')} className="has-pre">
             <h2 id="p-code-h">{h.panels.code.title}</h2>
@@ -231,5 +237,7 @@ export default function FirstScreen({ lang }) {
         </div>
       </div>
     </section>
+    <Explore lang={lang} />
+    </>
   )
 }

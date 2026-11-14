@@ -77,7 +77,7 @@ describe('tokens de tema: oscuro por defecto, claro solo con data-theme="light"'
 describe('estilos de nodo activo', () => {
   it('ninguna regla usa aria-pressed (los nodos son enlaces con aria-expanded)', () => {
     expect(readFileSync('src/styles/home.css', 'utf8')).not.toContain('aria-pressed="true"]')
-    expect(readFileSync('src/styles/home.css', 'utf8').match(/\.node-link\[aria-expanded="true"\]/g).length).toBeGreaterThanOrEqual(3) // escritorio (2) y móvil (1)
+    expect(readFileSync('src/styles/home.css', 'utf8').match(/\.node-link\[aria-expanded="true"\]/g).length).toBeGreaterThanOrEqual(2) // escritorio (el móvil ya no tiene nodos)
   })
 })
 

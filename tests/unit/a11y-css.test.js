@@ -22,11 +22,11 @@ describe('contraste y tamaño del enlace de salto (C-05)', () => {
 describe('objetivos táctiles (C-07)', () => {
   it('móvil: los enlaces de la barra del inicio miden 44 px sin crecer la barra (margen negativo)', () => {
     const mobile = home.slice(home.indexOf('@media (max-width: 760px) {'))
-    const r = rule(mobile, '  .bar a')
+    // La barra del móvil flota sobre el hero (posición absoluta): no hay alto que preservar, así que ya no lleva margen negativo.
+    const r = rule(mobile, '  .bar a, .bar .theme-toggle')
     expect(r).toMatch(/min-width: 44px/)
     expect(r).toMatch(/min-height: 44px/)
-    expect(r).toMatch(/margin-block: -8px/)
-    expect(mobile).toMatch(/\.panel-links a, \.panel \.btn, \.tabs button \{ min-height: 44px; \}/)
+    expect(rule(mobile, '  .m-card a')).toMatch(/min-height: 44px/) // los enlaces de las tarjetas de «Explorar»
   })
   it('páginas interiores: marca y navegación móvil a 44 px; pie, Volver y enlaces sueltos a 28 px (escritorio) o 44 px (móvil)', () => {
     expect(rule(site, '.brand')).toContain('min-height: 44px')
@@ -40,7 +40,7 @@ describe('objetivos táctiles (C-07)', () => {
 })
 
 describe('texto de 12 px como mínimo (C-08)', () => {
-  it('ninguna regla fija una fuente menor de 12 px, salvo la etiqueta de los nodos en móvil (aplazada con el rediseño móvil, C-10)', () => {
+  it('ninguna regla fija una fuente menor de 12 px (la etiqueta de nodos en móvil desapareció con la landing vertical)', () => {
     const small = []
     for (const [name, css] of [['home.css', home], ['site.css', site]]) {
       for (const m of css.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
@@ -48,11 +48,11 @@ describe('texto de 12 px como mínimo (C-08)', () => {
         if (sizes.some((n) => n < 12)) small.push(`${name}: ${m[1].trim()}`)
       }
     }
-    expect(small).toEqual(['home.css: .node-link'])
+    expect(small).toEqual([])
   })
   it('escritorio y móvil: tagline y "Abre una página nueva" desde 12 px', () => {
     expect(home).toMatch(/\.tagline \{ margin: 1\.2cqw 0 0; font-size: max\(12px, 1cqw\); \}/)
-    expect(home).toMatch(/\.tagline \{ margin: 6px 0 0; font-size: 12px;/)
+    expect(home).toMatch(/\.tagline \{ margin: 10px 0 0; font-size: 12px;/)
     expect(rule(home, '.panel .opens')).toContain('font: 12px/')
   })
 })
@@ -63,9 +63,9 @@ describe('navegación móvil y movimiento (C-09, C-24)', () => {
     expect(mobile).toMatch(/\.topbar nav \{[^}]*mask-image: linear-gradient\(to right, #000 calc\(100% - 28px\), transparent\)/)
     expect(mobile).toMatch(/\.topbar nav ul \{ width: max-content; padding-right: 32px; \}/) // sin max-content el relleno no sigue al contenido desbordado
   })
-  it('los nodos dejan de flotar al apuntarlos o enfocarlos y no flotan en móvil', () => {
+  it('los nodos dejan de flotar al apuntarlos o enfocarlos; en móvil no hay nodos flotantes (están ocultos)', () => {
     expect(home).toMatch(/\.node-link:is\(:hover, :focus-visible\) \{ animation-play-state: paused; \}/)
-    expect(home).toMatch(/\.node-link \{ animation: none; \}/)
+    expect(rule(home.slice(home.indexOf('@media (max-width: 760px) {')), '  .lines, .net, .nodes, .panels')).toContain('display: none')
   })
 })
 
@@ -106,7 +106,7 @@ describe('el anillo y las líneas van detrás del retrato en escritorio', () => 
     expect(rule(desk, '.nodes')).toContain('z-index: 7')
     expect(rule(home, '.bar')).toContain('z-index: 6')
     expect(rule(home, '.canvas::before')).toContain('z-index: -1')
-    expect(rule(home.slice(home.indexOf('@media (max-width: 760px)')), '.lines, .net')).toContain('display: none')
+    expect(rule(home.slice(home.indexOf('@media (max-width: 760px)')), '.lines, .net, .nodes, .panels')).toContain('display: none')
     // la red de fondo: detrás de todo salvo el brillo, y sin recibir el puntero
     expect(rule(desk, '.net')).toContain('z-index: -1')
     expect(rule(desk, '.net')).toContain('pointer-events: none')

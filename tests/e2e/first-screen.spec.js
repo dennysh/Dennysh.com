@@ -9,33 +9,7 @@ const PATHS = { en: { code: '/en/code/', projects: '/en/projects/', journey: '/e
 const hydrated = (page) => page.waitForSelector('.first[data-js]')
 const node = (page, name) => page.getByRole('link', { name, exact: true })
 
-for (const [w, h] of [[360, 640], [390, 844]]) {
-  for (const lang of ['en', 'es']) {
-    test(`móvil ${w}×${h} (${lang}): frase única, los cinco nodos y el retrato caben sin desplazarse (AC-H1, AC-01)`, async ({ page }) => {
-      await page.setViewportSize({ width: w, height: h })
-      await page.goto(`/${lang}/`)
-      await hydrated(page)
-      for (const loc of [page.locator('h1'), page.locator('.portrait'), page.locator('.nodes')]) await expect(loc).toBeInViewport({ ratio: 1 })
-      for (const name of NODES[lang]) {
-        const n = node(page, name)
-        await expect(n).toBeInViewport({ ratio: 1 })
-        const box = await n.boundingBox()
-        expect(box.width, `${name} ancho`).toBeGreaterThanOrEqual(44)
-        expect(box.height, `${name} alto`).toBeGreaterThanOrEqual(44)
-      }
-      const dims = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: innerWidth, sh: document.documentElement.scrollHeight, vh: innerHeight }))
-      expect(dims.sw).toBeLessThanOrEqual(dims.iw)
-      expect(dims.sh).toBeLessThanOrEqual(dims.vh) // el inicio es una sola pantalla: no hay nada más abajo (C4)
-    })
-  }
-}
-
-test('móvil 390×844: en reposo no hay tarjeta; al tocar un nodo su tarjeta se ve en línea y entra en la pantalla', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/es/')
-  await expect(page.locator('.panel:visible')).toHaveCount(0)
-  await expect(page.locator('#p-demo')).toHaveCount(0)
-})
+// El móvil (≤ 760 px) es ahora una landing vertical con su propio conjunto de pruebas: tests/e2e/mobile-landing.spec.js.
 
 test('escritorio 1180×800: retrato, cinco nodos y frase, sin tarjeta en reposo, sin desplazarse (AC-H1)', async ({ page }) => {
   await page.setViewportSize({ width: 1180, height: 800 })
@@ -360,10 +334,10 @@ test.describe('retraso de intención y escritura con movimiento normal (AC-H5)',
   })
 })
 
+// Pantallas táctiles anchas (tableta, ≥ 761 px) usan el diseño de escritorio con el arco de nodos: el primer toque abre la vista previa y el segundo navega.
 test.describe('táctil (C3): primer toque abre la vista previa, segundo toque navega', () => {
-  test.use({ hasTouch: true, reducedMotion: 'reduce' })
-  test('móvil bajo 360×640: la hoja se abre al primer toque con "Open Journey →", no deja pasar el clic, y el segundo toque navega', async ({ page }) => {
-    await page.setViewportSize({ width: 360, height: 640 })
+  test.use({ hasTouch: true, reducedMotion: 'reduce', viewport: { width: 1024, height: 768 } })
+  test('tableta 1024×768: el primer toque abre la vista previa con "Open Journey →", no deja pasar el clic, y el segundo toque navega', async ({ page }) => {
     await page.goto('/en/')
     await hydrated(page)
     await expect(page.locator('.panel:visible')).toHaveCount(0)
@@ -374,8 +348,7 @@ test.describe('táctil (C3): primer toque abre la vista previa, segundo toque na
     await node(page, 'Journey').tap()
     await page.waitForURL('**/en/journey/')
   })
-  test('móvil 390×844: tocar otro nodo cambia la vista previa sin navegar; el botón "Abrir" navega', async ({ page }) => {
-    await page.setViewportSize({ width: 390, height: 844 })
+  test('tableta: tocar otro nodo cambia la vista previa sin navegar; el botón "Abrir" navega', async ({ page }) => {
     await page.goto('/es/')
     await hydrated(page)
     await node(page, 'Proyectos').tap()
@@ -387,16 +360,12 @@ test.describe('táctil (C3): primer toque abre la vista previa, segundo toque na
     await page.locator('#p-interest a.btn').tap()
     await page.waitForURL('**/es/interes/')
   })
-  test('móvil bajo: Esc cierra la hoja; la hoja no tapa la fila de nodos; axe no halla violaciones con la hoja abierta (AC-H6)', async ({ page }) => {
+  test('tableta: Esc cierra la vista previa; axe no halla violaciones con ella abierta (AC-H6)', async ({ page }) => {
     const { default: AxeBuilder } = await import('@axe-core/playwright')
-    await page.setViewportSize({ width: 360, height: 640 })
     await page.goto('/en/')
     await hydrated(page)
     await node(page, 'Code').tap()
     await expect(page.locator('#p-code')).toBeVisible()
-    const sheet = await page.locator('#p-code').boundingBox()
-    const nodes = await page.locator('.nodes').boundingBox()
-    expect(sheet.y).toBeGreaterThanOrEqual(nodes.y + nodes.height)
     const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze()
     expect(r.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)).toEqual([])
     await page.keyboard.press('Escape')

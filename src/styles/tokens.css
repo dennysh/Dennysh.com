@@ -24,6 +24,8 @@
   --glow-mid: rgba(232, 140, 50, .34);
   --glow-edge: rgba(240, 195, 70, .12);
   --glow-side: rgb(111 140 88 / .22);
+  --m-glow: rgba(255, 106, 77, .26);
+  --m-glow2: rgba(190, 120, 40, .22);
   --radius: 10px;
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 40px; --space-7: 72px;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -50,4 +52,6 @@
   --glow-mid: rgba(217, 130, 43, .22);
   --glow-edge: rgba(232, 185, 61, .08);
   --glow-side: rgb(169 197 143 / .28);
+  --m-glow: rgba(229, 67, 45, .20);
+  --m-glow2: rgba(214, 160, 90, .18);
 }

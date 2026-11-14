@@ -174,14 +174,14 @@ test.describe('puntero fino (escritorio)', () => {
 })
 
 test.describe('sin puntero fino', () => {
-  test('móvil táctil 390×844: no hay canvas', async ({ browser }) => {
+  test('móvil táctil 390×844: no hay la red de escritorio (solo la del móvil, canvas.net-m)', async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, deviceScaleFactor: 3 })
     const page = await ctx.newPage()
     await page.goto('/es/')
     await hydrated(page)
     await page.waitForTimeout(300)
     await expect(net(page)).toHaveCount(0)
-    expect(await page.evaluate(() => document.querySelectorAll('canvas').length)).toBe(0)
+    expect(await page.evaluate(() => [...document.querySelectorAll('canvas')].map((c) => c.className))).toEqual(['net-m'])
     await ctx.close()
   })
   test('pantalla ancha pero táctil (tableta 1024×768, sin hover): no hay canvas', async ({ browser }) => {
