@@ -102,15 +102,24 @@ test('el enlace de salto del inicio tiene contraste suficiente con foco, en clar
   }
 })
 
-test('móvil: la barra de siete enlaces deja a la vista la página actual y se difumina por la derecha (C-09)', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/es/sobre-mi/')
-  await page.waitForFunction(() => document.querySelector('.topbar nav').scrollLeft > 0)
-  const cur = await page.locator('.topbar nav a[aria-current="page"]').boundingBox()
-  expect(cur.x).toBeGreaterThanOrEqual(0)
-  expect(cur.x + cur.width).toBeLessThanOrEqual(390)
-  expect(await page.locator('.topbar nav').evaluate((n) => getComputedStyle(n).maskImage)).toContain('linear-gradient')
-})
+for (const [width, height] of [[390, 844], [360, 640]]) {
+  test(`móvil ${width}×${height}: la barra de las páginas interiores pasa los enlaces a una segunda fila, sin cortes, sin desplazamiento lateral y con 44 px (C-09)`, async ({ page }) => {
+    await page.setViewportSize({ width, height })
+    for (const path of ['/es/sobre-mi/', '/en/about/', '/es/contacto/', '/es/como-trabajo/']) {
+      await page.goto(path)
+      const m = await page.locator('.topbar nav').evaluate((nav) => {
+        const r = nav.getBoundingClientRect()
+        const links = [...nav.querySelectorAll('a')].map((a) => { const b = a.getBoundingClientRect(); return { l: b.left, r: b.right, h: b.height, clipped: a.scrollWidth > a.clientWidth + 1 } })
+        return { navScroll: nav.scrollWidth > nav.clientWidth, links, navLeft: r.left, navRight: r.right, sw: document.documentElement.scrollWidth, iw: innerWidth }
+      })
+      expect(m.navScroll, path).toBe(false)
+      expect(m.sw, path).toBeLessThanOrEqual(m.iw)
+      expect(m.links, path).toHaveLength(6)
+      for (const l of m.links) { expect(l.l, path).toBeGreaterThanOrEqual(0); expect(l.r, path).toBeLessThanOrEqual(width); expect(l.h, path).toBeGreaterThanOrEqual(44); expect(l.clipped, path).toBe(false) }
+      await expect(page.locator('.topbar nav a[aria-current="page"]')).toHaveCount(1)
+    }
+  })
+}
 
 test('el brillo de fondo de las páginas interiores no baja el contraste del texto atenuado ni de los enlaces por debajo de 4,5:1 (C-04)', async ({ browser }) => {
   const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4 }; return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2]) }
@@ -133,21 +142,6 @@ test('el brillo de fondo de las páginas interiores no baja el contraste del tex
     await ctx.close()
   }
 })
-
-for (const width of [390, 320]) {
-  test(`móvil ${width}: con la barra desplazada al final, el último enlace queda fuera del difuminado (C-09)`, async ({ page }) => {
-    await page.setViewportSize({ width, height: 800 })
-    for (const path of ['/es/contacto/', '/en/contact/', '/es/codigo/']) {
-      await page.goto(path)
-      const m = await page.locator('.topbar nav').evaluate((nav) => {
-        nav.scrollLeft = nav.scrollWidth
-        const last = nav.querySelector('li:last-child a').getBoundingClientRect()
-        return { lastRight: last.right, navRight: nav.getBoundingClientRect().right }
-      })
-      expect(m.lastRight, `${path} a ${width}px`).toBeLessThanOrEqual(m.navRight - 28 + 0.5)
-    }
-  })
-}
 
 // ---------- medidas de lo que antes solo se fijaba por texto de CSS (hallazgos del refutador de pruebas) ----------
 test('Cómo trabajo: los cinco pasos se reparten 3 + 2 en pantalla ancha, el diagrama se ve en escritorio y se oculta en móvil (C-11, C-26)', async ({ page }) => {

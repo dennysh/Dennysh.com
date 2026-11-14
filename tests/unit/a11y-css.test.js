@@ -32,8 +32,10 @@ describe('objetivos táctiles (C-07)', () => {
     expect(rule(site, '.brand')).toContain('min-height: 44px')
     expect(rule(site, 'footer.site a')).toMatch(/min-height: 28px[^}]*min-width: 28px|min-width: 28px[^}]*min-height: 28px/)
     expect(rule(site, '.back a, .card p > a, .contact-list a')).toContain('min-height: 28px')
+    const bar = site.slice(site.indexOf('@media (max-width: 760px) {'))
+    expect(bar).toMatch(/\.topbar nav a \{[^}]*min-height: 44px/)
+    expect(bar).not.toMatch(/overflow-x: auto|mask-image/) // sin desplazamiento lateral ni difuminado: nada queda cortado
     const mobile = site.slice(site.indexOf('@media (max-width: 600px) {'))
-    expect(mobile).toMatch(/\.topbar nav a \{[^}]*min-height: 44px/)
     expect(mobile).toMatch(/footer\.site a, \.back a, \.card p > a, \.contact-list a \{ min-height: 44px; min-width: 44px; \}/)
     expect(rule(site, '.bots > summary')).toContain('min-height: 44px')
   })
@@ -58,10 +60,12 @@ describe('texto de 12 px como mínimo (C-08)', () => {
 })
 
 describe('navegación móvil y movimiento (C-09, C-24)', () => {
-  it('la barra de siete enlaces se difumina por la derecha y deja relleno para el último', () => {
-    const mobile = site.slice(site.indexOf('@media (max-width: 600px) {'))
-    expect(mobile).toMatch(/\.topbar nav \{[^}]*mask-image: linear-gradient\(to right, #000 calc\(100% - 28px\), transparent\)/)
-    expect(mobile).toMatch(/\.topbar nav ul \{ width: max-content; padding-right: 32px; \}/) // sin max-content el relleno no sigue al contenido desbordado
+  it('la barra de seis enlaces va en rejilla de tres columnas en una segunda fila, sin desplazamiento ni difuminado, y marca la página actual', () => {
+    const bar = site.slice(site.indexOf('@media (max-width: 760px) {'), site.indexOf('@media (max-width: 600px) {'))
+    expect(bar).toMatch(/\.topbar nav \{[^}]*order: 3; width: 100%/)
+    expect(bar).toMatch(/\.topbar nav ul \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/)
+    expect(bar).toMatch(/\.topbar nav a\[aria-current="page"\]/)
+    expect(bar).not.toMatch(/overflow-x|mask-image|nowrap/)
   })
   it('los nodos dejan de flotar al apuntarlos o enfocarlos; en móvil no hay nodos flotantes (están ocultos)', () => {
     expect(home).toMatch(/\.node-link:is\(:hover, :focus-visible\) \{ animation-play-state: paused; \}/)
