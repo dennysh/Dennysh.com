@@ -15,7 +15,7 @@ for (const lang of ['en', 'es']) {
     for (const id of ['demo', 'factory', 'governance', 'work', 'skills', 'journey', 'criden', 'contact', 'footer']) await expect(page.locator(`#${id}`), id).toHaveCount(0)
     await expect(page.locator('html')).toHaveAttribute('lang', lang)
     await expect(page.locator('h1')).toHaveCount(1)
-    await expect(page.locator('h1')).toHaveText(lang === 'es' ? 'Un poco de lo que hago, en pocos minutos.' : 'A little of what I do, in a few minutes.')
+    await expect(page.locator('h1')).toHaveText(lang === 'es' ? 'Te cuento lo que hago en unos pocos minutos.' : 'A little of what I do, in a few minutes.')
     await expect(page.locator('footer')).toHaveCount(0)
     await expect(page.getByRole('link', { name: /contact|contacto|contactar/i })).toHaveCount(0)
     await expect(page.getByText('dennys@dennysh.com')).toHaveCount(0)

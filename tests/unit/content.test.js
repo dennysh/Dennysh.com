@@ -110,7 +110,7 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
     expect(site.en.hero.thesis).toBe('I build AI systems that explain themselves and can be audited.')
   })
   it('la portada no tiene titular: su único texto principal es la frase de Dennys (correcciones 1, C6)', () => {
-    expect(site.es.home.phrase).toBe('Un poco de lo que hago, en pocos minutos.')
+    expect(site.es.home.phrase).toBe('Te cuento lo que hago en unos pocos minutos.')
     expect(site.en.home.phrase).toBe('A little of what I do, in a few minutes.')
   })
   it('una sola línea de origen bajo el titular: 7 años de fibra óptica, en campo; la fibra no es una etiqueta', () => {
@@ -258,8 +258,8 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
     expect(es.journey.text).toBe('Siete años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.')
   })
   it('las líneas mono del Hero: 7 años en fibra óptica y perfil confirmado', () => {
-    expect(site.es.home.tagline).toEqual(['7 años en fibra óptica', 'Remoto · UTC-5 · Español nativo · Inglés B1'])
-    expect(site.en.home.tagline).toEqual(['7 years in fiber optics', 'Remote · UTC-5 · Spanish native · English B1'])
+    expect(site.es.home.tagline).toEqual(['7 años en fibra óptica', 'Remoto · Español nativo · Inglés B1'])
+    expect(site.en.home.tagline).toEqual(['7 years in fiber optics', 'Remote · Spanish native · English B1'])
   })
   it('Interés: solo el pensamiento cerebro–IA; ningún deporte en ninguna parte (C6, Dennys 2026-11-01)', () => {
     for (const lang of ['en', 'es']) {

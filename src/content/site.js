@@ -61,7 +61,7 @@ export const site = {
     },
     home: {
       phrase: 'A little of what I do, in a few minutes.',
-      tagline: ['7 years in fiber optics', 'Remote · UTC-5 · Spanish native · English B1'],
+      tagline: ['7 years in fiber optics', 'Remote · Spanish native · English B1'],
       bar: { cv: 'CV' },
       portraitAlt: 'Portrait of Dennys Heras',
       hint: 'Swipe',
@@ -337,8 +337,8 @@ export const site = {
       ],
     },
     home: {
-      phrase: 'Un poco de lo que hago, en pocos minutos.',
-      tagline: ['7 años en fibra óptica', 'Remoto · UTC-5 · Español nativo · Inglés B1'],
+      phrase: 'Te cuento lo que hago en unos pocos minutos.',
+      tagline: ['7 años en fibra óptica', 'Remoto · Español nativo · Inglés B1'],
       bar: { cv: 'CV' },
       portraitAlt: 'Retrato de Dennys Heras',
       hint: 'Desliza',
