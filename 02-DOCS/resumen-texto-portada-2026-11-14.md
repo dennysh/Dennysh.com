@@ -26,3 +26,11 @@ Encargo pequeño de Dennys. Sobre main 05a7b18, un commit aparte, sin push.
 ## Seguimiento: h1 balanceado en escritorio
 - `src/styles/home.css`: `text-wrap: balance` en la regla base de `h1#hero-h` (en móvil ya estaba). En 1440×900 el h1 en español queda «Te cuento lo que / hago en unos / pocos minutos.», sin palabra suelta.
 - Compuertas: vitest 1051/1051, e2e 75/75, `verify.sh` verde. Astra aprueba el diff (la primera pasada rechazó solo por el `.rsc.json` ajeno del árbol, que no entra en el commit).
+
+## Seguimiento: frase en español «Un poco sobre mí.»
+- Pedido de Dennys: h1 en español de «Te cuento lo que hago en unos pocos minutos.» a «Un poco sobre mí.». La frase en inglés no cambia.
+- `src/content/site.js` (`es.home.phrase`) y las pruebas que fijan el texto: `tests/unit/content.test.js`, `tests/e2e/first-screen.spec.js` (2 sitios) y `tests/e2e/sections.spec.js` (rama es).
+- Grep por «Te cuento lo que hago»: no queda otro uso vivo (meta/og, llms.txt, specs, CLAUDE.md). Solo queda la mención histórica de este mismo informe, arriba.
+- Revisión visual (móvil 390×844, 360×640 y escritorio 1440×900): el h1 queda en una sola línea en los tres, sin huecos raros ni palabras sueltas; la línea de datos y el retrato no cambian.
+- Compuertas: vitest 1051/1051, e2e `first-screen` + `sections` 75/75, `verify.sh` verde.
+- Astra (GPT, solo lectura, solo el diff de src y tests): APRUEBA. La primera llamada se cortó por tiempo; la segunda respondió.

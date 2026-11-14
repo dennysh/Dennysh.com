@@ -387,7 +387,7 @@ test.describe('revisión adversarial: 404, enlace antiguo, barra', () => {
   test('el enlace antiguo /es/?evento=… (y /en/demo/?evento=…) va a la portada del idioma, no a una 404', async ({ page }) => {
     await page.goto('/es/?evento=ab.cd')
     await page.waitForURL((u) => u.pathname === '/es/' && u.search === '')
-    await expect(page.locator('h1')).toHaveText('Te cuento lo que hago en unos pocos minutos.')
+    await expect(page.locator('h1')).toHaveText('Un poco sobre mí.')
     await page.goto('/en/demo/?evento=ab.cd')
     await page.waitForURL((u) => u.pathname === '/en/' && u.search === '')
     await expect(page.locator('.first')).toHaveCount(1)
@@ -417,6 +417,6 @@ test.describe('sin JavaScript (AC-H2)', () => {
     await expect(page.locator('#p-code')).toBeVisible()
     await page.locator('a[data-node="interest"]').focus()
     await expect(page.locator('#p-interest')).toBeVisible()
-    await expect(page.locator('h1')).toHaveText('Te cuento lo que hago en unos pocos minutos.')
+    await expect(page.locator('h1')).toHaveText('Un poco sobre mí.')
   })
 })

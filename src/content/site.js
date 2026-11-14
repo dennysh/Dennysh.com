@@ -337,7 +337,7 @@ export const site = {
       ],
     },
     home: {
-      phrase: 'Te cuento lo que hago en unos pocos minutos.',
+      phrase: 'Un poco sobre mí.',
       tagline: ['7 años en fibra óptica', 'Remoto · Español nativo · Inglés B1'],
       bar: { cv: 'CV' },
       portraitAlt: 'Retrato de Dennys Heras',

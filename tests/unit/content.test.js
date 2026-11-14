@@ -110,7 +110,7 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
     expect(site.en.hero.thesis).toBe('I build AI systems that explain themselves and can be audited.')
   })
   it('la portada no tiene titular: su único texto principal es la frase de Dennys (correcciones 1, C6)', () => {
-    expect(site.es.home.phrase).toBe('Te cuento lo que hago en unos pocos minutos.')
+    expect(site.es.home.phrase).toBe('Un poco sobre mí.')
     expect(site.en.home.phrase).toBe('A little of what I do, in a few minutes.')
   })
   it('una sola línea de origen bajo el titular: 7 años de fibra óptica, en campo; la fibra no es una etiqueta', () => {
