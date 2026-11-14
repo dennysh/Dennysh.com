@@ -18,7 +18,7 @@ export const profile = {
 
 // Marcadores que Dennys autoriza a publicar como "por confirmar". Autorizados el 2026-10-30 para la primera publicación
 // (razón y alcance en 02-DOCS/wiki/sdd/decisions.md, D-IMPL-11; P-29 el 2026-10-31, D-H12: la galería de Trayectoria queda oculta mientras no haya fotos reales). Cualquier marcador nuevo debe autorizarse aquí a propósito.
-export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-09', 'P-22', 'P-29']
+export const AUTHORIZED_PENDING = ['P-04', 'P-06', 'P-09', 'P-29']
 
 // Fotos de la línea de tiempo de Trayectoria (P-29): Dennys las entrega después. Se declaran en src/content/journey-photos.json, por id de entrada:
 // { "fibratelecom": [{ "src": "/images/trayectoria/fibratelecom-1.webp", "thumb": "/images/trayectoria/fibratelecom-1-thumb.webp", "width": 1600, "height": 1067, "alt": { "es": "…", "en": "…" } }] }
@@ -37,7 +37,8 @@ const EMAIL = 'dennys@dennysh.com'
 const LINKEDIN = 'https://www.linkedin.com/in/dennys-heras-27b0b520b/'
 const GITHUB = 'https://github.com/dennysh'
 
-export const links = { email: `mailto:${EMAIL}`, emailAddress: EMAIL, linkedin: LINKEDIN, github: GITHUB, cv: '/cv-dennys-heras.pdf' }
+// WhatsApp: el número va solo en el enlace (wa.me), nunca como texto visible ni en las salidas de máquina.
+export const links = { email: `mailto:${EMAIL}`, emailAddress: EMAIL, linkedin: LINKEDIN, github: GITHUB, cv: '/cv-dennys-heras.pdf', whatsapp: 'https://wa.me/593960664347', criden: 'https://criden.com' }
 
 export const site = {
   en: {
@@ -46,7 +47,7 @@ export const site = {
       title: 'Dennys Heras — AI systems that explain themselves and can be audited',
       description: 'Dennys Heras builds AI systems that explain their decisions in plain language, leave an audit trail and hand control to a person. Comes from 7 years in fiber-optic networks.',
     },
-    nav: { code: 'Code', projects: 'Projects', journey: 'Journey', how: 'How I work', interest: 'Interest', contact: 'Contact', menu: 'Sections', skip: 'Skip to content', lang: 'Español', theme: 'Dark mode', home: 'Home' },
+    nav: { code: 'Code', projects: 'Projects', journey: 'Journey', how: 'How I work', interest: 'About me', contact: 'Contact', menu: 'Sections', skip: 'Skip to content', lang: 'Español', theme: 'Dark mode', home: 'Home' },
     hero: {
       thesis: 'I build AI systems that explain themselves and can be audited.',
       who: ['I come from 7 years in fiber-optic networks, where things have to work in the field.'],
@@ -68,7 +69,7 @@ export const site = {
       nodesLabel: 'Explore',
       nodes: [
         { id: 'code', label: 'Code' }, { id: 'projects', label: 'Projects' },
-        { id: 'journey', label: 'Journey' }, { id: 'how', label: 'How I work' }, { id: 'interest', label: 'Interest' },
+        { id: 'journey', label: 'Journey' }, { id: 'how', label: 'How I work' }, { id: 'interest', label: 'About me' },
       ],
       panels: {
         code: { title: 'Code', note: 'Real data: the public ruleset and the static audit example.', github: 'View on GitHub ↗', opens: 'opens a new page', go: 'Open Code →' },
@@ -76,15 +77,45 @@ export const site = {
         journey: { title: 'From fiber to AI', text: 'Seven years in fiber-optic networks, where things have to work in the field.', opens: 'opens a new page', go: 'Open Journey →' },
         how: { title: 'How I work', tabs: { people: 'People', machines: 'Machines' }, opens: 'opens a new page', go: 'Open How I work →' },
         interest: {
-          title: 'Interest',
-          thought: 'What if, in a few years, we could connect the brain to AI and strengthen what is human? I do not know if it will be possible. I think so. (An idea, not a capability.)',
-          opens: 'opens a new page', go: 'Open Interest →',
+          title: 'About me',
+          text: 'Hi, I\'m Dennys Heras. I come from seven years in fiber-optic networks, and from there I started programming to solve real problems. Today I develop software, automated systems, websites, bots and AI agents with human control. Right now I am building Criden, a platform where I sell websites and automations.',
+          opens: 'opens a new page', go: 'Open About me →',
         },
       },
     },
     codePage: { back: 'Back to the home screen', title: 'Code', lead: 'Real data and what I can do, grouped by capability.', description: 'Code by Dennys Heras: the public ruleset and static audit example, and his capabilities, each marked as shown or declared.' },
     howPage: { back: 'Back to the home screen', title: 'How I work', lead: 'The rules I work with, for people and for machines, and the way I build with agents.', description: 'How Dennys Heras works with AI: short, checkable working rules for people and machines, and a software factory with agents under human control.', people: 'People', machines: 'Machines', machinesLead: 'The same rules as plain text, as published in llms.txt:' },
-    interestPage: { back: 'Back to the home screen', title: 'Interest', lead: 'Where I would like to go in the long run.', description: 'A long-term interest of Dennys Heras: how artificial intelligence could relate to the human brain. An idea, not a capability.' },
+    // Vista interna `interest` (id estable en rutas, geometría y pruebas): la página es «About me»; el interés a largo plazo es su última sección.
+    interestPage: {
+      back: 'Back to the home screen',
+      title: 'About me',
+      description: 'About Dennys Heras: seven years in fiber-optic networks, now building software, automation, websites, bots and AI agents with human control. How to contact him.',
+      audio: { title: 'Listen to this introduction', aiNote: 'Part of this audio is spoken by an AI-generated voice.', fallback: 'Your browser cannot play this audio.' },
+      whatTitle: 'What I do',
+      what: [
+        { id: 'bots', title: 'Telegram bots', text: 'Bots that let a team record and look up information from their phone. One example: a bot for ISP technicians that finds the nearest network box.' },
+        { id: 'automation', title: 'Automation', text: 'Programs that take over repetitive tasks so people spend their time on what needs judgment.' },
+        { id: 'web', title: 'Websites', text: 'Public sites for businesses and clients. One example: Super Gol Kids, a children\'s football championships site I built for a client.' },
+        { id: 'agents', title: 'AI agents with human control', text: 'Assistants that suggest or prepare work while a person decides. This is a capability I declare, not one with public proof yet: my conversational assistant with read-only access to customer data is a prototype and was never in production.' },
+        { id: 'custom', title: 'Custom systems', text: 'Software made for one specific job of one business, when an off-the-shelf tool does not fit.' },
+      ],
+      botExample: {
+        title: 'What a bot looks like',
+        note: 'Example with sample data: the real bots are private to the company.',
+        images: [
+          { id: 'registro-cajas', src: '/images/bot-registro-cajas-mockup.svg', width: 1200, height: 760, alt: 'Mockup of a Telegram bot that registers network boxes. The chat shows the command to register a box, a new NAP box in the north sector, hidden coordinates, an attached evidence photo and a validated status, next to a panel with the technical inventory and a capture checklist.' },
+          { id: 'reportes-telecom', src: '/images/bot-reportes-telecom-mockup.svg', width: 1200, height: 760, alt: 'Mockup of a Telegram bot for telecom reports. The chat shows a new report for a fiber cut in sector B with high priority, protected location and photo evidence, pending assignment to a technician, next to a panel that follows the report from receipt to technical close-out.' },
+        ],
+      },
+      criden: { text: 'Criden, a platform where I sell websites and similar things.', link: 'Visit Criden ↗' },
+      contact: { title: 'Contact', email: 'Write to me', whatsapp: 'WhatsApp', whatsappLabel: 'Write on WhatsApp (opens in another tab)' },
+      longTerm: {
+        title: 'Long-term interest',
+        lead: 'Where I would like to go in the long run.',
+        thought: 'What if, in a few years, we could connect the brain to AI and strengthen what is human? I do not know if it will be possible. I think so. (An idea, not a capability.)',
+        notice: 'It is an interest, not a demonstrated skill.',
+      },
+    },
     contactPage: { back: 'Back to the home screen', title: 'Contact', description: 'Contact Dennys Heras: email, LinkedIn, GitHub and CV.' },
     projectsPage: {
       back: 'Back to the home screen',
@@ -148,7 +179,7 @@ export const site = {
           ],
         },
         { id: 'super-gol-kids', status: 'production', title: 'Super Gol Kids', text: 'Platform for children\'s football championships. Public website for a client; I developed the site.', url: 'https://www.supergolkids.com/' },
-        { id: 'criden', status: 'production', title: 'Criden', text: 'For businesses and websites: Criden. A separate product from this site.', link: pending('P-22', 'Criden address', 'Link coming soon.') },
+        { id: 'criden', status: 'production', title: 'Criden', text: 'For businesses and websites: Criden. A separate product from this site.', url: links.criden },
         { id: 'naunturia', status: 'development', title: 'Naunturia', text: 'Project in development.' },
       ],
     },
@@ -323,7 +354,7 @@ export const site = {
       title: 'Dennys Heras — Sistemas con IA que se explican y se auditan',
       description: 'Dennys Heras construye sistemas con IA que explican sus decisiones en lenguaje claro, dejan rastro y ceden el control a una persona. Viene de 7 años en redes de fibra óptica.',
     },
-    nav: { code: 'Código', projects: 'Proyectos', journey: 'Trayectoria', how: 'Cómo trabajo', interest: 'Interés', contact: 'Contacto', menu: 'Secciones', skip: 'Saltar al contenido', lang: 'English', theme: 'Modo oscuro', home: 'Inicio' },
+    nav: { code: 'Código', projects: 'Proyectos', journey: 'Trayectoria', how: 'Cómo trabajo', interest: 'Sobre mí', contact: 'Contacto', menu: 'Secciones', skip: 'Saltar al contenido', lang: 'English', theme: 'Modo oscuro', home: 'Inicio' },
     hero: {
       thesis: 'Construyo sistemas con IA que se explican y se auditan.',
       who: ['Vengo de 7 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.'],
@@ -345,7 +376,7 @@ export const site = {
       nodesLabel: 'Explorar',
       nodes: [
         { id: 'code', label: 'Código' }, { id: 'projects', label: 'Proyectos' },
-        { id: 'journey', label: 'Trayectoria' }, { id: 'how', label: 'Cómo trabajo' }, { id: 'interest', label: 'Interés' },
+        { id: 'journey', label: 'Trayectoria' }, { id: 'how', label: 'Cómo trabajo' }, { id: 'interest', label: 'Sobre mí' },
       ],
       panels: {
         code: { title: 'Código', note: 'Datos reales: el conjunto de reglas público y el ejemplo de auditoría estático.', github: 'Ver en GitHub ↗', opens: 'abre una página nueva', go: 'Abrir Código →' },
@@ -353,15 +384,45 @@ export const site = {
         journey: { title: 'De la fibra a la IA', text: 'Siete años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', opens: 'abre una página nueva', go: 'Abrir Trayectoria →' },
         how: { title: 'Cómo trabajo', tabs: { people: 'Personas', machines: 'Máquinas' }, opens: 'abre una página nueva', go: 'Abrir Cómo trabajo →' },
         interest: {
-          title: 'Interés',
-          thought: '¿Y si dentro de unos años pudiéramos conectar el cerebro a la IA y potenciar lo humano? No sé si será posible. Creo que sí. (Una idea, no una capacidad.)',
-          opens: 'abre una página nueva', go: 'Abrir Interés →',
+          title: 'Sobre mí',
+          text: 'Hola, soy Dennys Heras. Vengo de siete años en redes de fibra óptica y desde ahí empecé a programar para resolver problemas reales. Hoy desarrollo software, sistemas automatizados, páginas web, bots y agentes de IA con control humano. Ahora mismo estoy construyendo Criden, una plataforma donde vendo páginas web y automatizaciones.',
+          opens: 'abre una página nueva', go: 'Abrir Sobre mí →',
         },
       },
     },
     codePage: { back: 'Volver a la primera pantalla', title: 'Código', lead: 'Datos reales y lo que sé hacer, agrupado por capacidad.', description: 'Código de Dennys Heras: el conjunto de reglas público y el ejemplo de auditoría estático, y sus capacidades, cada una marcada como demostrada o declarada.' },
     howPage: { back: 'Volver a la primera pantalla', title: 'Cómo trabajo', lead: 'Las reglas con las que trabajo, para personas y para máquinas, y la forma en que construyo con agentes.', description: 'Cómo trabaja Dennys Heras con IA: reglas de trabajo cortas y comprobables para personas y máquinas, y una fábrica de software con agentes bajo control humano.', people: 'Personas', machines: 'Máquinas', machinesLead: 'Las mismas reglas en texto plano, como se publican en llms.txt:' },
-    interestPage: { back: 'Volver a la primera pantalla', title: 'Interés', lead: 'Hacia dónde me gustaría ir a largo plazo.', description: 'Un interés a largo plazo de Dennys Heras: cómo podría relacionarse la inteligencia artificial con el cerebro humano. Una idea, no una capacidad.' },
+    // Vista interna `interest` (id estable en rutas, geometría y pruebas): la página es «Sobre mí»; el interés a largo plazo es su última sección.
+    interestPage: {
+      back: 'Volver a la primera pantalla',
+      title: 'Sobre mí',
+      description: 'Sobre Dennys Heras: siete años en redes de fibra óptica, hoy desarrolla software, automatizaciones, páginas web, bots y agentes de IA con control humano. Cómo contactarlo.',
+      audio: { title: 'Escucha esta presentación', aiNote: 'Parte de este audio está dicha por una voz generada con IA.', fallback: 'Tu navegador no puede reproducir este audio.' },
+      whatTitle: 'Qué hago',
+      what: [
+        { id: 'bots', title: 'Bots de Telegram', text: 'Bots para que un equipo registre y consulte información desde el celular. Un ejemplo: un bot para técnicos de un ISP que encuentra la caja de red más cercana.' },
+        { id: 'automation', title: 'Automatizaciones', text: 'Programas que se encargan de tareas repetitivas para que las personas se dediquen a lo que pide criterio.' },
+        { id: 'web', title: 'Páginas web', text: 'Sitios públicos para negocios y clientes. Un ejemplo: Super Gol Kids, un sitio de campeonatos infantiles que hice para un cliente.' },
+        { id: 'agents', title: 'Agentes de IA con control humano', text: 'Asistentes que proponen o preparan trabajo mientras una persona decide. Es una capacidad que declaro, aún sin prueba pública: mi asistente conversacional con acceso de solo lectura a datos de clientes es un prototipo y nunca estuvo en producción.' },
+        { id: 'custom', title: 'Sistemas a medida', text: 'Software hecho para un trabajo concreto de un negocio, cuando una herramienta de catálogo no encaja.' },
+      ],
+      botExample: {
+        title: 'Cómo se ve un bot',
+        note: 'Ejemplo con datos de muestra: los bots reales son privados de la empresa.',
+        images: [
+          { id: 'registro-cajas', src: '/images/bot-registro-cajas-mockup.svg', width: 1200, height: 760, alt: 'Maqueta de un bot de Telegram que registra cajas de red. El chat muestra el comando para registrar una caja, una caja NAP en el sector norte, coordenadas ocultas, una foto de evidencia adjunta y el estado validado, junto a un panel con el inventario técnico y una lista de captura.' },
+          { id: 'reportes-telecom', src: '/images/bot-reportes-telecom-mockup.svg', width: 1200, height: 760, alt: 'Maqueta de un bot de Telegram para reportes de telecomunicaciones. El chat muestra un reporte nuevo de fibra caída en el sector B con prioridad alta, ubicación protegida y foto de evidencia, pendiente de asignar un técnico, junto a un panel que sigue el reporte desde que se recibe hasta el cierre técnico.' },
+        ],
+      },
+      criden: { text: 'Criden, plataforma donde vendo páginas web y cosas así.', link: 'Visitar Criden ↗' },
+      contact: { title: 'Contacto', email: 'Escríbeme', whatsapp: 'WhatsApp', whatsappLabel: 'Escribir por WhatsApp (se abre en otra pestaña)' },
+      longTerm: {
+        title: 'Interés a largo plazo',
+        lead: 'Hacia dónde me gustaría ir a largo plazo.',
+        thought: '¿Y si dentro de unos años pudiéramos conectar el cerebro a la IA y potenciar lo humano? No sé si será posible. Creo que sí. (Una idea, no una capacidad.)',
+        notice: 'Es un interés, no una capacidad demostrada.',
+      },
+    },
     contactPage: { back: 'Volver a la primera pantalla', title: 'Contacto', description: 'Contacta a Dennys Heras: correo, LinkedIn, GitHub y CV.' },
     projectsPage: {
       back: 'Volver a la primera pantalla',
@@ -425,7 +486,7 @@ export const site = {
           ],
         },
         { id: 'super-gol-kids', status: 'production', title: 'Super Gol Kids', text: 'Plataforma de campeonatos de fútbol infantil. Sitio público de un cliente; yo desarrollé el sitio.', url: 'https://www.supergolkids.com/' },
-        { id: 'criden', status: 'production', title: 'Criden', text: 'Para negocios y páginas web: Criden. Es un producto aparte de este sitio.', link: pending('P-22', 'Dirección de Criden', 'Enlace próximamente.') },
+        { id: 'criden', status: 'production', title: 'Criden', text: 'Para negocios y páginas web: Criden. Es un producto aparte de este sitio.', url: links.criden },
         { id: 'naunturia', status: 'development', title: 'Naunturia', text: 'Proyecto en desarrollo.' },
       ],
     },

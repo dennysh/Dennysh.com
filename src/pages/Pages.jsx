@@ -2,6 +2,8 @@ import React from 'react'
 import { site, links } from '../content/site.js'
 import Txt from '../components/Txt.jsx'
 import Timeline from '../components/Timeline.jsx'
+import AboutAudio from '../components/AboutAudio.jsx'
+import ContactButtons from '../components/ContactButtons.jsx'
 import ContactForm from '../contact/ContactForm.jsx'
 import { Header, Footer, WorkCard, FactoryDiagram } from '../Site.jsx'
 import { codePanel } from '../home/code-panel.js'
@@ -102,8 +104,29 @@ export function InterestPage({ lang }) {
   const c = site[lang]
   const p = c.interestPage
   return (
-    <Page lang={lang} view="interest" title={p.title} lead={p.lead} back={p.back}>
-      <p className="lead">{c.home.panels.interest.thought}</p>
+    <Page lang={lang} view="interest" title={p.title} lead={c.home.panels.interest.text} back={p.back}>
+      <AboutAudio lang={lang} ui={p.audio} />
+      <h2>{p.whatTitle}</h2>
+      <ul className="about-what">
+        {p.what.map((w) => <li key={w.id}><strong>{w.title}</strong> <span>{w.text}</span></li>)}
+      </ul>
+      <h2>{p.botExample.title}</h2>
+      <p className="about-note">{p.botExample.note}</p>
+      <div className="about-mockups">
+        {p.botExample.images.map((im) => (
+          <figure key={im.id}>
+            <img src={im.src} width={im.width} height={im.height} alt={im.alt} loading="lazy" decoding="async" />
+            <figcaption>{p.botExample.note}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <p className="about-criden">{p.criden.text} <a href={links.criden} rel="noopener noreferrer">{p.criden.link}</a></p>
+      <h2>{p.contact.title}</h2>
+      <ContactButtons ui={p.contact} />
+      <h2 className="about-long">{p.longTerm.title}</h2>
+      <p className="about-note">{p.longTerm.lead}</p>
+      <p className="lead">{p.longTerm.thought}</p>
+      <p className="about-note">{p.longTerm.notice}</p>
     </Page>
   )
 }

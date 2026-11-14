@@ -3,9 +3,9 @@ import { VIEW, HEAD_BOX, POINTS } from '../../src/home/geometry.js'
 
 // Primera pantalla (AC-H1, AC-H5, AC-H6, AC-01) y correcciones 1 (F1, F2, F4, C1, C3). Los nodos flotan; Playwright espera que un elemento esté
 // quieto para actuar sobre él, así que la interacción se prueba con movimiento reducido (que es además un comportamiento exigido).
-const NODES = { en: ['Code', 'Projects', 'Journey', 'How I work', 'Interest'], es: ['Código', 'Proyectos', 'Trayectoria', 'Cómo trabajo', 'Interés'] }
+const NODES = { en: ['Code', 'Projects', 'Journey', 'How I work', 'About me'], es: ['Código', 'Proyectos', 'Trayectoria', 'Cómo trabajo', 'Sobre mí'] }
 const IDS = ['code', 'projects', 'journey', 'how', 'interest']
-const PATHS = { en: { code: '/en/code/', projects: '/en/projects/', journey: '/en/journey/', how: '/en/how-i-work/', interest: '/en/interest/' } }
+const PATHS = { en: { code: '/en/code/', projects: '/en/projects/', journey: '/en/journey/', how: '/en/how-i-work/', interest: '/en/about/' } }
 const hydrated = (page) => page.waitForSelector('.first[data-js]')
 const node = (page, name) => page.getByRole('link', { name, exact: true })
 
@@ -194,7 +194,7 @@ test.describe('vista previa al pasar el mouse (C3)', () => {
 
   test('en reposo no hay ninguna tarjeta; pasar el mouse por cada nodo muestra la suya y al salir vuelve el reposo', async ({ page }) => {
     await expect(page.locator('.panel:visible')).toHaveCount(0)
-    for (const [name, id] of [['Code', 'code'], ['Projects', 'projects'], ['Journey', 'journey'], ['How I work', 'how'], ['Interest', 'interest']]) {
+    for (const [name, id] of [['Code', 'code'], ['Projects', 'projects'], ['Journey', 'journey'], ['How I work', 'how'], ['About me', 'interest']]) {
       await node(page, name).hover()
       await expect(page.locator(`#p-${id}`), id).toBeVisible()
       await expect(page.locator('.panel:visible')).toHaveCount(1)
@@ -248,8 +248,8 @@ test.describe('vista previa al pasar el mouse (C3)', () => {
     expect(await page.evaluate(() => document.documentElement.scrollHeight <= innerHeight)).toBe(true)
   })
   test('ningún panel pisa los nodos (el panel más alto queda por debajo del nodo Interés)', async ({ page }) => {
-    const interest = await node(page, 'Interest').boundingBox()
-    for (const [name, id] of [['Code', 'code'], ['How I work', 'how'], ['Interest', 'interest']]) {
+    const interest = await node(page, 'About me').boundingBox()
+    for (const [name, id] of [['Code', 'code'], ['How I work', 'how'], ['About me', 'interest']]) {
       await node(page, name).hover()
       await expect(page.locator(`#p-${id}`)).toBeVisible()
       const pb = await page.locator(`#p-${id}`).boundingBox()
@@ -257,8 +257,8 @@ test.describe('vista previa al pasar el mouse (C3)', () => {
       expect(pb.y + pb.height, id).toBeLessThanOrEqual(800)
     }
   })
-  test('clic en un nodo lleva a su página (los cinco, también Código, Cómo trabajo e Interés)', async ({ page }) => {
-    for (const [name, id] of [['Code', 'code'], ['Projects', 'projects'], ['Journey', 'journey'], ['How I work', 'how'], ['Interest', 'interest']]) {
+  test('clic en un nodo lleva a su página (los cinco, también Código, Cómo trabajo y Sobre mí)', async ({ page }) => {
+    for (const [name, id] of [['Code', 'code'], ['Projects', 'projects'], ['Journey', 'journey'], ['How I work', 'how'], ['About me', 'interest']]) {
       await page.goto('/en/')
       await hydrated(page)
       await node(page, name).click()
@@ -272,7 +272,7 @@ test.describe('vista previa al pasar el mouse (C3)', () => {
     await page.waitForURL('**/en/journey/')
   })
   test('teclado: Tab llega a los nodos con foco visible y los enfoca abre su panel; Enter navega', async ({ page }) => {
-    const n = node(page, 'Interest')
+    const n = node(page, 'About me')
     await n.focus()
     await page.keyboard.press('Shift+Tab')
     await page.keyboard.press('Tab') // vuelve al nodo por teclado: focus-visible
@@ -280,7 +280,7 @@ test.describe('vista previa al pasar el mouse (C3)', () => {
     expect(outline).not.toBe('none')
     await expect(page.locator('#p-interest')).toBeVisible()
     await page.keyboard.press('Enter')
-    await page.waitForURL('**/en/interest/')
+    await page.waitForURL('**/en/about/')
   })
   test('Esc cierra la vista previa en móvil (hoja) y nunca cambia de página', async ({ page }) => {
     await page.keyboard.press('Escape')
@@ -295,7 +295,7 @@ test.describe('vista previa al pasar el mouse (C3)', () => {
     await page.reload()
     await hydrated(page)
     await node(page, 'Code').hover()
-    await node(page, 'Interest').hover()
+    await node(page, 'About me').hover()
     expect(bad).toEqual([])
   })
 })
@@ -353,12 +353,12 @@ test.describe('táctil (C3): primer toque abre la vista previa, segundo toque na
     await hydrated(page)
     await node(page, 'Proyectos').tap()
     await expect(page.locator('#p-projects')).toBeVisible()
-    await node(page, 'Interés').tap()
+    await node(page, 'Sobre mí').tap()
     await expect(page.locator('#p-interest')).toBeVisible()
     await expect(page.locator('#p-projects')).toBeHidden()
     expect(new URL(page.url()).pathname).toBe('/es/')
     await page.locator('#p-interest a.btn').tap()
-    await page.waitForURL('**/es/interes/')
+    await page.waitForURL('**/es/sobre-mi/')
   })
   test('tableta: Esc cierra la vista previa; axe no halla violaciones con ella abierta (AC-H6)', async ({ page }) => {
     const { default: AxeBuilder } = await import('@axe-core/playwright')

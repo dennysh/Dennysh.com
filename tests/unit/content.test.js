@@ -151,7 +151,7 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
     for (const lang of ['es', 'en']) {
       const { contact } = site[lang]
       expect(walk(nonInterest(site[lang])).join(' ')).not.toMatch(/cerebro|brain/i)
-      const th = site[lang].home.panels.interest.thought
+      const th = site[lang].interestPage.longTerm.thought
       expect(th).toMatch(/cerebro|brain/i)
       expect(th).toMatch(lang === 'es' ? /una idea, no una capacidad/i : /an idea, not a capability/i)
       const i = contact.interest
@@ -214,14 +214,14 @@ describe('marcadores pending (T080, K2)', () => {
     expect(r.stdout).toContain('P-09')
   })
   it('el sitio muestra "por confirmar" (no pistas internas) en los marcadores autorizados', () => {
-    // Con el inicio limpio, los marcadores autorizados se ven en sus páginas: Contacto (P-09), Cómo trabajo (P-04) y Proyectos (P-22).
-    const html = ['contact', 'how-i-work', 'projects'].map((p) => readFileSync(`dist/en/${p}/index.html`, 'utf8')).join('\n')
+    // Con el inicio limpio, los marcadores autorizados se ven en sus páginas: Contacto (P-09) y Cómo trabajo (P-04).
+    const html = ['contact', 'how-i-work'].map((p) => readFileSync(`dist/en/${p}/index.html`, 'utf8')).join('\n')
     const visible = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ') // solo el texto visible, sin atributos ni JSON-LD
     expect(visible).toContain('to be confirmed')
     expect(visible).not.toMatch(/\bP-\d+\b|Public evidence of the factory|Location, time zone and availability/)
   })
-  it('Dennys autorizó publicar con P-04, P-06, P-09 y P-22 (2026-10-30) y P-29 mientras la galería esté oculta (2026-10-31)', () => {
-    expect([...AUTHORIZED_PENDING].sort()).toEqual(['P-04', 'P-06', 'P-09', 'P-22', 'P-29'])
+  it('Dennys autorizó publicar con P-04, P-06 y P-09 (2026-10-30) y P-29 mientras la galería esté oculta (2026-10-31); P-22 (Criden) se resolvió el 2026-11-14', () => {
+    expect([...AUTHORIZED_PENDING].sort()).toEqual(['P-04', 'P-06', 'P-09', 'P-29'])
   })
   it('en producción pasa: no queda ningún marcador sin autorizar', () => {
     const r = gate('production')
@@ -261,10 +261,12 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
     expect(site.es.home.tagline).toEqual(['7 años en fibra óptica', 'Remoto · Español nativo · Inglés B1'])
     expect(site.en.home.tagline).toEqual(['7 years in fiber optics', 'Remote · Spanish native · English B1'])
   })
-  it('Interés: solo el pensamiento cerebro–IA; ningún deporte en ninguna parte (C6, Dennys 2026-11-01)', () => {
+  it('Sobre mí (antes Interés): la tarjeta lleva la presentación; el pensamiento cerebro–IA vive solo en su sección final; ningún deporte (C6, Dennys 2026-11-01)', () => {
     for (const lang of ['en', 'es']) {
       const i = site[lang].home.panels.interest
-      expect(Object.keys(i).sort()).toEqual(['go', 'opens', 'thought', 'title'])
+      expect(Object.keys(i).sort()).toEqual(['go', 'opens', 'text', 'title'])
+      expect(i.title).toBe(lang === 'es' ? 'Sobre mí' : 'About me')
+      expect(i.text).not.toMatch(/cerebro|brain/i)
       expect(collectPending(i)).toEqual([])
       expect(walk(site[lang]).join(' ')).not.toMatch(/jiu|jitsu|triat|triath|obst[aá]cul|obstacle|deporte|sport|ciclismo|cycling|nataci[oó]n|swimming/i)
     }
@@ -278,10 +280,9 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
       for (const id of p.ids) expect(site[lang].work.items.map((i) => i.id)).toContain(id)
       const cr = site[lang].work.items.find((i) => i.id === 'criden')
       expect(cr.text).toBe(lang === 'es' ? 'Para negocios y páginas web: Criden. Es un producto aparte de este sitio.' : 'For businesses and websites: Criden. A separate product from this site.')
-      expect(cr.status).toBe('production') // D1: en producción, todavía sin enlace
-      expect(cr.url).toBeUndefined(); expect(cr.repo).toBeUndefined()
-      expect(isPending(cr.link)).toBe(true); expect(cr.link.id).toBe('P-22')
-      expect(JSON.stringify(cr)).not.toMatch(/https?:|@|criden\.(com|net|app|io|ec)/i)
+      expect(cr.status).toBe('production') // D1: en producción; con enlace desde el 2026-11-14 (encargo «Sobre mí», cierra P-22)
+      expect(cr.url).toBe('https://criden.com'); expect(cr.repo).toBeUndefined()
+      expect(cr.link).toBeUndefined()
       expect(p.more).toBeUndefined()
       expect(site[lang].journeyPage.more).toBeUndefined()
     }

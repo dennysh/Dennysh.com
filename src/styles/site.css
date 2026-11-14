@@ -147,3 +147,23 @@ footer.site a { color: var(--muted); display: inline-flex; align-items: center; 
 .cf-fallback p { margin: 0 0 var(--space-3); }
 .cf-fallback, .cf-done { max-width: 36rem; padding: var(--space-4) var(--space-5); border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
 @media (prefers-reduced-motion: no-preference) { .cf-progress { transition: none; } }
+
+/* «Sobre mí» (vista interna `interest`): audio opcional, qué hago, ejemplos del bot, contacto e interés a largo plazo. */
+.about-what { margin: 0 0 var(--space-5); padding: 0; list-style: none; display: grid; gap: var(--space-3); max-width: 46rem; }
+.about-what li { padding: var(--space-3) var(--space-4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.about-what strong { display: block; margin-bottom: var(--space-1); }
+.about-what span { color: var(--muted); }
+.about-note { margin: 0 0 var(--space-3); color: var(--muted); font-size: .9rem; max-width: 46rem; }
+.about-mockups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--space-4); margin-bottom: var(--space-5); }
+.about-mockups figure { margin: 0; }
+.about-mockups img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+.about-mockups figcaption { margin-top: var(--space-2); color: var(--muted); font-size: .85rem; }
+.about-criden { max-width: 46rem; margin: 0 0 var(--space-5); }
+.about-audio { margin: 0 0 var(--space-5); padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius); max-width: 46rem; }
+.about-audio h2 { margin: 0 0 var(--space-2); font-size: 1.05rem; }
+.about-audio-ai { margin: 0 0 var(--space-3); color: var(--muted); font-size: .9rem; }
+.about-audio-item { margin: 0 0 var(--space-2); }
+.about-audio-item figcaption { margin-bottom: var(--space-1); }
+.about-audio audio { width: 100%; }
+.contact-buttons { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0 0 var(--space-5); }
+.about-long { margin-top: var(--space-7); }

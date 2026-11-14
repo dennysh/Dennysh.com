@@ -1,0 +1,93 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#080A17"/>
+      <stop offset="0.55" stop-color="#111827"/>
+      <stop offset="1" stop-color="#0F172A"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="160" y1="110" x2="1030" y2="660" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F59E0B"/>
+      <stop offset="0.45" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#22D3EE"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.96 0 0 0 0 0.62 0 0 0 0 0.04 0 0 0 0.36 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" stroke="#334155" stroke-opacity="0.22" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="760" rx="36" fill="url(#bg)"/>
+  <rect width="1200" height="760" rx="36" fill="url(#grid)" opacity="0.8"/>
+  <circle cx="1060" cy="135" r="168" fill="#F59E0B" opacity="0.15" filter="url(#glow)"/>
+  <circle cx="150" cy="610" r="190" fill="#7C3AED" opacity="0.16" filter="url(#glow)"/>
+
+  <rect x="72" y="58" width="1056" height="644" rx="28" fill="#0B1020" fill-opacity="0.88" stroke="url(#accent)" stroke-opacity="0.7" stroke-width="2"/>
+
+  <g transform="translate(104 88)">
+    <rect width="992" height="70" rx="20" fill="#111827" stroke="#263244"/>
+    <circle cx="34" cy="35" r="10" fill="#EF4444"/>
+    <circle cx="64" cy="35" r="10" fill="#F59E0B"/>
+    <circle cx="94" cy="35" r="10" fill="#10B981"/>
+    <text x="140" y="42" fill="#E5E7EB" font-family="Inter, Segoe UI, Arial" font-size="22" font-weight="700">Bot Reportes Telecom · Field Incidents</text>
+    <rect x="780" y="18" width="160" height="34" rx="17" fill="#7C2D12" fill-opacity="0.28" stroke="#FDBA74"/>
+    <text x="809" y="41" fill="#FED7AA" font-family="Inter, Segoe UI, Arial" font-size="14" font-weight="700">PRIORIDAD ALTA</text>
+  </g>
+
+  <g transform="translate(104 188)">
+    <rect width="460" height="452" rx="24" fill="#0F172A" stroke="#334155"/>
+    <rect width="460" height="58" rx="24" fill="#111C34"/>
+    <circle cx="42" cy="29" r="18" fill="#F59E0B" fill-opacity="0.18" stroke="#F59E0B"/>
+    <path d="M33 29L50 21L45 38L40 32L33 29Z" fill="#FCD34D"/>
+    <text x="76" y="36" fill="#F8FAFC" font-family="Inter, Segoe UI, Arial" font-size="18" font-weight="700">@ReportesTelecomBot</text>
+
+    <rect x="28" y="86" width="202" height="42" rx="16" fill="#1E293B"/>
+    <text x="48" y="113" fill="#CBD5E1" font-family="Inter, Segoe UI, Arial" font-size="16">/nuevo_reporte</text>
+
+    <rect x="154" y="148" width="278" height="84" rx="18" fill="#7C2D12" fill-opacity="0.34" stroke="#F59E0B" stroke-opacity="0.45"/>
+    <text x="176" y="177" fill="#FFFBEB" font-family="Inter, Segoe UI, Arial" font-size="15" font-weight="700">Incidencia registrada</text>
+    <text x="176" y="203" fill="#FED7AA" font-family="Inter, Segoe UI, Arial" font-size="14">Fibra caída · Sector B</text>
+
+    <rect x="28" y="258" width="348" height="120" rx="20" fill="#111827" stroke="#334155"/>
+    <text x="50" y="290" fill="#F8FAFC" font-family="Inter, Segoe UI, Arial" font-size="15" font-weight="700">Reporte #TEL-0248</text>
+    <text x="50" y="318" fill="#94A3B8" font-family="Inter, Segoe UI, Arial" font-size="14">Ubicación: zona protegida</text>
+    <text x="50" y="344" fill="#94A3B8" font-family="Inter, Segoe UI, Arial" font-size="14">Evidencia: foto + observación</text>
+    <rect x="50" y="356" width="118" height="28" rx="14" fill="#F59E0B" fill-opacity="0.18" stroke="#FBBF24"/>
+    <text x="73" y="375" fill="#FDE68A" font-family="Inter, Segoe UI, Arial" font-size="12" font-weight="700">PENDIENTE</text>
+
+    <rect x="178" y="398" width="254" height="42" rx="16" fill="#312E81" fill-opacity="0.45" stroke="#818CF8" stroke-opacity="0.45"/>
+    <text x="199" y="425" fill="#C7D2FE" font-family="Inter, Segoe UI, Arial" font-size="15">Asignar técnico responsable</text>
+  </g>
+
+  <g transform="translate(600 188)">
+    <rect width="496" height="452" rx="24" fill="#0F172A" stroke="#334155"/>
+    <text x="30" y="46" fill="#F8FAFC" font-family="Inter, Segoe UI, Arial" font-size="22" font-weight="800">Seguimiento de reporte</text>
+    <text x="30" y="76" fill="#94A3B8" font-family="Inter, Segoe UI, Arial" font-size="15">Flujo operativo con trazabilidad</text>
+
+    <g transform="translate(42 118)">
+      <line x1="22" y1="14" x2="22" y2="236" stroke="#334155" stroke-width="4"/>
+      <circle cx="22" cy="20" r="13" fill="#22D3EE"/>
+      <circle cx="22" cy="96" r="13" fill="#F59E0B"/>
+      <circle cx="22" cy="172" r="13" fill="#7C3AED"/>
+      <circle cx="22" cy="248" r="13" fill="#475569"/>
+
+      <rect x="58" y="0" width="350" height="48" rx="15" fill="#111827" stroke="#263244"/>
+      <text x="78" y="30" fill="#E5E7EB" font-family="Inter, Segoe UI, Arial" font-size="14" font-weight="700">Reporte recibido por Telegram</text>
+      <rect x="58" y="76" width="350" height="48" rx="15" fill="#111827" stroke="#263244"/>
+      <text x="78" y="106" fill="#FDBA74" font-family="Inter, Segoe UI, Arial" font-size="14" font-weight="700">Prioridad alta validada</text>
+      <rect x="58" y="152" width="350" height="48" rx="15" fill="#111827" stroke="#263244"/>
+      <text x="78" y="182" fill="#DDD6FE" font-family="Inter, Segoe UI, Arial" font-size="14" font-weight="700">Evidencia adjunta y responsable</text>
+      <rect x="58" y="228" width="350" height="48" rx="15" fill="#111827" stroke="#263244"/>
+      <text x="78" y="258" fill="#CBD5E1" font-family="Inter, Segoe UI, Arial" font-size="14" font-weight="700">Cierre con observación técnica</text>
+    </g>
+
+    <g transform="translate(30 350)">
+      <rect width="436" height="70" rx="18" fill="#111827" stroke="#263244"/>
+      <text x="22" y="30" fill="#E5E7EB" font-family="Inter, Segoe UI, Arial" font-size="15" font-weight="700">Estado actual</text>
+      <text x="22" y="55" fill="#FDE68A" font-family="Inter, Segoe UI, Arial" font-size="14">Pendiente · Técnico asignado · Evidencia completa</text>
+    </g>
+  </g>
+</svg>

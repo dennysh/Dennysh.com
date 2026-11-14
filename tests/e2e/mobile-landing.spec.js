@@ -98,7 +98,7 @@ for (const size of SIZES) {
         await expect(cards.nth(1)).toContainText(c.panels.projects.text)
         await expect(cards.nth(2)).toContainText(c.panels.journey.text)
         await expect(cards.nth(3)).toContainText(site[lang].howPage.lead)
-        await expect(cards.nth(4)).toContainText(c.panels.interest.thought)
+        await expect(cards.nth(4)).toContainText(c.panels.interest.text)
         // jerarquía: ningún salto de nivel dentro de la parte visible (los paneles de escritorio están ocultos)
         const levels = await page.evaluate(() => [...document.querySelectorAll('main h1, main h2, main h3, section h1, section h2, section h3')].filter((h) => h.offsetParent !== null || getComputedStyle(h).position === 'fixed').filter((h) => h.getClientRects().length).map((h) => +h.tagName[1]))
         expect(levels[0]).toBe(1)

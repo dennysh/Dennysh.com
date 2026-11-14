@@ -49,11 +49,11 @@ describe('capa de máquinas (AC-15, AC-33)', () => {
   it('las páginas son exactamente estas seis (una por nodo y Contacto; sin Demo), con estas rutas (no se derivan de la misma lista que se verifica)', () => {
     expect(INNER_PAGES.map((p) => p.view)).toEqual(['code', 'projects', 'journey', 'how', 'interest', 'contact'])
     expect(pagePaths).toEqual({
-      en: { code: '/en/code/', projects: '/en/projects/', journey: '/en/journey/', how: '/en/how-i-work/', interest: '/en/interest/', contact: '/en/contact/' },
-      es: { code: '/es/codigo/', projects: '/es/proyectos/', journey: '/es/trayectoria/', how: '/es/como-trabajo/', interest: '/es/interes/', contact: '/es/contacto/' },
+      en: { code: '/en/code/', projects: '/en/projects/', journey: '/en/journey/', how: '/en/how-i-work/', interest: '/en/about/', contact: '/en/contact/' },
+      es: { code: '/es/codigo/', projects: '/es/proyectos/', journey: '/es/trayectoria/', how: '/es/como-trabajo/', interest: '/es/sobre-mi/', contact: '/es/contacto/' },
     })
     const locs = [...sitemapXml().matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].replace('https://dennysh.com', ''))
-    expect(locs).toEqual(['/en/', '/es/', '/en/code/', '/es/codigo/', '/en/projects/', '/es/proyectos/', '/en/journey/', '/es/trayectoria/', '/en/how-i-work/', '/es/como-trabajo/', '/en/interest/', '/es/interes/', '/en/contact/', '/es/contacto/'])
+    expect(locs).toEqual(['/en/', '/es/', '/en/code/', '/es/codigo/', '/en/projects/', '/es/proyectos/', '/en/journey/', '/es/trayectoria/', '/en/how-i-work/', '/es/como-trabajo/', '/en/about/', '/es/sobre-mi/', '/en/contact/', '/es/contacto/'])
   })
   it('cada <url> del sitemap declara su x-default hacia la versión en inglés', () => {
     const bad = sitemapXml().replace(/(<loc>https:\/\/dennysh\.com\/es\/<\/loc>[\s\S]*?hreflang="x-default" href=")[^"]*/, '$1https://dennysh.com/es/')

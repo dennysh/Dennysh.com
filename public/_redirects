@@ -1,0 +1,6 @@
+# Rutas renombradas (Cloudflare Pages: 301). «Interés» pasó a «Sobre mí» el 2026-11-14; con y sin barra final.
+# El respaldo del cliente está en RENAMED (src/routes.js); tests/unit/routes.test.js comprueba que ambos coincidan.
+/en/interest/ /en/about/ 301
+/en/interest /en/about/ 301
+/es/interes/ /es/sobre-mi/ 301
+/es/interes /es/sobre-mi/ 301

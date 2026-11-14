@@ -66,8 +66,8 @@ test.describe('puntero fino (escritorio)', () => {
     await page.getByRole('link', { name: 'Proyectos', exact: true }).focus()
     await page.keyboard.press('Shift+Tab'); await page.keyboard.press('Tab')
     await expect(page.locator('#p-projects')).toBeVisible()
-    await page.getByRole('link', { name: 'Interés', exact: true }).click()
-    await expect(page).toHaveURL(/\/es\/interes\/$/)
+    await page.getByRole('link', { name: 'Sobre mí', exact: true }).click()
+    await expect(page).toHaveURL(/\/es\/sobre-mi\/$/)
   })
 
   test('medición por píxeles: sobre la cara y el cuerpo el canvas queda transparente tras mover el puntero por todos lados', async ({ page }) => {

@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test'
 
 // Una página por nodo (correcciones 1, C2): el inicio es solo la primera pantalla y el resto vive en cada página, en los dos idiomas.
 const PAGES = {
-  en: { code: ['/en/code/', 'Code'], projects: ['/en/projects/', 'Work in production'], journey: ['/en/journey/', 'Journey'], how: ['/en/how-i-work/', 'How I work'], interest: ['/en/interest/', 'Interest'], contact: ['/en/contact/', 'Contact'] },
-  es: { code: ['/es/codigo/', 'Código'], projects: ['/es/proyectos/', 'Trabajo en producción'], journey: ['/es/trayectoria/', 'Trayectoria'], how: ['/es/como-trabajo/', 'Cómo trabajo'], interest: ['/es/interes/', 'Interés'], contact: ['/es/contacto/', 'Contacto'] },
+  en: { code: ['/en/code/', 'Code'], projects: ['/en/projects/', 'Work in production'], journey: ['/en/journey/', 'Journey'], how: ['/en/how-i-work/', 'How I work'], interest: ['/en/about/', 'About me'], contact: ['/en/contact/', 'Contact'] },
+  es: { code: ['/es/codigo/', 'Código'], projects: ['/es/proyectos/', 'Trabajo en producción'], journey: ['/es/trayectoria/', 'Trayectoria'], how: ['/es/como-trabajo/', 'Cómo trabajo'], interest: ['/es/sobre-mi/', 'Sobre mí'], contact: ['/es/contacto/', 'Contacto'] },
 }
 const ALL = Object.values(PAGES).flatMap((p) => Object.values(p).map(([path]) => path))
 
@@ -64,7 +64,7 @@ test('Proyectos: Bots para Telegram (desplegable), Super Gol Kids y Criden en pr
   await expect(page.locator('.card')).toHaveCount(3)
   await expect(page.locator('.card h2')).toHaveText(['Bots para Telegram', 'Super Gol Kids', 'Criden'])
   await expect(page.locator('.card:not(.card-bots) .badge-production')).toHaveCount(2)
-  await expect(page.locator('.card', { hasText: 'Criden' }).locator('a')).toHaveCount(0) // en producción, todavía sin enlace
+  await expect(page.locator('.card', { hasText: 'Criden' }).locator('a')).toHaveAttribute('href', 'https://criden.com') // enlace real desde 2026-11-14 (cierra P-22)
   await expect(page.locator('main')).not.toContainText(/contable|football manager|f[uú]tbol manager|hardlock|pr[óo]ximamente/i)
 })
 
@@ -105,11 +105,45 @@ test('Bots para Telegram también se abre en el panel "Trabajo en producción" d
   await ctx.close()
 })
 
-test('Interés: solo el pensamiento cerebro–IA, sin deportes', async ({ page }) => {
-  await page.goto('/en/interest/')
+test('Sobre mí: el pensamiento cerebro–IA va al final, sin deportes', async ({ page }) => {
+  await page.goto('/en/about/')
   await expect(page.locator('main')).toContainText('connect the brain to AI')
   await expect(page.locator('main')).not.toContainText(/jiu|triathlon|obstacle|sport/i)
 })
+
+// «Sobre mí» (encargo 2026-11-14): rutas viejas, presentación, sin audio vacío, ejemplos del bot, contacto sin número a la vista.
+for (const [old, now, lang] of [['/en/interest/', '/en/about/', 'en'], ['/es/interes/', '/es/sobre-mi/', 'es']]) {
+  test(`${lang}: la ruta vieja ${old} lleva a ${now} (respaldo del cliente; en Pages la resuelve _redirects con 301)`, async ({ page }) => {
+    await page.goto(old)
+    await page.waitForURL(`**${now}`)
+    await expect(page.locator('h1')).toHaveText(lang === 'es' ? 'Sobre mí' : 'About me')
+  })
+  test(`${lang}: Sobre mí muestra la presentación, sin reproductor vacío, con ejemplos rotulados y contacto`, async ({ page }) => {
+    await page.goto(now)
+    const main = page.locator('main')
+    await expect(main).toContainText(lang === 'es' ? 'Hola, soy Dennys Heras' : 'Hi, I\'m Dennys Heras')
+    await expect(page.locator('audio')).toHaveCount(0)
+    await expect(page.locator('.about-audio')).toHaveCount(0)
+    const imgs = page.locator('.about-mockups img')
+    await expect(imgs).toHaveCount(2)
+    await imgs.first().scrollIntoViewIfNeeded()
+    for (const i of [0, 1]) {
+      await expect(imgs.nth(i)).toHaveJSProperty('complete', true)
+      expect(await imgs.nth(i).evaluate((el) => el.naturalWidth)).toBeGreaterThan(0)
+      await expect(imgs.nth(i)).toHaveAttribute('width', '1200')
+      await expect(imgs.nth(i)).toHaveAttribute('loading', 'lazy')
+    }
+    await expect(main).toContainText(lang === 'es' ? 'Ejemplo con datos de muestra: los bots reales son privados de la empresa' : 'Example with sample data: the real bots are private to the company')
+    const wa = page.getByRole('link', { name: lang === 'es' ? 'Escribir por WhatsApp (se abre en otra pestaña)' : 'Write on WhatsApp (opens in another tab)' })
+    await expect(wa).toHaveAttribute('href', 'https://wa.me/593960664347')
+    await expect(wa).toHaveAttribute('target', '_blank')
+    await expect(wa).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(await wa.evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44)
+    expect(await page.evaluate(() => document.body.innerText)).not.toMatch(/593\s?96|960\s?664/)
+    await expect(page.getByRole('link', { name: lang === 'es' ? 'Escríbeme' : 'Write to me' })).toHaveAttribute('href', 'mailto:dennys@dennysh.com')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  })
+}
 
 test('con viewport 360×640 el inicio muestra frase y retrato en la primera pantalla y no se desplaza de lado (AC-01)', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 })

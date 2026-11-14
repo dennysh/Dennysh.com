@@ -1,0 +1,88 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="760" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#070B18"/>
+      <stop offset="0.55" stop-color="#0D1228"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="155" y1="98" x2="1002" y2="658" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE"/>
+      <stop offset="0.5" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#10B981"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.13 0 0 0 0 0.83 0 0 0 0 0.93 0 0 0 0.45 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" stroke="#334155" stroke-opacity="0.22" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="760" rx="36" fill="url(#bg)"/>
+  <rect width="1200" height="760" rx="36" fill="url(#grid)" opacity="0.8"/>
+  <circle cx="1070" cy="120" r="170" fill="#7C3AED" opacity="0.16" filter="url(#glow)"/>
+  <circle cx="180" cy="630" r="190" fill="#22D3EE" opacity="0.13" filter="url(#glow)"/>
+
+  <rect x="72" y="58" width="1056" height="644" rx="28" fill="#0B1020" fill-opacity="0.86" stroke="url(#accent)" stroke-opacity="0.7" stroke-width="2"/>
+
+  <g transform="translate(104 88)">
+    <rect width="992" height="70" rx="20" fill="#111827" stroke="#263244"/>
+    <circle cx="34" cy="35" r="10" fill="#EF4444"/>
+    <circle cx="64" cy="35" r="10" fill="#F59E0B"/>
+    <circle cx="94" cy="35" r="10" fill="#10B981"/>
+    <text x="140" y="42" fill="#E5E7EB" font-family="Inter, Segoe UI, Arial" font-size="22" font-weight="700">Bot Registro de Cajas · ISP Field Tool</text>
+    <rect x="760" y="18" width="190" height="34" rx="17" fill="#0F766E" fill-opacity="0.22" stroke="#2DD4BF"/>
+    <text x="790" y="41" fill="#5EEAD4" font-family="Inter, Segoe UI, Arial" font-size="14" font-weight="700">REGISTRO TÉCNICO</text>
+  </g>
+
+  <g transform="translate(104 188)">
+    <rect width="460" height="452" rx="24" fill="#0F172A" stroke="#334155"/>
+    <rect width="460" height="58" rx="24" fill="#111C34"/>
+    <circle cx="42" cy="29" r="18" fill="#22D3EE" fill-opacity="0.18" stroke="#22D3EE"/>
+    <path d="M33 29L50 21L45 38L40 32L33 29Z" fill="#67E8F9"/>
+    <text x="76" y="36" fill="#F8FAFC" font-family="Inter, Segoe UI, Arial" font-size="18" font-weight="700">@RegistroCajasBot</text>
+
+    <rect x="28" y="86" width="220" height="42" rx="16" fill="#1E293B"/>
+    <text x="48" y="113" fill="#CBD5E1" font-family="Inter, Segoe UI, Arial" font-size="16">/registrar_caja</text>
+
+    <rect x="168" y="148" width="264" height="74" rx="18" fill="#164E63" fill-opacity="0.42" stroke="#22D3EE" stroke-opacity="0.35"/>
+    <text x="188" y="176" fill="#ECFEFF" font-family="Inter, Segoe UI, Arial" font-size="15" font-weight="700">Nueva caja detectada</text>
+    <text x="188" y="201" fill="#A5F3FC" font-family="Inter, Segoe UI, Arial" font-size="14">Selecciona tipo y capacidad</text>
+
+    <rect x="28" y="246" width="334" height="118" rx="20" fill="#111827" stroke="#334155"/>
+    <text x="50" y="278" fill="#F8FAFC" font-family="Inter, Segoe UI, Arial" font-size="15" font-weight="700">NAP 8 puertos · Sector Norte</text>
+    <text x="50" y="306" fill="#94A3B8" font-family="Inter, Segoe UI, Arial" font-size="14">Coordenadas: ••••••••••••</text>
+    <text x="50" y="332" fill="#94A3B8" font-family="Inter, Segoe UI, Arial" font-size="14">Foto: evidencia_adjunta.jpg</text>
+    <rect x="50" y="344" width="112" height="28" rx="14" fill="#10B981" fill-opacity="0.18" stroke="#34D399"/>
+    <text x="72" y="363" fill="#86EFAC" font-family="Inter, Segoe UI, Arial" font-size="12" font-weight="700">VALIDADO</text>
+
+    <rect x="172" y="386" width="260" height="42" rx="16" fill="#4C1D95" fill-opacity="0.44" stroke="#8B5CF6" stroke-opacity="0.45"/>
+    <text x="194" y="413" fill="#DDD6FE" font-family="Inter, Segoe UI, Arial" font-size="15">Registro guardado en SQLite</text>
+  </g>
+
+  <g transform="translate(600 188)">
+    <rect width="496" height="452" rx="24" fill="#0F172A" stroke="#334155"/>
+    <text x="30" y="46" fill="#F8FAFC" font-family="Inter, Segoe UI, Arial" font-size="22" font-weight="800">Panel operativo</text>
+    <text x="30" y="76" fill="#94A3B8" font-family="Inter, Segoe UI, Arial" font-size="15">Inventario técnico de cajas/NAP</text>
+
+    <g transform="translate(34 112)">
+      <path d="M48 196C88 128 116 72 190 92C258 110 252 206 322 214C372 220 388 178 424 142" stroke="#22D3EE" stroke-width="3" stroke-dasharray="8 10" opacity="0.75"/>
+      <circle cx="48" cy="196" r="14" fill="#22D3EE"/>
+      <circle cx="190" cy="92" r="14" fill="#7C3AED"/>
+      <circle cx="322" cy="214" r="14" fill="#10B981"/>
+      <circle cx="424" cy="142" r="14" fill="#F59E0B"/>
+      <rect x="18" y="226" width="120" height="34" rx="17" fill="#111827" stroke="#334155"/>
+      <text x="39" y="248" fill="#CBD5E1" font-family="Inter, Segoe UI, Arial" font-size="13">Nodo A-12</text>
+      <rect x="280" y="244" width="146" height="34" rx="17" fill="#111827" stroke="#334155"/>
+      <text x="303" y="266" fill="#CBD5E1" font-family="Inter, Segoe UI, Arial" font-size="13">Caja validada</text>
+    </g>
+
+    <g transform="translate(30 330)">
+      <rect width="436" height="88" rx="18" fill="#111827" stroke="#263244"/>
+      <text x="22" y="32" fill="#E5E7EB" font-family="Inter, Segoe UI, Arial" font-size="15" font-weight="700">Checklist de captura</text>
+      <text x="22" y="61" fill="#86EFAC" font-family="Inter, Segoe UI, Arial" font-size="14">✓ Tipo  ✓ Coordenadas  ✓ Evidencia  ✓ Observación</text>
+    </g>
+  </g>
+</svg>

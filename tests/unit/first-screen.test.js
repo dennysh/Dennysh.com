@@ -38,7 +38,7 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       for (const id of ['code', 'projects', 'journey', 'how', 'interest']) expect(out).toContain(`id="p-${id}"`)
       for (const line of codePanel(ruleset, audit, lang)) if (line.trim()) expect(out).toContain(esc(line))
       const p = c.home.panels
-      for (const t of [p.projects.text, p.journey.text, p.interest.thought]) expect(out).toContain(esc(t))
+      for (const t of [p.projects.text, p.journey.text, p.interest.text]) expect(out).toContain(esc(t))
       expect(out).toContain('https://github.com/dennysh')
       expect(out).toContain(pagePaths[lang].projects)
       expect(out).toContain(esc(p.projects.text)) // Trabajo en producción, con Criden
@@ -85,9 +85,10 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       expect(bar).toMatch(/<button[^>]*class="theme-toggle"[^>]*aria-pressed="true"[^>]*aria-label="[^"]+"/)
       expect(bar).not.toMatch(/contact/i)
     })
-    it(`(${lang}) Interés trae solo el pensamiento y ningún deporte ni marcador`, () => {
+    it(`(${lang}) Sobre mí trae la presentación, sin el pensamiento cerebro–IA, ningún deporte ni marcador`, () => {
       const i = c.home.panels.interest
-      expect(out).toContain(esc(i.thought))
+      expect(out).toContain(esc(i.text))
+      expect(out).not.toMatch(/cerebro|brain/i)
       expect(out).not.toMatch(/jiu|triat|triath|obst[aá]cul|obstacle|deporte|sport/i)
       expect(out).not.toContain('data-pending')
     })

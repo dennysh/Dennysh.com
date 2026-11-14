@@ -3,6 +3,9 @@ import React from 'react'
 import { renderToString } from 'react-dom/server'
 import { site, links } from '../../src/content/site.js'
 import { pagePaths, legalPaths } from '../../src/routes.js'
+import { renderToStaticMarkup } from 'react-dom/server'
+import AboutAudio from '../../src/components/AboutAudio.jsx'
+import { aboutAudio } from '../../src/content/about-audio.js'
 import { CodePage, ProjectsPage, JourneyPage, HowPage, InterestPage, ContactPage } from '../../src/pages/Pages.jsx'
 import { LegalPage, NotFound } from '../../src/Legal.jsx'
 import Site from '../../src/Site.jsx'
@@ -77,8 +80,8 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       expect(cards.map((x) => /<h2>([^<]+)<\/h2>/.exec(x)[1])).toEqual([esc(c.work.items[0].title), 'Super Gol Kids', 'Criden'])
       const criden = cards[2]
       expect(criden).toContain(`badge-production">${esc(c.work.status.production)}`)
-      expect(criden).not.toContain('href=')
-      expect(criden).not.toContain('data-pending') // el marcador P-22 no sale en el HTML público
+      expect(criden).toContain('<a href="https://criden.com" rel="noopener noreferrer">') // P-22 resuelto (2026-11-14): enlace real, sin nota de pendiente
+      expect(criden).not.toContain('data-pending')
       expect(criden).not.toMatch(/pr[óo]ximamente|coming soon/i)
       expect(out).toContain(esc(c.projectsPage.title))
       expect(out).not.toMatch(/contable|accounting|football manager|f[uú]tbol manager|hardlock/i)
@@ -104,9 +107,13 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       for (const l of c.journey.lines) expect(out).toContain(esc(l))
       expect(out.indexOf(esc(c.journey.lines[0]))).toBeLessThan(out.indexOf(esc(c.journeyPage.timeline[0].title)))
     })
-    it(`(${lang}) Interés: solo el pensamiento cerebro–IA, como idea y no como capacidad`, () => {
+    it(`(${lang}) Sobre mí: el pensamiento cerebro–IA, como idea y no como capacidad, al final y con su aviso`, () => {
       const out = render(InterestPage, lang)
-      expect(out).toContain(esc(c.home.panels.interest.thought))
+      const lt = c.interestPage.longTerm
+      expect(out).toContain(esc(lt.thought))
+      expect(out).toContain(esc(lt.notice))
+      expect(out.indexOf(`>${esc(lt.title)}</h2>`)).toBeGreaterThan(out.indexOf(`>${esc(c.interestPage.contact.title)}</h2>`)) // última sección
+      expect(out.indexOf(esc(lt.thought))).toBe(out.lastIndexOf(esc(lt.thought)))
       expect(out).not.toMatch(/jiu|triat|triath|obst[aá]cul|obstacle|deporte|sport/i)
     })
     it(`(${lang}) Contacto: la sección completa (correo, LinkedIn, GitHub, CV, rol, interés, ubicación, idiomas, disponibilidad)`, () => {
@@ -132,4 +139,64 @@ describe('el inicio es solo la primera pantalla (C4/C5)', () => {
       expect(out.length).toBeLessThan(40_000) // el inicio mide una pantalla, no las ≈5800 px de antes
     }
   })
+})
+
+describe('Sobre mí (encargo 2026-11-14): presentación, audio opcional, qué hago, ejemplos del bot, Criden y contacto', () => {
+  const visible = (html) => html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ')
+  for (const lang of ['en', 'es']) {
+    const c = site[lang]
+    const p = c.interestPage
+    const out = render(InterestPage, lang)
+    const at = (t) => out.indexOf(esc(t))
+    it(`(${lang}) el orden: presentación, qué hago, ejemplos del bot, Criden, contacto, interés a largo plazo`, () => {
+      const h2 = (t) => out.indexOf(`>${esc(t)}</h2>`)
+      const order = [at(c.home.panels.interest.text), h2(p.whatTitle), h2(p.botExample.title), at(p.criden.text), h2(p.contact.title), h2(p.longTerm.title)]
+      expect(order.every((i) => i >= 0)).toBe(true)
+      expect([...order].sort((a, b) => a - b)).toEqual(order)
+    })
+    it(`(${lang}) la presentación es el texto aprobado y siempre está visible`, () => {
+      expect(c.home.panels.interest.text).toContain(lang === 'es' ? 'Hola, soy Dennys Heras. Vengo de siete años en redes de fibra óptica' : 'Hi, I\'m Dennys Heras. I come from seven years in fiber-optic networks')
+      expect(out).toContain(`<p class="lead">${esc(c.home.panels.interest.text)}</p>`)
+    })
+    it(`(${lang}) con la lista de audio vacía no hay reproductor, ni rótulo, ni hueco`, () => {
+      expect(aboutAudio).toEqual([])
+      expect(out).not.toMatch(/<audio|about-audio/)
+      expect(out).not.toContain(esc(p.audio.aiNote))
+    })
+    it(`(${lang}) con un archivo: reproductor sin reproducción automática, rótulo de voz con IA y texto accesible`, () => {
+      const html = renderToStaticMarkup(React.createElement(AboutAudio, { lang, ui: p.audio, files: [{ src: '/audio/prueba.mp3', type: 'audio/mpeg', title: { es: 'Presentación', en: 'Introduction' } }, { src: '/audio/solo-otro-idioma.mp3', type: 'audio/mpeg', lang: lang === 'es' ? 'en' : 'es' }] }))
+      expect(html).toMatch(/<audio controls="" preload="none"/)
+      expect(html).not.toMatch(/autoplay|autoPlay|loop/i)
+      expect(html).toContain(esc(p.audio.aiNote))
+      expect(html).toContain('aria-describedby="about-audio-ai"')
+      expect(html).toContain('/audio/prueba.mp3')
+      expect(html).not.toContain('solo-otro-idioma')
+      expect(renderToStaticMarkup(React.createElement(AboutAudio, { lang, ui: p.audio, files: [{ src: '/audio/x.mp3', type: 'audio/mpeg', lang: lang === 'es' ? 'en' : 'es' }] }))).toBe('')
+    })
+    it(`(${lang}) «Qué hago»: los cinco puntos, una frase cada uno; agentes marcados como declarados y prototipo; solo ejemplos que ya constan`, () => {
+      expect(p.what.map((w) => w.id)).toEqual(['bots', 'automation', 'web', 'agents', 'custom'])
+      for (const w of p.what) expect(out).toContain(esc(w.text))
+      expect(p.what.find((w) => w.id === 'agents').text).toMatch(lang === 'es' ? /declaro.*prototipo.*nunca estuvo en producción/s : /declare.*prototype.*never in production/s)
+      expect(p.what.find((w) => w.id === 'web').text).toContain('Super Gol Kids')
+    })
+    it(`(${lang}) ejemplos del bot: dos imágenes con alt, ancho y alto fijos, carga diferida y el rótulo de muestra, sin enlace al bot`, () => {
+      const imgs = [...out.matchAll(/<img\b[^>]*>/g)].map((m) => m[0])
+      expect(imgs).toHaveLength(2)
+      for (const im of imgs) {
+        expect(im).toMatch(/width="1200"/); expect(im).toMatch(/height="760"/); expect(im).toMatch(/loading="lazy"/)
+        expect(im).toMatch(/alt="[^"]{60,}"/)
+      }
+      expect(imgs.map((i) => /src="([^"]+)"/.exec(i)[1])).toEqual(['/images/bot-registro-cajas-mockup.svg', '/images/bot-reportes-telecom-mockup.svg'])
+      expect(p.botExample.note).toBe(lang === 'es' ? 'Ejemplo con datos de muestra: los bots reales son privados de la empresa.' : 'Example with sample data: the real bots are private to the company.')
+      expect(out.split(esc(p.botExample.note)).length - 1).toBe(3) // una vez como nota y una por imagen
+      expect(out).not.toMatch(/t\.me|telegram\.me|github\.com\/dennysh\/(bot|Bot)/)
+      expect(visible(out)).not.toMatch(/Fibratelecom|MS@Net|Afiatic|Telydata/)
+    })
+    it(`(${lang}) Criden con enlace externo y contacto con correo y WhatsApp (pestaña nueva, noopener noreferrer, sin mostrar el número)`, () => {
+      expect(out).toContain(`<a href="https://criden.com" rel="noopener noreferrer">${esc(p.criden.link)}</a>`)
+      expect(out).toContain(`<a class="btn btn-primary" href="mailto:dennys@dennysh.com">${esc(p.contact.email)}</a>`)
+      expect(out).toMatch(new RegExp(`<a class="btn btn-secondary" href="https://wa\\.me/593960664347" target="_blank" rel="noopener noreferrer" aria-label="${esc(p.contact.whatsappLabel).replace(/[()]/g, '\\$&')}">WhatsApp`))
+      expect(visible(out)).not.toMatch(/593960664347|960664347|\+?593 ?9/)
+    })
+  }
 })

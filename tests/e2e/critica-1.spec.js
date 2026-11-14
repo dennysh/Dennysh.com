@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { setStoredTheme } from './helpers.js'
 
 // Crítica Impeccable 1 (02-DOCS/critica-impeccable-1.md): lo que el CSS promete se mide en el navegador (estilos calculados, no texto de la hoja).
-const PAGES = ['/es/', '/en/', '/es/codigo/', '/es/proyectos/', '/es/trayectoria/', '/es/como-trabajo/', '/es/interes/', '/es/contacto/', '/en/contact/']
+const PAGES = ['/es/', '/en/', '/es/codigo/', '/es/proyectos/', '/es/trayectoria/', '/es/como-trabajo/', '/es/sobre-mi/', '/es/contacto/', '/en/contact/']
 const hydrated = (page) => page.waitForSelector('.first[data-js]')
 
 test.describe('panel de vista previa (C-03)', () => {
@@ -104,7 +104,7 @@ test('el enlace de salto del inicio tiene contraste suficiente con foco, en clar
 
 test('móvil: la barra de siete enlaces deja a la vista la página actual y se difumina por la derecha (C-09)', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/es/interes/')
+  await page.goto('/es/sobre-mi/')
   await page.waitForFunction(() => document.querySelector('.topbar nav').scrollLeft > 0)
   const cur = await page.locator('.topbar nav a[aria-current="page"]').boundingBox()
   expect(cur.x).toBeGreaterThanOrEqual(0)
@@ -119,7 +119,7 @@ test('el brillo de fondo de las páginas interiores no baja el contraste del tex
     const ctx = await browser.newContext({ colorScheme: scheme })
     await setStoredTheme(ctx, scheme)
     const page = await ctx.newPage()
-    await page.goto('/es/interes/')
+    await page.goto('/es/sobre-mi/')
     const t = await page.evaluate(() => {
       const probe = document.createElement('i'); document.body.appendChild(probe)
       const col = (v) => { probe.style.color = `var(${v})`; const m = getComputedStyle(probe).color.match(/[\d.]+/g).map(Number); probe.remove; return m }
