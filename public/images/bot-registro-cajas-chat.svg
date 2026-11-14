@@ -1,0 +1,29 @@
+<svg width="360" height="640" viewBox="0 0 360 640" fill="none" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Ejemplo de un bot de registro de cajas en Telegram, con datos ficticios</title>
+  <rect x="1" y="1" width="358" height="638" rx="30" fill="#0B1220" stroke="#64748B" stroke-width="2"/>
+  <path d="M1 31a30 30 0 0 1 30-30h298a30 30 0 0 1 30 30V64H1Z" fill="#162036"/>
+  <circle cx="36" cy="34" r="18" fill="#0E7490"/>
+  <path d="M27 34l17-8-4 17-5-6Z" fill="#ECFEFF"/>
+  <text x="64" y="32" fill="#F8FAFC" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="16" font-weight="700">Bot de registro de cajas</text>
+  <text x="64" y="52" fill="#A8B3C7" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="14">bot</text>
+  <rect x="96" y="76" width="168" height="28" rx="14" fill="#422006" stroke="#FBBF24"/>
+  <text x="180" y="95" fill="#FDE68A" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="14" font-weight="700" text-anchor="middle" letter-spacing="0.5">DATOS FICTICIOS</text>
+<rect x="194" y="116" width="150" height="38" rx="16" fill="#0E7490"/>
+<text x="208" y="140" fill="#F1F5F9" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="15" font-weight="400">/registrar_caja</text>
+<rect x="16" y="164" width="216" height="38" rx="16" fill="#1E293B"/>
+<text x="30" y="188" fill="#F1F5F9" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="15" font-weight="400">¿Tipo y capacidad?</text>
+<rect x="136" y="212" width="208" height="38" rx="16" fill="#0E7490"/>
+<text x="150" y="236" fill="#F1F5F9" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="15" font-weight="400">Caja NAP · 16 puertos</text>
+<rect x="16" y="260" width="268" height="38" rx="16" fill="#1E293B"/>
+<text x="30" y="284" fill="#F1F5F9" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="15" font-weight="400">Coordenadas: •••••, •••••</text>
+<rect x="144" y="308" width="200" height="108" rx="16" fill="#0E7490"/>
+<rect x="156" y="320" width="176" height="58" rx="10" fill="#0F172A" stroke="#67E8F9" stroke-opacity=".6"/>
+<path d="M180 364l22-26 16 18 12-12 26 20Z" fill="#155E75"/><circle cx="298" cy="342" r="8" fill="#67E8F9"/>
+<text x="158" y="402" fill="#F1F5F9" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="15">Foto adjunta</text>
+<rect x="16" y="426" width="150" height="38" rx="16" fill="#052E16" stroke="#4ADE80"/>
+<path d="M30 444l5 5 9-11" stroke="#86EFAC" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="54" y="450" fill="#86EFAC" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="15" font-weight="700">Validado</text>
+<rect x="16" y="474" width="262" height="58" rx="16" fill="#052E16" stroke="#4ADE80"/>
+<path d="M30 491l5 5 9-11" stroke="#86EFAC" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><text x="54" y="498" fill="#86EFAC" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="15" font-weight="700">Registro guardado</text><text x="54" y="520" fill="#E2E8F0" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="15">Caja A-12 · Sector Norte</text>
+  <rect x="16" y="580" width="328" height="40" rx="20" fill="#162036" stroke="#475569"/>
+  <text x="36" y="605" fill="#A8B3C7" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif" font-size="15">Mensaje</text>
+</svg>

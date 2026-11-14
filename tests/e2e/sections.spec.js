@@ -136,7 +136,7 @@ for (const [old, now, lang] of [['/en/interest/', '/en/about/', 'en'], ['/es/int
     for (const i of [0, 1]) {
       await expect(imgs.nth(i)).toHaveJSProperty('complete', true)
       expect(await imgs.nth(i).evaluate((el) => el.naturalWidth)).toBeGreaterThan(0)
-      await expect(imgs.nth(i)).toHaveAttribute('width', '1200')
+      await expect(imgs.nth(i)).toHaveAttribute('width', '360')
       await expect(imgs.nth(i)).toHaveAttribute('loading', 'lazy')
     }
     await expect(main).toContainText(lang === 'es' ? 'Ejemplo con datos de muestra: los bots reales son privados de la empresa' : 'Example with sample data: the real bots are private to the company')
@@ -194,15 +194,17 @@ test('axe: la página completa en inglés y español sin violaciones', async ({ 
   }
 })
 
-// Sobre mí, maquetas de bots (críticos 2, 2026-11-14): un título por imagen, una por fila, texto interno legible y sin desbordar la página.
-for (const [label, vp, minW] of [['móvil 390×844', { width: 390, height: 844 }, 800], ['escritorio 1440×900', { width: 1440, height: 900 }, 900]]) {
-  test(`Sobre mí (${label}): las maquetas van una por fila, con título propio, a un ancho legible y sin desbordar la página`, async ({ page }) => {
+// Sobre mí, maquetas verticales de bots (2026-11-15): un título por imagen, texto legible (el viewBox mide 360 px: a ≥ 340 px el texto de 14 px sale a ≥ 13 px), sin marco desplazable ni desbordar la página.
+for (const [label, vp, sideBySide] of [['móvil 390×844', { width: 390, height: 844 }, false], ['escritorio 1440×900', { width: 1440, height: 900 }, true]]) {
+  test(`Sobre mí (${label}): las maquetas verticales se leen enteras, con título propio y sin desbordar la página`, async ({ page }) => {
     await page.setViewportSize(vp)
     await page.goto('/es/sobre-mi/')
     await expect(page.locator('.about-mockups figcaption')).toHaveText(['Registro de cajas (ficticio)', 'Reportes de incidencias (ficticio)'])
-    const m = await page.locator('.about-mockups img').evaluateAll((els) => els.map((e) => ({ w: e.getBoundingClientRect().width, y: e.getBoundingClientRect().y })))
-    expect(m[1].y).toBeGreaterThan(m[0].y + 100) // una por fila
-    for (const i of m) expect(i.w).toBeGreaterThanOrEqual(minW) // 1200 px de maqueta a ≥ 800 px deja el texto de 14 px en ≥ 9 px y el de 22 px en ≥ 14 px; en escritorio ≥ 900
+    await expect(page.locator('.about-mockup-frame')).toHaveCount(0)
+    const m = await page.locator('.about-mockups img').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { w: r.width, x: r.x, y: r.y } }))
+    for (const i of m) { expect(i.w).toBeGreaterThanOrEqual(340); expect(i.w).toBeLessThanOrEqual(420) }
+    if (sideBySide) expect(Math.abs(m[1].y - m[0].y)).toBeLessThan(5) // lado a lado
+    else expect(m[1].y).toBeGreaterThan(m[0].y + 400) // una por fila
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await expect(page.locator('main')).toContainText('datos de muestra')
     expect(await page.locator('main').evaluate((el) => el.innerText.split('Ejemplo con datos de muestra').length - 1)).toBe(1)

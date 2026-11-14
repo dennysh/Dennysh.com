@@ -116,9 +116,7 @@ export function InterestPage({ lang }) {
         {p.botExample.images.map((im) => (
           <figure key={im.id}>
             <figcaption>{im.title}</figcaption>
-            <div className="about-mockup-frame" role="region" aria-label={im.title} tabIndex={0}>
-              <img src={im.src} width={im.width} height={im.height} alt={im.alt} loading="lazy" decoding="async" />
-            </div>
+            <img src={im.src} width={im.width} height={im.height} alt={im.alt} loading="lazy" decoding="async" />
           </figure>
         ))}
       </div>

@@ -204,14 +204,15 @@ describe('Sobre mí (encargo 2026-11-14): presentación, audio opcional, qué ha
       const imgs = [...out.matchAll(/<img\b[^>]*>/g)].map((m) => m[0])
       expect(imgs).toHaveLength(2)
       for (const im of imgs) {
-        expect(im).toMatch(/width="1200"/); expect(im).toMatch(/height="760"/); expect(im).toMatch(/loading="lazy"/)
+        expect(im).toMatch(/width="360"/); expect(im).toMatch(/height="640"/); expect(im).toMatch(/loading="lazy"/)
         expect(im).toMatch(/alt="[^"]{60,}"/)
       }
-      expect(imgs.map((i) => /src="([^"]+)"/.exec(i)[1])).toEqual(['/images/bot-registro-cajas-mockup.svg', '/images/bot-reportes-telecom-mockup.svg'])
+      expect(imgs.map((i) => /src="([^"]+)"/.exec(i)[1])).toEqual(['/images/bot-registro-cajas-chat.svg', '/images/bot-reportes-chat.svg'])
       expect(p.botExample.note).toBe(lang === 'es' ? 'Ejemplo con datos de muestra: los bots reales son privados de la empresa.' : 'Example with sample data: the real bots are private to the company.')
       expect(out.split(esc(p.botExample.note)).length - 1).toBe(1) // el rótulo de muestra va una sola vez para el conjunto
       expect(p.botExample.images.map((i) => i.title)).toEqual(lang === 'es' ? ['Registro de cajas (ficticio)', 'Reportes de incidencias (ficticio)'] : ['Box registration (fictional)', 'Incident reports (fictional)'])
       for (const im of p.botExample.images) expect(out).toContain(`<figcaption>${esc(im.title)}</figcaption>`)
+      expect(out).not.toContain('about-mockup-frame') // sin marco desplazable
       expect(out).not.toMatch(/t\.me|telegram\.me|github\.com\/dennysh\/(bot|Bot)/)
       expect(visible(out)).not.toMatch(/Fibratelecom|MS@Net|Afiatic|Telydata/)
     })

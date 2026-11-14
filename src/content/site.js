@@ -112,8 +112,8 @@ export const site = {
         title: 'What a bot looks like',
         note: 'Example with sample data: the real bots are private to the company.',
         images: [
-          { id: 'registro-cajas', title: 'Box registration (fictional)', src: '/images/bot-registro-cajas-mockup.svg', width: 1200, height: 760, alt: 'Mockup of a Telegram bot that registers network boxes. The chat shows the command to register a box, a new NAP box in the north sector, hidden coordinates, an attached evidence photo and a validated status, next to a panel with the technical inventory and a capture checklist.' },
-          { id: 'reportes-telecom', title: 'Incident reports (fictional)', src: '/images/bot-reportes-telecom-mockup.svg', width: 1200, height: 760, alt: 'Mockup of a Telegram bot for telecom reports. The chat shows a new report for a fiber cut in sector B with high priority, protected location and photo evidence, pending assignment to a technician, next to a panel that follows the report from receipt to technical close-out.' },
+          { id: 'registro-cajas', title: 'Box registration (fictional)', src: '/images/bot-registro-cajas-chat.svg', width: 360, height: 640, alt: 'Example with sample data: a Telegram chat with a bot that registers network boxes. The user sends the command to register a box and gives its type and capacity, the bot hides the coordinates, an evidence photo is attached, and the bot answers that the record is validated and saved.' },
+          { id: 'reportes-telecom', title: 'Incident reports (fictional)', src: '/images/bot-reportes-chat.svg', width: 360, height: 640, alt: 'Example with sample data: a Telegram chat with a bot for incident reports. The user opens a new report for a fiber cut in a sector, the bot gives a report number and marks high priority, an evidence photo is attached, the status is pending and then a technician is assigned.' },
         ],
       },
       criden: { text: 'Criden, a platform where I sell websites and automation for businesses.', link: 'Visit Criden ↗' },
@@ -415,8 +415,8 @@ export const site = {
         title: 'Cómo se ve un bot',
         note: 'Ejemplo con datos de muestra: los bots reales son privados de la empresa.',
         images: [
-          { id: 'registro-cajas', title: 'Registro de cajas (ficticio)', src: '/images/bot-registro-cajas-mockup.svg', width: 1200, height: 760, alt: 'Maqueta de un bot de Telegram que registra cajas de red. El chat muestra el comando para registrar una caja, una caja NAP en el sector norte, coordenadas ocultas, una foto de evidencia adjunta y el estado validado, junto a un panel con el inventario técnico y una lista de captura.' },
-          { id: 'reportes-telecom', title: 'Reportes de incidencias (ficticio)', src: '/images/bot-reportes-telecom-mockup.svg', width: 1200, height: 760, alt: 'Maqueta de un bot de Telegram para reportes de telecomunicaciones. El chat muestra un reporte nuevo de fibra caída en el sector B con prioridad alta, ubicación protegida y foto de evidencia, pendiente de asignar un técnico, junto a un panel que sigue el reporte desde que se recibe hasta el cierre técnico.' },
+          { id: 'registro-cajas', title: 'Registro de cajas (ficticio)', src: '/images/bot-registro-cajas-chat.svg', width: 360, height: 640, alt: 'Ejemplo con datos de muestra: un chat de Telegram con un bot que registra cajas de red. La persona envía el comando para registrar una caja e indica su tipo y capacidad, el bot oculta las coordenadas, se adjunta una foto de evidencia y el bot responde que el registro está validado y guardado.' },
+          { id: 'reportes-telecom', title: 'Reportes de incidencias (ficticio)', src: '/images/bot-reportes-chat.svg', width: 360, height: 640, alt: 'Ejemplo con datos de muestra: un chat de Telegram con un bot de reportes de incidencias. La persona abre un reporte nuevo de fibra caída en un sector, el bot da un número de reporte y marca prioridad alta, se adjunta una foto de evidencia, el estado queda pendiente y después se asigna un técnico.' },
         ],
       },
       criden: { text: 'Criden, plataforma donde vendo páginas web y automatizaciones para negocios.', link: 'Visitar Criden ↗' },
