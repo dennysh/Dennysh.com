@@ -32,7 +32,7 @@ describe('objetivos táctiles (C-07)', () => {
     expect(rule(site, '.brand')).toContain('min-height: 44px')
     expect(rule(site, 'footer.site a')).toMatch(/min-height: 28px[^}]*min-width: 28px|min-width: 28px[^}]*min-height: 28px/)
     expect(rule(site, '.back a, .card p > a, .contact-list a')).toContain('min-height: 28px')
-    const bar = site.slice(site.indexOf('@media (max-width: 760px) {'))
+    const bar = site.slice(site.indexOf('@media (max-width: 760px) {'), site.indexOf('@media (max-width: 600px) {'))
     expect(bar).toMatch(/\.topbar nav a \{[^}]*min-height: 44px/)
     expect(bar).not.toMatch(/overflow-x: auto|mask-image/) // sin desplazamiento lateral ni difuminado: nada queda cortado
     const mobile = site.slice(site.indexOf('@media (max-width: 600px) {'))

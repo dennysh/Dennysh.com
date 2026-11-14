@@ -187,3 +187,18 @@ test('axe: la página completa en inglés y español sin violaciones', async ({ 
     expect(r.violations.map((v) => `${p} ${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(' | ')}`)).toEqual([])
   }
 })
+
+// Sobre mí, maquetas de bots (críticos 2, 2026-11-14): un título por imagen, una por fila, texto interno legible y sin desbordar la página.
+for (const [label, vp, minW] of [['móvil 390×844', { width: 390, height: 844 }, 800], ['escritorio 1440×900', { width: 1440, height: 900 }, 900]]) {
+  test(`Sobre mí (${label}): las maquetas van una por fila, con título propio, a un ancho legible y sin desbordar la página`, async ({ page }) => {
+    await page.setViewportSize(vp)
+    await page.goto('/es/sobre-mi/')
+    await expect(page.locator('.about-mockups figcaption')).toHaveText(['Registro de cajas (ficticio)', 'Reportes de incidencias (ficticio)'])
+    const m = await page.locator('.about-mockups img').evaluateAll((els) => els.map((e) => ({ w: e.getBoundingClientRect().width, y: e.getBoundingClientRect().y })))
+    expect(m[1].y).toBeGreaterThan(m[0].y + 100) // una por fila
+    for (const i of m) expect(i.w).toBeGreaterThanOrEqual(minW) // 1200 px de maqueta a ≥ 800 px deja el texto de 14 px en ≥ 9 px y el de 22 px en ≥ 14 px; en escritorio ≥ 900
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    await expect(page.locator('main')).toContainText('datos de muestra')
+    expect(await page.locator('main').evaluate((el) => el.innerText.split('Ejemplo con datos de muestra').length - 1)).toBe(1)
+  })
+}

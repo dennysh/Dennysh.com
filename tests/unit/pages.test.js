@@ -121,6 +121,7 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       expect(out).toContain(esc(lt.notice))
       expect(out.indexOf(`>${esc(lt.title)}</h2>`)).toBeGreaterThan(out.indexOf(`>${esc(c.interestPage.contact.title)}</h2>`)) // última sección
       expect(out.indexOf(esc(lt.thought))).toBe(out.lastIndexOf(esc(lt.thought)))
+      expect(out.match(/no una capacidad|not a capability|not a demonstrated skill/gi) ?? []).toHaveLength(1) // el aviso va una sola vez
       expect(out).not.toMatch(/jiu|triat|triath|obst[aá]cul|obstacle|deporte|sport/i)
     })
     it(`(${lang}) Contacto: la sección completa (correo y WhatsApp juntos, LinkedIn, GitHub, CV, rol, ubicación, idiomas); sin disponibilidad, sin interés a largo plazo y sin aviso de formulario`, () => {
@@ -168,13 +169,15 @@ describe('Sobre mí (encargo 2026-11-14): presentación, audio opcional, qué ha
     const at = (t) => out.indexOf(esc(t))
     it(`(${lang}) el orden: presentación, qué hago, ejemplos del bot, Criden, contacto, interés a largo plazo`, () => {
       const h2 = (t) => out.indexOf(`>${esc(t)}</h2>`)
-      const order = [at(c.home.panels.interest.text), h2(p.whatTitle), h2(p.botExample.title), at(p.criden.text), h2(p.contact.title), h2(p.longTerm.title)]
+      const order = [at(p.intro), h2(p.whatTitle), h2(p.botExample.title), at(p.criden.text), h2(p.contact.title), h2(p.longTerm.title)]
       expect(order.every((i) => i >= 0)).toBe(true)
       expect([...order].sort((a, b) => a - b)).toEqual(order)
     })
     it(`(${lang}) la presentación es el texto aprobado y siempre está visible`, () => {
-      expect(c.home.panels.interest.text).toContain(lang === 'es' ? 'Hola, soy Dennys Heras. Vengo de siete años en redes de fibra óptica' : 'Hi, I\'m Dennys Heras. I come from seven years in fiber-optic networks')
-      expect(out).toContain(`<p class="lead">${esc(c.home.panels.interest.text)}</p>`)
+      expect(p.intro).toContain(lang === 'es' ? 'Hola, soy Dennys Heras. Vengo de siete años en redes de fibra óptica' : 'Hi, I\'m Dennys Heras. I come from seven years in fiber-optic networks')
+      expect(out).toContain(`<p class="lead">${esc(p.intro)}</p>`)
+      expect(c.home.panels.interest.text).toBe(lang === 'es' ? 'Quién soy, a qué me dedico y cómo contactarme.' : 'Who I am, what I do and how to reach me.') // la tarjeta no repite la presentación
+      expect(c.home.panels.interest.text).not.toContain(p.intro.slice(0, 30))
     })
     it(`(${lang}) con la lista de audio vacía no hay reproductor, ni rótulo, ni hueco`, () => {
       expect(aboutAudio).toEqual([])
@@ -206,7 +209,9 @@ describe('Sobre mí (encargo 2026-11-14): presentación, audio opcional, qué ha
       }
       expect(imgs.map((i) => /src="([^"]+)"/.exec(i)[1])).toEqual(['/images/bot-registro-cajas-mockup.svg', '/images/bot-reportes-telecom-mockup.svg'])
       expect(p.botExample.note).toBe(lang === 'es' ? 'Ejemplo con datos de muestra: los bots reales son privados de la empresa.' : 'Example with sample data: the real bots are private to the company.')
-      expect(out.split(esc(p.botExample.note)).length - 1).toBe(3) // una vez como nota y una por imagen
+      expect(out.split(esc(p.botExample.note)).length - 1).toBe(1) // el rótulo de muestra va una sola vez para el conjunto
+      expect(p.botExample.images.map((i) => i.title)).toEqual(lang === 'es' ? ['Registro de cajas (ficticio)', 'Reportes de incidencias (ficticio)'] : ['Box registration (fictional)', 'Incident reports (fictional)'])
+      for (const im of p.botExample.images) expect(out).toContain(`<figcaption>${esc(im.title)}</figcaption>`)
       expect(out).not.toMatch(/t\.me|telegram\.me|github\.com\/dennysh\/(bot|Bot)/)
       expect(visible(out)).not.toMatch(/Fibratelecom|MS@Net|Afiatic|Telydata/)
     })

@@ -104,7 +104,7 @@ export function InterestPage({ lang }) {
   const c = site[lang]
   const p = c.interestPage
   return (
-    <Page lang={lang} view="interest" title={p.title} lead={c.home.panels.interest.text} back={p.back}>
+    <Page lang={lang} view="interest" title={p.title} lead={p.intro} back={p.back}>
       <AboutAudio lang={lang} ui={p.audio} />
       <h2>{p.whatTitle}</h2>
       <ul className="about-what">
@@ -115,8 +115,10 @@ export function InterestPage({ lang }) {
       <div className="about-mockups">
         {p.botExample.images.map((im) => (
           <figure key={im.id}>
-            <img src={im.src} width={im.width} height={im.height} alt={im.alt} loading="lazy" decoding="async" />
-            <figcaption>{p.botExample.note}</figcaption>
+            <figcaption>{im.title}</figcaption>
+            <div className="about-mockup-frame" role="region" aria-label={im.title} tabIndex={0}>
+              <img src={im.src} width={im.width} height={im.height} alt={im.alt} loading="lazy" decoding="async" />
+            </div>
           </figure>
         ))}
       </div>

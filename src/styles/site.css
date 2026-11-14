@@ -161,10 +161,14 @@ footer.site a { color: var(--muted); display: inline-flex; align-items: center; 
 .about-what strong { display: block; margin-bottom: var(--space-1); }
 .about-what span { color: var(--muted); }
 .about-note { margin: 0 0 var(--space-3); color: var(--muted); font-size: .9rem; max-width: 46rem; }
-.about-mockups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--space-4); margin-bottom: var(--space-5); }
+.about-mockups { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); margin-bottom: var(--space-5); }
 .about-mockups figure { margin: 0; }
-.about-mockups img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius); }
-.about-mockups figcaption { margin-top: var(--space-2); color: var(--muted); font-size: .85rem; }
+.about-mockups figcaption { margin: 0 0 var(--space-2); font-weight: 700; }
+/* Una imagen por fila. En móvil el texto interno de la maqueta solo se lee a más de 800 px de ancho: el marco se desplaza de lado (con teclado también) y la página no. */
+.about-mockup-frame { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+.about-mockup-frame:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.about-mockups img { display: block; width: 100%; min-width: 820px; height: auto; }
+@media (min-width: 900px) { .about-mockups img { min-width: 0; } }
 .about-criden { max-width: 46rem; margin: 0 0 var(--space-5); }
 .about-audio { margin: 0 0 var(--space-5); padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius); max-width: 46rem; }
 .about-audio h2 { margin: 0 0 var(--space-2); font-size: 1.05rem; }

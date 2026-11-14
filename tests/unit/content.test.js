@@ -153,7 +153,8 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
       expect(walk(nonInterest(site[lang])).join(' ')).not.toMatch(/cerebro|brain/i)
       const th = site[lang].interestPage.longTerm.thought
       expect(th).toMatch(/cerebro|brain/i)
-      expect(th).toMatch(lang === 'es' ? /una idea, no una capacidad/i : /an idea, not a capability/i)
+      expect(th).not.toMatch(/capacidad|capability/i) // el aviso vive solo en `notice`, una vez
+      expect(site[lang].interestPage.longTerm.notice).toMatch(lang === 'es' ? /interés, no una capacidad demostrada/i : /interest, not a demonstrated skill/i)
       expect(contact).not.toHaveProperty('interest')
       expect(contact.role).not.toMatch(/cerebro|brain/i)
     }
@@ -275,7 +276,7 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
       expect(p.ids).toEqual(['telegram-bots', 'super-gol-kids', 'criden'])
       for (const id of p.ids) expect(site[lang].work.items.map((i) => i.id)).toContain(id)
       const cr = site[lang].work.items.find((i) => i.id === 'criden')
-      expect(cr.text).toBe(lang === 'es' ? 'Para negocios y páginas web: Criden. Es un producto aparte de este sitio.' : 'For businesses and websites: Criden. A separate product from this site.')
+      expect(cr.text).toBe(lang === 'es' ? 'Plataforma donde vendo páginas web y automatizaciones para negocios. Es aparte de este sitio.' : 'A platform where I sell websites and automation for businesses. It is separate from this site.')
       expect(cr.status).toBe('production') // D1: en producción; con enlace desde el 2026-11-14 (encargo «Sobre mí», cierra P-22)
       expect(cr.url).toBe('https://criden.com'); expect(cr.repo).toBeUndefined()
       expect(cr.link).toBeUndefined()
