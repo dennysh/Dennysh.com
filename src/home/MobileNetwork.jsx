@@ -48,7 +48,7 @@ export default function MobileNetwork({ hostRef }) {
     const readColor = () => { rgb = accentRgb(getComputedStyle(document.documentElement).getPropertyValue('--accent')) ?? FALLBACK_RGB }
     // Con movimiento reducido solo se dibuja por eventos (tocar, arrastrar, tema, tamaño): se juntan en un único dibujo por cuadro del navegador.
     let pending = 0
-    const draw = () => { if (!pending) pending = requestAnimationFrame(() => { pending = 0; if (reduce()) net.frame(ctx, performance.now(), .016, rgb, true) }) } // si la preferencia cambió entre tanto, el bucle normal manda
+    const draw = () => { if (!pending) pending = requestAnimationFrame(() => { pending = 0; if (reduce() && visible && !document.hidden) net.frame(ctx, performance.now(), .016, rgb, true) }) } // si la preferencia cambió entre tanto, el bucle normal manda
     const stop = () => { cancelAnimationFrame(raf); raf = 0 }
     const dispose = () => { stop(); cancelAnimationFrame(pending); pending = 0 }
     const loop = (t) => {
@@ -58,10 +58,12 @@ export default function MobileNetwork({ hostRef }) {
       net.frame(ctx, t, acc, rgb, false); acc = 0
     }
     const hasIO = typeof IntersectionObserver === 'function'
+    // Sin observer la visibilidad se calcula con la posición del hero; devuelve true si cambió.
+    const syncVisible = () => { if (hasIO) return false; const r = host.getBoundingClientRect(), v = r.bottom > 0 && r.top < innerHeight; const ch = v !== visible; visible = v; return ch }
     const start = () => {
       stop()
-      if (!hasIO) { const r = host.getBoundingClientRect(); visible = r.bottom > 0 && r.top < innerHeight } // sin observer se calcula aquí (montaje, scroll, tamaño)
-      if (!reduce()) { cancelAnimationFrame(pending); pending = 0 } // un dibujo por evento pendiente no convive con el bucle normal
+      syncVisible()
+      if (!reduce() || !visible || document.hidden) { cancelAnimationFrame(pending); pending = 0 } // un dibujo pendiente no convive con el bucle ni con la pausa
       if (reduce() || !visible || document.hidden) return
       last = performance.now()
       raf = requestAnimationFrame(loop)
@@ -74,6 +76,7 @@ export default function MobileNetwork({ hostRef }) {
       cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       net.resize(r.width, r.height, p ? { x: p.left - r.left, y: p.top - r.top, w: p.width || 1, h: p.height || 1 } : { x: 0, y: 0, w: 1, h: 1 })
+      if (syncVisible()) start()
       if (reduce()) draw()
     }
     // Luz del dedo: sigue al dedo y se apaga sola al soltar. `touch-action: pan-y` (CSS) deja el scroll vertical al navegador.
@@ -106,7 +109,7 @@ export default function MobileNetwork({ hostRef }) {
     const io = hasIO ? new IntersectionObserver(([en]) => { visible = en.isIntersecting; start() }, { threshold: 0 }) : null
     io?.observe(host)
     // Sin IntersectionObserver la visibilidad se calcula con el scroll (la animación no sigue fuera de pantalla).
-    const onScroll = () => start()
+    const onScroll = () => { if (syncVisible()) start() }
     if (!io) window.addEventListener('scroll', onScroll, { passive: true })
     const mo = new MutationObserver(retheme)
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
