@@ -3,7 +3,7 @@
 // Cambios respecto a la maqueta, por requisito: la zona protegida sale de la geometría real (geometry.js), no de fracciones de la maqueta;
 // los segmentos y triángulos también comprueban su tramo intermedio (no solo los extremos), para que nunca crucen la cara ni el cuerpo.
 import { VIEW, HEAD, HEAD_RECT, PORTRAIT_PX } from './geometry.js'
-import { soft, quietAlong as quietAlongWith, clampLen, approach, nearestLinks, triangles, triQuiet } from './net-core.js'
+import { soft, quietAlong as quietAlongWith, clampLen, approach, nearestLinks, triangles, triQuiet, clipOutsideProtected } from './net-core.js'
 
 // Desplazamiento máximo de un punto hacia el puntero, en px a 1180 px de ancho (se escala con W / REF_W), y vecinos y triángulos por cuadro.
 // Maqueta v2 (/tmp/red-referencia-v2.html): cada punto tiene una posición base y un desplazamiento acotado que vuelve solo; ya no hay atracción
@@ -30,6 +30,18 @@ const FIT = 1.42 // un pelo más que √2: las esquinas de la caja quedan dentro
 const HEAD_ELLIPSE = { rx: ((HEAD_RECT.x1 - HEAD_RECT.x0) / 2) * FIT, ry: ((HEAD_RECT.y1 - HEAD_RECT.y0) / 2) * FIT }
 export const BODY = { neck: 0.20, shoulders: 0.30 }
 const bodyHalf = (y) => PORTRAIT_PX.w * (BODY.neck + BODY.shoulders * soft(((y - CHIN) / (VIEW.h - CHIN)) * 1.4))
+
+// La misma zona como figuras en px del lienzo (elipse de la cabeza y polígono del cuerpo) para recortar el dibujo: ver clipOutsideProtected.
+export function protectedShapes(W, H) {
+  const sx = W / VIEW.w, sy = H / VIEW.h
+  const half = (vy) => bodyHalf(vy) * sx
+  const knee = CHIN + (VIEW.h - CHIN) / 1.4 // desde aquí la franja ya no se ensancha
+  const ys = [HEAD.y, CHIN, knee, VIEW.h + 2]
+  return {
+    ellipse: { cx: HEAD.x * sx, cy: HEAD.y * sy, rx: HEAD_ELLIPSE.rx * sx, ry: HEAD_ELLIPSE.ry * sy },
+    body: [...ys.map((vy) => [HEAD.x * sx - half(Math.min(vy, VIEW.h)), vy * sy]), ...[...ys].reverse().map((vy) => [HEAD.x * sx + half(Math.min(vy, VIEW.h)), vy * sy])],
+  }
+}
 
 // 0 = zona protegida (nada se dibuja), 1 = libre. (x, y) en px del lienzo de ancho W y alto H (la proporción es la de VIEW).
 export function quiet(x, y, W = VIEW.w, H = VIEW.h) {
@@ -89,6 +101,7 @@ export function createNetwork({ level = LEVEL, rand = Math.random } = {}) {
     const L = p.link * (W / REF_W), R = p.reach * (W / REF_W), pull = PULL * (W / REF_W)
     active += ((mouse ? 1 : 0) - active) * Math.min(1, dt * 6)
     const q = (x, y) => quiet(x, y, W, H)
+    const zone = protectedShapes(W, H)
     for (const pt of pts) {
       if (!reduce) { pt.bx += pt.vx * dt; pt.by += pt.vy * dt }
       if (pt.bx < -20) pt.bx = W + 20; if (pt.bx > W + 20) pt.bx = -20; if (pt.by < -20) pt.by = H + 20; if (pt.by > H + 20) pt.by = -20
@@ -103,6 +116,8 @@ export function createNetwork({ level = LEVEL, rand = Math.random } = {}) {
       approach(pt, tx, ty, Math.min(1, dt * 6))
       pt.x = pt.bx + pt.ox; pt.y = pt.by + pt.oy; pt.q = q(pt.x, pt.y)
     }
+    ctx.save()
+    clipOutsideProtected(ctx, W, H, zone.ellipse, zone.body)
     // Solo los puntos encendidos entran en los enlaces: cada uno se une como máximo a sus MAX_LINKS vecinos más cercanos (figuras ligeras, no una mancha).
     const graph = nearestLinks(pts.filter((pt) => pt.lit >= .01), L, MAX_LINKS)
     for (const [a, b, d] of graph.edges.values()) {
@@ -119,6 +134,7 @@ export function createNetwork({ level = LEVEL, rand = Math.random } = {}) {
     }
     // Puntos tenues en reposo; más visibles cuanto más encendidos.
     for (const pt of pts) { const k = pt.q * (.10 + .90 * pt.lit) * p.dot; if (k < .02) continue; ctx.fillStyle = `rgba(${rgb},${k})`; ctx.beginPath(); ctx.arc(pt.x, pt.y, pt.r, 0, 7); ctx.fill() }
+    ctx.restore()
   }
   return { resize, pointer, snap, frame, get points() { return pts }, get active() { return active } }
 }

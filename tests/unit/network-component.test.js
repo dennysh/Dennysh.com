@@ -9,7 +9,7 @@ import NetworkBackground from '../../src/home/NetworkBackground.jsx'
 const media = ({ fine = true, reduce = false } = {}) => {
   window.matchMedia = (q) => ({ matches: q.includes('hover: hover') ? fine : q.includes('reduced-motion') ? reduce : false, media: q, addEventListener() {}, removeEventListener() {} })
 }
-const ctx2d = { clearRect() {}, setTransform() {}, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, fill() {}, arc() {} }
+const ctx2d = { save() {}, restore() {}, clip() {}, rect() {}, ellipse() {}, closePath() {}, clearRect() {}, setTransform() {}, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, fill() {}, arc() {} }
 let raf, caf
 beforeEach(() => {
   HTMLCanvasElement.prototype.getContext = () => ctx2d

@@ -62,7 +62,9 @@ Sin cambios: intensidad nº 2, `quiet()` (zona protegida desde `geometry.js`), `
 
 Decisiones:
 - **Movimiento reducido:** los puntos no derivan **ni se desplazan** hacia el puntero (la luz sí sigue al puntero y se dibuja un cuadro al moverlo). La maqueta v2 sí desplazaba los puntos con movimiento reducido; se conserva la regla de este spec («sin movimiento»).
-- **«Enlaces por punto ≤ 3» significa que cada punto elige a lo sumo 3 vecinos.** Un punto puede ser elegido por otros, así que su grado total puede ser mayor; es el comportamiento de la maqueta.
+- **«Enlaces por punto ≤ 3» es el grado total.** La maqueta solo limitaba los vecinos que elige cada punto (un punto central elegido por varios podía pasar de 3); aquí una arista no se añade si algún extremo ya tiene 3 (revisión de Astra, hallazgo 2).
+- **La zona protegida se garantiza con un recorte geométrico** (elipse de la cabeza y polígono del cuerpo, `clipOutsideProtected`), además del muestreo por segmento: las muestras discretas no cubren todo el trazo (Astra, hallazgo 1).
+- **Los 30 fps no se aplican al escritorio** (la red de escritorio dibuja en cada cuadro, como antes): el límite de 30 fps es del móvil. Astra lo señaló como requisito no cumplido en escritorio; es código previo y fuera del encargo.
 - Las zonas protegidas de los lados y los triángulos siguen comprobándose a lo largo de cada segmento (decisión 2), y ahora el interior de un triángulo también (centroide y puntos hacia cada vértice).
 - El código común (vecinos, triángulos, desplazamiento acotado) vive en `src/home/net-core.js` y lo comparte con la red del móvil (`2026-11-14-movil-landing-vertical.md`).
 

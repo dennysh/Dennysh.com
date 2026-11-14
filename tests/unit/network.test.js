@@ -94,7 +94,7 @@ function spyCtx() {
   let path = []
   return {
     ops,
-    clearRect() {}, beginPath() { path = [] }, moveTo(x, y) { path.push([x, y]) }, lineTo(x, y) { path.push([x, y]) }, arc(x, y) { path.push([x, y]) },
+    save() {}, restore() {}, clip() {}, rect() {}, ellipse() {}, closePath() {}, clearRect() {}, beginPath() { path = [] }, moveTo(x, y) { path.push([x, y]) }, lineTo(x, y) { path.push([x, y]) }, arc(x, y) { path.push([x, y]) },
     stroke() { ops.push({ kind: 'line', path: [...path], style: this.strokeStyle }) }, fill() { ops.push({ kind: 'fill', path: [...path], style: this.fillStyle }) },
   }
 }
@@ -160,7 +160,7 @@ describe('coste por cuadro (medida, no umbral estricto)', () => {
   it('~170 puntos con el puntero en el centro de la red: bien por debajo de un cuadro de 16 ms', () => {
     const net = createNetwork({ rand: seeded(11) })
     net.resize(1180, 773)
-    const ctx = { clearRect() {}, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, fill() {}, arc() {} } // solo mide la lógica, sin registrar trazos
+    const ctx = { save() {}, restore() {}, clip() {}, rect() {}, ellipse() {}, closePath() {}, clearRect() {}, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {}, fill() {}, arc() {} } // solo mide la lógica, sin registrar trazos
     net.pointer(250, 250)
     for (let i = 0; i < 30; i++) net.frame(ctx, i * 16, '1,2,3', false)
     // El mejor de cinco lotes: la prueba corre en paralelo con otras y un lote suelto puede coincidir con una pausa del proceso.
@@ -188,7 +188,7 @@ const counting = () => {
   let ops = [], tris = 0, perFrame = []
   return {
     perFrame: () => perFrame,
-    clearRect() { perFrame.push(tris); tris = 0 }, beginPath() { ops = [] }, moveTo() {}, lineTo() { ops.push('l') }, arc() { ops.push('a') },
+    clearRect() { perFrame.push(tris); tris = 0 }, beginPath() { ops = [] }, moveTo() {}, lineTo() { ops.push('l') }, arc() { ops.push('a') }, save() {}, restore() {}, clip() {}, rect() {}, ellipse() {}, closePath() {},
     stroke() {}, fill() { if (ops.filter((o) => o === 'l').length === 2) tris++ },
     set strokeStyle(v) {}, set fillStyle(v) {}, set lineWidth(v) {},
   }
@@ -236,8 +236,9 @@ describe('red de escritorio: desplazamiento acotado (no hay atracción acumulati
     const { net, ctx } = run()
     const on = net.points.filter((p) => p.lit >= .01)
     expect(on.length).toBeGreaterThan(10) // la prueba mide algo
-    const { chosen } = nearestLinks(on, PRESETS[LEVEL].link * (W / REF_W), MAX_LINKS)
+    const { chosen, adj } = nearestLinks(on, PRESETS[LEVEL].link * (W / REF_W), MAX_LINKS)
     for (const [, n] of chosen) expect(n).toBeLessThanOrEqual(3)
+    for (const [, s] of adj) expect(s.size).toBeLessThanOrEqual(3) // y nadie acaba con más de 3 enlaces en total
     expect(Math.max(...ctx.perFrame())).toBeLessThanOrEqual(MAX_TRIS)
   })
   it('la densidad no cambia con el puntero quieto: ninguna celda de la rejilla retiene una fracción grande de los puntos', () => {
@@ -270,5 +271,24 @@ describe('red de escritorio: desplazamiento acotado (no hay atracción acumulati
     for (let f = 0; f < 300; f++) for (const q of pts) { const dx = 880 - q.x, dy = 330 - q.y, d = Math.hypot(dx, dy); if (d < R && d > 50) { const g = (1 - d / R) * 90 / 60; q.x += dx / d * g; q.y += dy / d * g } }
     const worst = Math.max(...pts.map((q, i) => Math.hypot(q.x - base[i].x, q.y - base[i].y)))
     expect(worst).toBeGreaterThan(PULL * 3)
+  })
+})
+
+describe('recorte geométrico de la zona protegida en escritorio (protectedShapes)', () => {
+  it('las figuras (elipse de la cabeza ∪ polígono del cuerpo) coinciden con la zona donde quiet() vale 0', async () => {
+    const { protectedShapes } = await import('../../src/home/network.js')
+    for (const [W, H] of [[1180, 773], [800, 524]]) {
+      const { ellipse, body } = protectedShapes(W, H)
+      const inEllipse = (x, y) => ((x - ellipse.cx) / ellipse.rx) ** 2 + ((y - ellipse.cy) / ellipse.ry) ** 2 <= 1
+      const inPoly = (x, y) => { let c = false; for (let i = 0, j = body.length - 1; i < body.length; j = i++) { const [xi, yi] = body[i], [xj, yj] = body[j]; if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c } return c }
+      let mismatch = 0, zero = 0
+      for (let y = 0; y <= H; y += 3) for (let x = 0; x <= W; x += 3) {
+        const z = quiet(x, y, W, H) === 0
+        if (z) zero++
+        if ((inEllipse(x, y) || inPoly(x, y)) !== z) mismatch++
+      }
+      expect(zero, `${W}`).toBeGreaterThan(3000)
+      expect(mismatch / zero, `${W}`).toBeLessThan(.01)
+    }
   })
 })

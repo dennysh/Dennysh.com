@@ -96,7 +96,7 @@ h1#hero-h { margin: 0; line-height: 1.1; letter-spacing: -.01em; }
 .hint, .explore { display: none; }
 @media (max-width: 760px) {
   .first { padding: 0; }
-  .canvas { height: clamp(560px, 100svh, 820px); max-width: 480px; margin: 0 auto; overflow: hidden; touch-action: pan-y; }
+  .canvas { height: clamp(560px, 100svh, 820px); max-width: 480px; margin: 0 auto; overflow: hidden; touch-action: pan-y pinch-zoom; }
   /* Brillo propio del móvil (el de la maqueta): sobre el retrato y a la izquierda. */
   .canvas::before { background: radial-gradient(ellipse 70% 38% at 50% 58%, var(--m-glow), transparent 72%), radial-gradient(ellipse 60% 30% at 0% 30%, var(--m-glow2), transparent 70%); }
   .bar { position: absolute; top: 14px; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); z-index: 4; gap: var(--space-2); }

@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { quiet, lightSources, createMobileNetwork, P, FADE_MS } from '../../src/home/network-mobile.js'
+import { quiet, lightSources, createMobileNetwork, protectedShapes, P, FADE_MS } from '../../src/home/network-mobile.js'
 import { nearestLinks, triangles, clampLen, quietAlong } from '../../src/home/net-core.js'
 
 // Red de fondo del móvil (trabajo A): zona protegida sobre la caja real del retrato, luz errante + dedo, vecinos máx. 3 y desplazamiento acotado.
 const lcg = (seed = 7) => () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296)
 const BOX = { x: 47, y: 322, w: 296, h: 398 } // el retrato a 390×844: alto 62 % del hero, centrado
-const fakeCtx = () => { const c = { fills: 0, strokes: 0 }; for (const k of ['clearRect', 'beginPath', 'moveTo', 'lineTo', 'arc']) c[k] = () => {}; c.fill = () => { c.fills++ }; c.stroke = () => { c.strokes++ }; return c }
+const fakeCtx = () => { const c = { fills: 0, strokes: 0 }; for (const k of ['clearRect', 'beginPath', 'moveTo', 'lineTo', 'arc', 'save', 'restore', 'clip', 'rect', 'ellipse', 'closePath']) c[k] = () => {}; c.fill = () => { c.fills++ }; c.stroke = () => { c.strokes++ }; return c }
 
 describe('quiet() móvil: zona protegida derivada de la caja real del retrato', () => {
   const cx = BOX.x + BOX.w / 2
@@ -60,11 +60,12 @@ describe('luz errante y dedo (lightSources)', () => {
 
 describe('vecinos: cada punto encendido se une como máximo a sus 3 más cercanos', () => {
   const dense = (n, size, seed) => { const r = lcg(seed); return Array.from({ length: n }, (_, i) => ({ i, x: r() * size, y: r() * size })) }
-  it('ningún punto elige más de 3 vecinos, los enlaces no se repiten y hay a lo sumo 3 por punto en total', () => {
+  it('ningún punto elige más de 3 vecinos, ninguno acaba con más de 3 enlaces en total y los enlaces no se repiten', () => {
     for (const seed of [1, 2, 3]) {
       const pts = dense(80, 160, seed) // muy denso: cada punto tiene muchísimos candidatos a < L
-      const { edges, chosen } = nearestLinks(pts, P.link, P.maxLinks)
+      const { edges, chosen, adj } = nearestLinks(pts, P.link, P.maxLinks)
       for (const [, n] of chosen) expect(n).toBeLessThanOrEqual(3)
+      for (const [, s] of adj) expect(s.size).toBeLessThanOrEqual(3)
       expect(edges.size).toBeLessThanOrEqual(3 * pts.length)
       const keys = [...edges.keys()]
       expect(new Set(keys).size).toBe(keys.length)
@@ -84,6 +85,49 @@ describe('vecinos: cada punto encendido se une como máximo a sus 3 más cercano
     const tris = triangles(g, P.maxTris, () => 1)
     expect(tris.length).toBeLessThanOrEqual(P.maxTris)
     for (const [a, b, e] of tris) for (const [u, v] of [[a, b], [a, e], [b, e]]) expect(g.adj.get(u).has(v), `${u.i}-${v.i}`).toBe(true)
+  })
+})
+
+describe('revisión de seguridad: un punto central no acumula más de 3 enlaces aunque otros lo elijan', () => {
+  it('un punto con cuatro vecinos que lo eligen termina con 3 enlaces', () => {
+    const c = { i: 0, x: 0, y: 0 }
+    const ring = [[10, 0], [-10, 0], [0, 10], [0, -10]].map(([x, y], k) => ({ i: k + 1, x, y }))
+    const { adj } = nearestLinks([c, ...ring], 100, 3)
+    expect(adj.get(c).size).toBeLessThanOrEqual(3)
+    for (const [, s] of adj) expect(s.size).toBeLessThanOrEqual(3)
+  })
+})
+
+describe('recorte geométrico de la zona protegida (protectedShapes + clipOutsideProtected)', () => {
+  const H = 844
+  const { ellipse, body } = protectedShapes(BOX, H)
+  const inEllipse = (x, y) => ((x - ellipse.cx) / ellipse.rx) ** 2 + ((y - ellipse.cy) / ellipse.ry) ** 2 <= 1
+  const inPoly = (x, y) => { let c = false; for (let i = 0, j = body.length - 1; i < body.length; j = i++) { const [xi, yi] = body[i], [xj, yj] = body[j]; if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) c = !c } return c }
+  it('las figuras recortan exactamente la zona donde quiet() vale 0 (cara ∪ cuerpo), hasta el borde del hero', () => {
+    let mismatch = 0, zero = 0
+    for (let y = 0; y <= H; y += 3) for (let x = 0; x <= 390; x += 3) {
+      const inside = inEllipse(x, y) || inPoly(x, y), z = quiet(x, y, BOX) === 0
+      if (z) zero++
+      if (inside !== z) mismatch++
+    }
+    expect(zero).toBeGreaterThan(5000)
+    expect(mismatch / zero).toBeLessThan(.01) // solo los píxeles justo en el borde de una figura poligonal
+  })
+  it('el cuadro aplica el recorte antes de dibujar y lo deshace después (save → 2 recortes evenodd → trazos → restore)', () => {
+    const log = []
+    const ctx = new Proxy({}, { get: (_, k) => (...a) => { log.push([k, ...a]) } })
+    const net = createMobileNetwork({ rand: lcg(11) })
+    net.resize(390, H, BOX); net.touchAt(60, 200, true, 0)
+    net.frame(ctx, 100, .033, '1,1,1', false)
+    const names = log.map((l) => l[0])
+    const save = names.indexOf('save'), restore = names.lastIndexOf('restore')
+    const clips = log.filter((l) => l[0] === 'clip')
+    expect(clips).toHaveLength(2); for (const c of clips) expect(c[1]).toBe('evenodd')
+    expect(save).toBeGreaterThan(-1); expect(names.indexOf('clip')).toBeGreaterThan(save)
+    const firstDraw = names.findIndex((n, i) => i > names.lastIndexOf('clip') && ['stroke', 'fill'].includes(n))
+    expect(firstDraw).toBeGreaterThan(names.lastIndexOf('clip'))
+    expect(restore).toBeGreaterThan(firstDraw)
+    expect(names.slice(names.lastIndexOf('clip')).filter((n) => ['stroke', 'fill'].includes(n)).length).toBeGreaterThan(0) // se dibujó algo tras el recorte
   })
 })
 
@@ -125,6 +169,12 @@ describe('desplazamiento acotado: la luz empuja un poco y el punto vuelve, nunca
     for (let f = 0; f < 300; f++) for (const q of pts) { const dx = 195 - q.x, dy = 420 - q.y, d = Math.hypot(dx, dy); if (d < P.reach && d > 50) { const g = (1 - d / P.reach) * 90 / 30; q.x += dx / d * g; q.y += dy / d * g } }
     const worst = Math.max(...pts.map((q, i) => Math.hypot(q.x - base[i].x, q.y - base[i].y)))
     expect(worst).toBeGreaterThan(P.pull * 2)
+  })
+  it('con movimiento reducido, soltar quita la luz del dedo de inmediato (drop): no queda fija hasta otro evento', () => {
+    const net = createMobileNetwork({ rand: lcg(11) })
+    net.resize(390, 844, BOX); net.touchAt(195, 420, true, 0)
+    net.drop()
+    expect(net.touching).toBeNull()
   })
   it('el dedo apagado se suelta solo: tras FADE_MS no queda dedo y los puntos vuelven a su base', () => {
     const net = createMobileNetwork({ rand: lcg(11) })

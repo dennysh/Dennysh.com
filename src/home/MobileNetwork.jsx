@@ -46,12 +46,15 @@ export default function MobileNetwork({ hostRef }) {
     let rgb = FALLBACK_RGB, raf = 0, last = 0, acc = 0, visible = true, dpr = 1
 
     const readColor = () => { rgb = accentRgb(getComputedStyle(document.documentElement).getPropertyValue('--accent')) ?? FALLBACK_RGB }
-    const draw = () => net.frame(ctx, performance.now(), .016, rgb, reduce())
+    // Con movimiento reducido solo se dibuja por eventos (tocar, arrastrar, tema, tamaño): se juntan en un único dibujo por cuadro del navegador.
+    let pending = 0
+    const draw = () => { if (!pending) pending = requestAnimationFrame(() => { pending = 0; net.frame(ctx, performance.now(), .016, rgb, true) }) }
     const stop = () => { cancelAnimationFrame(raf); raf = 0 }
+    const dispose = () => { stop(); cancelAnimationFrame(pending); pending = 0 }
     const loop = (t) => {
       raf = requestAnimationFrame(loop)
       const dt = Math.min(.05, (t - last) / 1000 || .016); last = t; acc += dt
-      if (acc < 1 / P.fps - .002) return // tope de cuadros por segundo para cuidar la batería
+      if (acc < 1 / P.fps) return // tope estricto de cuadros por segundo (30) para cuidar la batería
       net.frame(ctx, t, acc, rgb, false); acc = 0
     }
     const start = () => {
@@ -78,7 +81,8 @@ export default function MobileNetwork({ hostRef }) {
       net.touchAt(...pos(e), e.pointerType !== 'mouse', performance.now())
       if (reduce()) draw()
     }
-    const up = () => { net.release(performance.now()); if (reduce()) draw() }
+    // Con movimiento reducido no hay cuadros que apaguen la luz poco a poco: al soltar se quita y se redibuja.
+    const up = () => { if (reduce()) { net.drop(); draw() } else net.release(performance.now()) }
     const retheme = () => { readColor(); if (reduce()) draw() }
 
     readColor()
@@ -98,11 +102,14 @@ export default function MobileNetwork({ hostRef }) {
     if (!ro) window.addEventListener('resize', measure)
     const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(([en]) => { visible = en.isIntersecting; start() }, { threshold: 0 }) : null
     io?.observe(host)
+    // Sin IntersectionObserver la visibilidad se calcula con el scroll (la animación no sigue fuera de pantalla).
+    const onScroll = () => { const r = host.getBoundingClientRect(), v = r.bottom > 0 && r.top < innerHeight; if (v !== visible) { visible = v; start() } }
+    if (!io) window.addEventListener('scroll', onScroll, { passive: true })
     const mo = new MutationObserver(retheme)
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
     reduceMq?.addEventListener('change', start)
     return () => {
-      stop()
+      dispose()
       img?.removeEventListener('load', ready)
       host.removeEventListener('pointerdown', down)
       host.removeEventListener('pointermove', move)
@@ -112,6 +119,7 @@ export default function MobileNetwork({ hostRef }) {
       document.removeEventListener('visibilitychange', start)
       ro?.disconnect(); io?.disconnect(); mo.disconnect()
       window.removeEventListener('resize', measure)
+      window.removeEventListener('scroll', onScroll)
       reduceMq?.removeEventListener('change', start)
     }
   }, [mounted, cv, hostRef])

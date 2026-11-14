@@ -24,8 +24,9 @@ export function approach(q, tx, ty, e) {
   q.oy += (ty - q.oy) * e
 }
 
-// Enlaces: cada punto de `on` (con índice `i`) se une a lo sumo a sus `maxLinks` vecinos más cercanos a menos de L px. Devuelve el mapa de
-// enlaces [a, b, distancia] (una sola vez por pareja), la adyacencia y cuántos vecinos eligió cada punto (`chosen`, nunca más de `maxLinks`).
+// Enlaces: cada punto de `on` (con índice `i`) se une a lo sumo a sus `maxLinks` vecinos más cercanos a menos de L px, y ningún punto acaba con
+// más de `maxLinks` enlaces en total (un punto central al que otros elegirían no pasa de ese tope: revisión de seguridad, hallazgo 2). Devuelve el
+// mapa de enlaces [a, b, distancia] (una sola vez por pareja), la adyacencia y cuántos vecinos eligió cada punto (`chosen`).
 export function nearestLinks(on, L, maxLinks) {
   const edges = new Map(), adj = new Map(), chosen = new Map()
   const L2 = L * L
@@ -42,6 +43,7 @@ export function nearestLinks(on, L, maxLinks) {
     for (const [d, b] of picks) {
       const key = a.i < b.i ? `${a.i}-${b.i}` : `${b.i}-${a.i}`
       if (edges.has(key)) continue
+      if ((adj.get(a)?.size ?? 0) >= maxLinks || (adj.get(b)?.size ?? 0) >= maxLinks) continue
       edges.set(key, [a, b, d])
       if (!adj.has(a)) adj.set(a, new Set())
       if (!adj.has(b)) adj.set(b, new Set())
@@ -74,4 +76,15 @@ export function triQuiet(q, a, b, e) {
   let k = Math.min(a.q, b.q, e.q, q(cx, cy), q((cx + a.x) / 2, (cy + a.y) / 2), q((cx + b.x) / 2, (cy + b.y) / 2), q((cx + e.x) / 2, (cy + e.y) / 2))
   if (k > 0) k = Math.min(k, quietAlong(q, a.x, a.y, b.x, b.y, a.q, b.q), quietAlong(q, a.x, a.y, e.x, e.y, a.q, e.q), quietAlong(q, b.x, b.y, e.x, e.y, b.q, e.q))
   return k
+}
+
+// Recorte geométrico de la zona protegida: todo lo que se dibuja después de llamar a esto (trazos con su grosor, rellenos y puntos) queda
+// fuera de la elipse de la cara y de la franja del cuerpo, con independencia de dónde caigan los extremos o las muestras de un segmento.
+// Dos recortes seguidos se intersectan, así que lo visible es «fuera de la elipse» ∩ «fuera del cuerpo». Hay que llamar a ctx.save() antes y a
+// ctx.restore() después. `ellipse` = { cx, cy, rx, ry }; `body` = polígono cerrado [[x, y], …].
+export function clipOutsideProtected(ctx, W, H, ellipse, body) {
+  const m = 2 // margen fuera del lienzo: el recorte cubre todo el rectángulo
+  const outside = (shape) => { ctx.beginPath(); ctx.rect(-m, -m, W + 2 * m, H + 2 * m); shape(); ctx.clip('evenodd') }
+  outside(() => { ctx.moveTo(ellipse.cx + ellipse.rx, ellipse.cy); ctx.ellipse(ellipse.cx, ellipse.cy, ellipse.rx, ellipse.ry, 0, 0, Math.PI * 2) })
+  outside(() => { body.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.closePath() })
 }

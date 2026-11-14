@@ -4,7 +4,7 @@
 //  - la zona protegida también se comprueba a lo largo de cada segmento y de cada lado de un triángulo (no solo en los extremos), para que
 //    ningún trazo cruce la cara ni el cuerpo aunque sus extremos queden fuera (medido por píxeles en e2e);
 //  - el objetivo del desplazamiento se recorta a `pull` px aunque la luz errante y el dedo empujen a la vez (en la maqueta podían sumar 1,35 × pull).
-import { soft, quietAlong, clampLen, approach, nearestLinks, triangles, triQuiet } from './net-core.js'
+import { soft, quietAlong, clampLen, approach, nearestLinks, triangles, triQuiet, clipOutsideProtected } from './net-core.js'
 
 export const P = { n: 110, link: 100, line: .8, dot: .40, speed: .05, tri: .05, reach: 150, wander: .35, fps: 30, pull: 16, maxLinks: 3, maxTris: 10 }
 export const FADE_MS = 1600 // la luz que deja el dedo se apaga en ~1,6 s al soltar
@@ -18,6 +18,15 @@ export function quiet(x, y, pz) {
   let kBody = 1
   if (v > .38) { const half = .30 + .18 * soft((v - .38) / .14); kBody = soft((Math.abs(u) / half - 1) / .25) }
   return Math.min(kHead, kBody)
+}
+
+// La misma zona como figuras (elipse de la cara y polígono del cuerpo) para recortar el dibujo: ver clipOutsideProtected. `H` = alto del hero.
+export function protectedShapes(pz, H) {
+  const cx = pz.x + pz.w / 2, y = (v) => pz.y + v * pz.h
+  return {
+    ellipse: { cx, cy: y(.22), rx: .20 * pz.w, ry: .19 * pz.h },
+    body: [[cx - .30 * pz.w, y(.38)], [cx - .48 * pz.w, y(.52)], [cx - .48 * pz.w, H + 2], [cx + .48 * pz.w, H + 2], [cx + .48 * pz.w, y(.52)], [cx + .30 * pz.w, y(.38)]],
+  }
 }
 
 // Fuentes de luz: la luz errante (siempre, salvo con movimiento reducido) y el dedo (al tocar o arrastrar; se apaga al soltar).
@@ -51,6 +60,7 @@ export function createMobileNetwork({ rand = Math.random } = {}) {
   }
   const touchAt = (x, y, down, t) => { touch = { x, y, down, t } }
   const release = (t) => { if (touch) { touch.down = false; touch.t = t } }
+  const drop = () => { touch = null } // con movimiento reducido no hay cuadros que apaguen la luz poco a poco: al soltar desaparece
 
   // Un cuadro. `dt` en segundos desde el último cuadro dibujado; `rgb` = "r,g,b"; `reduce` = sin movimiento ni luz errante.
   function frame(ctx, t, dt, rgb, reduce = false) {
@@ -60,6 +70,7 @@ export function createMobileNetwork({ rand = Math.random } = {}) {
     if (touch && !touch.down && (t - touch.t) / FADE_MS >= 1) touch = null
     const src = lightSources(t, { W, H, reduce, touch })
     const q = (x, y) => quiet(x, y, pz)
+    const zone = protectedShapes(pz, H)
     for (const p of pts) {
       if (!reduce) { p.bx += p.vx * dt; p.by += p.vy * dt }
       if (p.bx < -20) p.bx = W + 20; if (p.bx > W + 20) p.bx = -20; if (p.by < -20) p.by = H + 20; if (p.by > H + 20) p.by = -20
@@ -74,6 +85,8 @@ export function createMobileNetwork({ rand = Math.random } = {}) {
       approach(p, tx, ty, Math.min(1, reduce ? 1 : dt * 6))
       p.x = p.bx + p.ox; p.y = p.by + p.oy; p.lit = lit; p.q = q(p.x, p.y)
     }
+    ctx.save()
+    clipOutsideProtected(ctx, W, H, zone.ellipse, zone.body)
     const on = pts.filter((p) => p.lit > .01)
     const graph = nearestLinks(on, L, P.maxLinks)
     for (const [a, b, d] of graph.edges.values()) {
@@ -85,6 +98,7 @@ export function createMobileNetwork({ rand = Math.random } = {}) {
       ctx.fillStyle = `rgba(${rgb},${k})`; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(e.x, e.y); ctx.fill()
     }
     for (const p of pts) { const k = p.q * (.10 + .90 * p.lit) * P.dot; if (k < .02) continue; ctx.fillStyle = `rgba(${rgb},${k})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill() }
+    ctx.restore()
   }
-  return { resize, touchAt, release, frame, get points() { return pts }, get touching() { return touch } }
+  return { resize, touchAt, release, drop, frame, get points() { return pts }, get touching() { return touch } }
 }

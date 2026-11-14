@@ -121,9 +121,9 @@ for (const size of SIZES) {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     })
 
-    test('el scroll vertical sigue funcionando con un gesto de arrastre sobre el hero (touch-action: pan-y)', async ({ page }) => {
+    test('el scroll vertical sigue funcionando con un gesto de arrastre sobre el hero (touch-action: pan-y pinch-zoom)', async ({ page }) => {
       await ready(page)
-      expect(await page.locator('.canvas').evaluate((e) => getComputedStyle(e).touchAction)).toBe('pan-y')
+      expect(await page.locator('.canvas').evaluate((e) => getComputedStyle(e).touchAction)).toBe('pan-y pinch-zoom')
       // Un arrastre táctil real (toque, movimiento, soltar) sobre el hero desplaza la página; con touch-action: none no se movería (comprobado a mano).
       const g = await drag(page, Array.from({ length: 16 }, (_, i) => [size.width / 2, size.height * .7 - i * 20]), 16)
       await g.end()
