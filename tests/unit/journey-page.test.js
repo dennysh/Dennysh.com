@@ -27,6 +27,24 @@ describe('Trayectoria sin fotos reales', () => {
         for (const t of e.tags) expect(html).toContain(`<li>${esc(t)}</li>`)
       }
     })
+    it(`(${lang}) los retos van dentro de su entrada, después de las viñetas y antes de las etiquetas, con rótulo y título como texto`, () => {
+      const items = html.split('<li class="tl-item"').slice(1)
+      const counts = items.map((x) => (x.match(/class="tl-challenge"/g) ?? []).length)
+      expect(counts).toEqual(j.timeline.map((e) => (e.challenges ?? []).length))
+      expect(counts).toEqual([0, 0, 0, 0, 2, 1, 1]) // Fibratelecom (3.ª) y el resto, sin reto
+      expect((html.match(/<p class="tl-ch-label">/g) ?? [])).toHaveLength(4)
+      items.forEach((x, i) => {
+        if (!counts[i]) { expect(x).not.toContain('tl-challenges'); return }
+        const e = j.timeline[i]
+        const lastBullet = x.lastIndexOf(esc(e.bullets[e.bullets.length - 1]))
+        const firstCh = x.indexOf('class="tl-challenges"')
+        const tags = x.indexOf('class="tags tl-tags"')
+        expect(lastBullet).toBeGreaterThan(-1); expect(lastBullet).toBeLessThan(firstCh); expect(firstCh).toBeLessThan(tags)
+        for (const c of e.challenges) {
+          expect(x).toContain(`<p class="tl-ch-label">${esc(j.ui.challenge)}</p><h3 class="tl-ch-title">${esc(c.title)}</h3><p class="tl-ch-text">${esc(c.text)}</p>`)
+        }
+      })
+    })
     it(`(${lang}) sin miniaturas, ni diálogo, ni imágenes, ni huecos`, () => {
       for (const cls of ['tl-thumb', 'tl-dialog', 'tl-more', 'data-photo']) expect(html).not.toContain(cls)
       expect(html).not.toContain('<img')

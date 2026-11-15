@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 
 // Línea de tiempo de Trayectoria (al estilo de la sección "Experience" de brittanychiang.com): fechas a la izquierda, a la derecha el cargo · empresa,
-// lo más destacado y etiquetas. Las fotos son opcionales: una miniatura por entrada (la primera) que se amplía en un diálogo modal con todas las de la entrada.
+// lo más destacado, los retos superados (opcionales, debajo de las viñetas) y etiquetas. Las fotos son opcionales: una miniatura por entrada (la primera) que se amplía en un diálogo modal con todas las de la entrada.
 // Sin fotos declaradas no hay miniaturas, ni diálogo, ni huecos. Las miniaturas son enlaces a la foto (sin JavaScript abren el archivo).
 const fmt = (t, vars) => t.replace(/\{(\w+)\}/g, (_m, k) => String(vars[k]))
 const real = (p) => Boolean(p && typeof p.src === 'string' && p.src)
@@ -64,7 +64,7 @@ function Lightbox({ entry, k, ui, dialogRef, onClose, onStep }) {
 }
 
 export default function Timeline({ entries: all, ui }) {
-  const entries = all.map((e) => ({ ...e, photos: (e.photos ?? []).filter(real) }))
+  const entries = all.map((e) => ({ ...e, photos: (e.photos ?? []).filter(real), challenges: e.challenges ?? [] }))
   const any = entries.some((e) => e.photos.length > 0)
   const [js, setJs] = useState(false)
   const [open, setOpen] = useState(null) // { id, k }
@@ -95,6 +95,17 @@ export default function Timeline({ entries: all, ui }) {
                   {e.status && <span className="tl-kind tl-status">{e.status}</span>}
                 </h2>
                 <ul className="tl-points">{e.bullets.map((b) => <li key={b}>{b}</li>)}</ul>
+                {e.challenges.length > 0 && (
+                  <div className="tl-challenges">
+                    {e.challenges.map((c) => (
+                      <div key={c.title} className="tl-challenge">
+                        <p className="tl-ch-label">{ui.challenge}</p>
+                        <h3 className="tl-ch-title">{c.title}</h3>
+                        <p className="tl-ch-text">{c.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {e.tags.length > 0 && <ul className="tags tl-tags">{e.tags.map((t) => <li key={t}>{t}</li>)}</ul>}
                 {e.photos.length > 0 && <Thumb e={e} ui={ui} js={js} onOpen={() => setOpen({ id: e.id, k: 0 })} />}
               </div>

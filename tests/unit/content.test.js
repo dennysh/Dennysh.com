@@ -347,7 +347,7 @@ describe('línea de tiempo de Trayectoria (trabajo B; contenido solo del CV púb
     }
   })
   it('es y en tienen la misma estructura (tipo, fechas ISO, actual, número de viñetas y de etiquetas)', () => {
-    const shape = (lang) => site[lang].journeyPage.timeline.map((e) => [e.id, e.kind, e.from ?? null, e.to ?? null, !!e.current, e.bullets.length, e.tags.length])
+    const shape = (lang) => site[lang].journeyPage.timeline.map((e) => [e.id, e.kind, e.from ?? null, e.to ?? null, !!e.current, e.bullets.length, e.tags.length, (e.challenges ?? []).length])
     expect(shape('es')).toEqual(shape('en'))
   })
   it('las fechas coinciden con el CV público; "Presente" solo en los dos que siguen en curso', () => {
@@ -377,8 +377,58 @@ describe('línea de tiempo de Trayectoria (trabajo B; contenido solo del CV púb
       expect(all).not.toMatch(/ingenier|engineer|supervisor|gerente|manager de|jefe|\.(webp|jpe?g|png)|"src"/i)
       expect(all).not.toMatch(/\d+ ?%|\$ ?\d|\d+ clientes|\d+ clients/i) // sin cifras que no estén en el CV
       // los únicos números de la prosa son los años del CV (y "24/7"); las fechas ISO van aparte en from/to
-      const prose = JSON.stringify(site[lang].journeyPage.timeline.map(({ from, to, ...e }) => e))
+      const prose = JSON.stringify(site[lang].journeyPage.timeline.map(({ from, to, challenges, ...e }) => e)) // los retos tienen su propia prueba (más abajo)
       expect((prose.match(/\b\d{1,4}\b/g) ?? []).filter((d) => !['2017', '2018', '2021', '2022', '2023', '2025', '24', '7'].includes(d))).toEqual([])
+    }
+  })
+})
+
+describe('retos superados de Trayectoria (declarados por Dennys; sin fechas, sin clientes, sin cargos nuevos)', () => {
+  const IDS = { telydata: 1, afiatic: 1, msnet: 2 }
+  const byId = (lang, id) => site[lang].journeyPage.timeline.find((e) => e.id === id)
+  const NUMS = { es: { telydata: ['3'], afiatic: ['800', '4', '5'], msnet: ['4', '2', '3', '3'] }, en: { telydata: ['3'], afiatic: ['800', '4', '5'], msnet: ['4', '2', '3', '3'] } }
+  it('solo Telydata (1), Afiatic (1) y MS@Net (2) llevan retos, igual en es y en; Fibratelecom y el resto, ninguno', () => {
+    for (const lang of ['es', 'en']) for (const e of site[lang].journeyPage.timeline) expect((e.challenges ?? []).length, `${lang} ${e.id}`).toBe(IDS[e.id] ?? 0)
+  })
+  it('cada reto tiene título corto y texto de 2 a 4 líneas de prosa, y existe el rótulo en los dos idiomas', () => {
+    expect(site.es.journeyPage.ui.challenge).toBe('Un reto superado')
+    expect(site.en.journeyPage.ui.challenge).toBe('A challenge overcome')
+    for (const lang of ['es', 'en']) for (const id of Object.keys(IDS)) for (const c of byId(lang, id).challenges) {
+      expect(c.title.length).toBeGreaterThan(8); expect(c.title.length).toBeLessThan(50)
+      expect(c.text.length).toBeGreaterThan(150); expect(c.text.length).toBeLessThan(560)
+    }
+  })
+  it('textos exactos de los retos que Dennys dictó (título y primera frase de cada uno)', () => {
+    const T = (lang, id, i) => byId(lang, id).challenges[i]
+    expect(T('es', 'telydata', 0).title).toBe('Un enlace dañado en varios puntos')
+    expect(T('es', 'afiatic', 0).title).toBe('Fusionar en el aire, a 800 metros')
+    expect(T('es', 'msnet', 0).title).toBe('Enlaces que no pueden esperar')
+    expect(T('es', 'msnet', 1).title).toBe('La primera red GPON en Taisha')
+    expect(T('en', 'telydata', 0).title).toBe('A link damaged in several places')
+    expect(T('en', 'afiatic', 0).title).toBe('Splicing in the air, at 800 meters')
+    expect(T('en', 'msnet', 0).title).toBe('Links that cannot wait')
+    expect(T('en', 'msnet', 1).title).toBe('The first GPON network in Taisha')
+    // «la primera empresa» es afirmación declarada por Dennys, con la frase de las fotos, tal cual
+    expect(T('es', 'msnet', 1).text).toContain('fuimos la primera empresa en abrir una red GPON de fibra hasta la casa (FTTH)')
+    expect(T('es', 'msnet', 1).text.endsWith('Fotos de respaldo disponibles a pedido.')).toBe(true)
+    expect(T('en', 'msnet', 1).text).toContain('we were the first company to open a GPON fiber-to-the-home (FTTH) network')
+    expect(T('en', 'msnet', 1).text.endsWith('Backup photos available on request.')).toBe(true)
+  })
+  it('no hay fechas, ni «inteligencia», ni «policía», ni nombres propios de clientes o personas; los números son los dictados', () => {
+    for (const lang of ['es', 'en']) for (const id of Object.keys(IDS)) {
+      const cs = byId(lang, id).challenges
+      const all = JSON.stringify(cs)
+      expect(all).not.toMatch(/\b(19|20)\d{2}\b|\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|january|february|march|april|june|july|august|september|october|november|december)\b/i)
+      expect(all).not.toMatch(/inteligencia|polic[ií]a|intelligence|police/i)
+      expect(all).not.toMatch(/[\w.-]+@[\w.-]+\.\w+|https?:|www\./i)
+      expect(cs.flatMap((c) => c.text.match(/\b\d+\b/g) ?? []).sort()).toEqual([...NUMS[lang][id]].sort())
+    }
+  })
+  it('las fechas y los cargos de MS@Net, Afiatic y Telydata no cambian', () => {
+    for (const lang of ['es', 'en']) {
+      expect(byId(lang, 'msnet')).toMatchObject({ when: 'Jun 2021 – Oct 2022', from: '2021-06', to: '2022-10', title: 'ISP Manager', org: 'MS@Net' })
+      expect(byId(lang, 'afiatic')).toMatchObject({ when: 'Feb 2018 – May 2021', from: '2018-02', to: '2021-05', org: 'Afiatic' })
+      expect(byId(lang, 'telydata')).toMatchObject({ when: 'Mar 2017 – Feb 2018', from: '2017-03', to: '2018-02', org: 'Telydata' })
     }
   })
 })

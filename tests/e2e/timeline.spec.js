@@ -196,3 +196,27 @@ for (const scheme of ['light', 'dark']) {
     })
   }
 }
+
+// Retos superados: cuatro bloques (Telydata 1, Afiatic 1, MS@Net 2), dentro de su entrada, después de las viñetas, legibles en móvil y sin desbordes.
+const CH = { es: { label: 'Un reto superado', first: 'Un enlace dañado en varios puntos' }, en: { label: 'A challenge overcome', first: 'A link damaged in several places' } }
+for (const lang of ['es', 'en']) for (const [w, h] of [[360, 640], [390, 844], [1440, 900]]) {
+  test(`retos (${lang}) ${w}×${h}: cuatro retos con rótulo y título como texto, tras las viñetas, sin desbordes ni texto cortado`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h })
+    await ready(page, lang)
+    await expect(page.locator('.tl-challenge')).toHaveCount(4)
+    await expect(page.locator('.tl-ch-label').first()).toHaveText(CH[lang].label)
+    await expect(page.locator('h3.tl-ch-title').last()).toHaveText(CH[lang].first)
+    await expect(page.locator('.tl-item').nth(3).locator('.tl-challenge')).toHaveCount(0) // Fibratelecom no lleva reto
+    const d = await page.evaluate(() => ({ sw: document.documentElement.scrollWidth, iw: innerWidth }))
+    expect(d.sw).toBeLessThanOrEqual(d.iw)
+    for (const c of await page.locator('.tl-challenge').all()) {
+      const b = await c.boundingBox()
+      expect(b.x).toBeGreaterThanOrEqual(0); expect(b.x + b.width).toBeLessThanOrEqual(w)
+      const clipped = await c.evaluate((el) => [...el.querySelectorAll('*')].some((n) => n.scrollWidth > n.clientWidth + 1))
+      expect(clipped).toBe(false)
+    }
+    // orden de lectura: viñetas, luego reto
+    const order = await page.locator('.tl-item').nth(4).evaluate((li) => { const r = (s) => li.querySelector(s).getBoundingClientRect().top; return [r('.tl-points'), r('.tl-challenge')] })
+    expect(order[0]).toBeLessThan(order[1])
+  })
+}
