@@ -19,3 +19,27 @@
 2. `.rsc.json` y `02-DOCS/informe-pre-produccion-2026-11-09.md` ya estaban modificados antes; no entran en el commit.
 
 Capturas: `02-DOCS/capturas-captura-bot-2026-11-15/` (390, 360 y 1440 es oscuro; 1440 es claro; 1440 en oscuro).
+
+## Ajuste (la captura no se leía)
+
+**Qué cambió**
+- Nuevo recorte `public/images/bot-caja-cercana-respuesta.webp` (280×312, 18 810 bytes), copiado tal cual de `/tmp/bot-caja-cercana-respuesta.webp`. Es la imagen que se ve en Proyectos. La captura completa `bot-caja-cercana-demo.webp` sigue en el repo.
+- Debajo del pie, enlace de texto «Ver la conversación completa» / «See the full conversation» a la captura completa. Enlace normal (`<a href>`, sin JavaScript), `target="_blank"` con `rel="noopener noreferrer"` y `aria-label` «… (se abre en otra pestaña)» / «(opens in another tab)», como el de WhatsApp. Alto táctil 44 px.
+- Texto alternativo nuevo (es y en) tal como lo pidió el encargo. El pie visible no cambió. `width`/`height` 280×312 y `loading="lazy"`.
+- CSS: `.bot-shot` mide 280 px fijos (`max-width: 100%`), ya no se estira.
+- Hueco en escritorio: la tarjeta alta ocupa tres filas de la columna derecha y las otras tres bots se apilan a su izquierda (solo en listas con captura, ≥ 700 px; la portada no cambia). Antes quedaba ~480 px vacíos junto a «Bot de registro de cajas»; ahora quedan ~250 px bajo la columna izquierda, al final de la tarjeta.
+
+**A qué tamaño se ve la imagen** (medido en el navegador, tamaño real = 280 px)
+| Ancho | Imagen | Enlace (alto) |
+| --- | --- | --- |
+| 1440 (escritorio) | 280×312 (1,0×) | 44 px |
+| 390 (móvil) | 280×312 (1,0×) | 44 px |
+| 360 (móvil) | 280×312 (1,0×) | 44 px |
+Sin desbordes horizontales en ninguno. «Cajas más cercanas» y las distancias se leen sin ampliar. Esto resuelve la duda 1 de arriba.
+
+**Pruebas**
+- Unitarias: la imagen es ahora el recorte (src, 280×312, alt, lazy); nueva prueba del enlace (href, aria-label, rel, texto, va bajo el pie); existen los dos archivos. En la prueba del bloque «Bots para Telegram» (es/en), `href=` ya no está prohibido sin más: se exige que el único href sea el de la captura completa (sigue sin haber enlaces a repositorios).
+- e2e: ancho de la imagen entre 260 y 340 px, enlace visible con href, aviso y alto ≥ 44 px.
+- `npm run build` antes de vitest; vitest 1100 ✓; e2e sections, critica-1, theme, mobile-landing y first-screen 167 ✓ (con axe). Sin Astra. Sin push. Servidores de vista previa cerrados.
+
+Capturas: `02-DOCS/capturas-captura-bot-b-2026-11-15/` (es oscuro en 390×844, 360×640 y 1440×900; es claro 1440; en oscuro 1440).

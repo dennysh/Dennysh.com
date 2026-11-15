@@ -148,11 +148,14 @@ footer.site a { color: var(--muted); display: inline-flex; align-items: center; 
 .bot-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); }
 .bots-list .badge { font-size: .75rem; }
 .bots-list .bot-text { color: var(--muted); font-size: .9rem; }
-.bot-shot { margin: var(--space-2) 0 0; width: 100%; max-width: 460px; justify-self: start; }
+.bot-shot { margin: var(--space-2) 0 0; width: 280px; max-width: 100%; justify-self: start; } /* el recorte se ve a su tamaño real (280 px): el texto se lee sin ampliar */
 .bot-shot img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: var(--radius); }
 .bot-shot figcaption { margin-top: var(--space-1); color: var(--muted); font-size: .85rem; }
+.bot-shot-full { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); text-decoration: underline; font-size: .9rem; }
 .card-bots { align-content: start; grid-column: 1 / -1; } /* ocupa toda la fila: abierta no deja hueco en las tarjetas vecinas */
 @media (min-width: 700px) { .card-bots .bots-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3) var(--space-5); } }
+/* La tarjeta alta (la que lleva la captura) ocupa tres filas de la columna derecha y las otras tres se apilan a su izquierda: sin hueco junto a ella. */
+@media (min-width: 700px) { .card-bots .bots-list:has(.bot-shot) { grid-template-rows: auto auto 1fr; } .card-bots .bots-list:has(.bot-shot) > li:has(.bot-shot) { grid-row: span 3; } }
 
 /* Formulario de contacto por pasos (D4) */
 .cf { max-width: 36rem; margin-bottom: var(--space-5); }

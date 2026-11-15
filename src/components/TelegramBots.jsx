@@ -22,6 +22,7 @@ export default function TelegramBots({ lang, group, heading = false, open = fals
               <figure className="bot-shot">
                 <img src={b.shot.src} width={b.shot.width} height={b.shot.height} alt={b.shot.alt} loading="lazy" decoding="async" />
                 <figcaption>{b.shot.caption}</figcaption>
+                {b.shot.full && <a className="bot-shot-full" href={b.shot.full.src} target="_blank" rel="noopener noreferrer" aria-label={b.shot.full.aria}>{b.shot.full.label}<span aria-hidden="true"> ↗</span></a>}
               </figure>
             )}
           </li>

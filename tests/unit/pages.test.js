@@ -104,7 +104,9 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       // 4.ª ronda de críticos: los cuatro llevan estado, pegado a su nombre (en la misma línea, dentro de su caja)
       expect(d.match(/badge-production/g)).toHaveLength(1) // solo Caja Cercana
       expect(d.match(/badge-development/g)).toHaveLength(3)
-      expect(d).not.toMatch(/badge-undefined|href=|data-pending/)
+      expect(d).not.toMatch(/badge-undefined|data-pending/)
+      // Ningún enlace a repositorios: el único href permitido es el de la captura completa del bot de caja más cercana
+      expect(d.match(/href="[^"]*"/g)).toEqual(['href="/images/bot-caja-cercana-demo.webp"'])
       expect(d.match(/class="badge/g)).toHaveLength(4)
       const bots = c.work.items[0].bots
       for (const b of bots) expect(new RegExp(`<li data-bot="${b.id}"><span class="bot-head"><strong>${esc(b.title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</strong><span class="badge badge-${b.status}">${esc(c.work.status[b.status])}</span></span>`).test(d), b.id).toBe(true)
@@ -304,25 +306,36 @@ describe('Proyectos muestra el texto completo de cada bot (no solo la primera fr
 
 describe('captura real del Bot de caja más cercana (solo en Proyectos)', () => {
   const CAPS = {
-    es: { cap: 'Demostración con datos ficticios: el técnico envía su ubicación y el bot responde con las tres cajas más cercanas y un botón de ruta a cada una.', alt: 'Captura de Telegram: un técnico envía una ubicación y el bot Caja Cercana responde con tres cajas a 327, 457 y 636 metros, con un botón de ruta para cada una.' },
-    en: { cap: 'Demo with fictitious data: the technician sends their location and the bot replies with the three nearest boxes and a route button for each.', alt: 'Telegram screenshot: a technician sends a location and the Caja Cercana bot replies with three boxes at 327, 457 and 636 meters, with a route button for each.' },
+    es: { cap: 'Demostración con datos ficticios: el técnico envía su ubicación y el bot responde con las tres cajas más cercanas y un botón de ruta a cada una.', alt: 'Captura de Telegram: el bot Caja Cercana responde a una ubicación con tres cajas a 327, 457 y 636 metros y un botón de ruta para cada una.', link: 'Ver la conversación completa', aria: 'Ver la conversación completa (se abre en otra pestaña)' },
+    en: { cap: 'Demo with fictitious data: the technician sends their location and the bot replies with the three nearest boxes and a route button for each.', alt: 'Telegram screenshot: the Caja Cercana bot replies to a location with three boxes at 327, 457 and 636 meters and a route button for each.', link: 'See the full conversation', aria: 'See the full conversation (opens in another tab)' },
   }
   for (const lang of ['es', 'en']) {
     it(`(${lang}) Proyectos muestra la imagen con alt, pie, ancho y alto y carga diferida, solo en el bot de caja más cercana`, () => {
       const out = render(ProjectsPage, lang)
-      const imgs = [...out.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]).filter((i) => i.includes('bot-caja-cercana-demo'))
+      const imgs = [...out.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]).filter((i) => i.includes('bot-caja-cercana-respuesta'))
       expect(imgs).toHaveLength(1)
-      expect(imgs[0]).toMatch(/src="\/images\/bot-caja-cercana-demo\.webp"/)
-      expect(imgs[0]).toMatch(/width="746"/); expect(imgs[0]).toMatch(/height="912"/); expect(imgs[0]).toMatch(/loading="lazy"/)
+      expect(imgs[0]).toMatch(/src="\/images\/bot-caja-cercana-respuesta\.webp"/)
+      expect(imgs[0]).toMatch(/width="280"/); expect(imgs[0]).toMatch(/height="312"/); expect(imgs[0]).toMatch(/loading="lazy"/)
       expect(imgs[0]).toContain(`alt="${esc(CAPS[lang].alt)}"`)
       expect(out).toContain(`<figcaption>${esc(CAPS[lang].cap)}</figcaption>`)
       expect(out.split('class="bot-shot"').length - 1).toBe(1)
     })
+    it(`(${lang}) bajo el pie hay un enlace normal a la captura completa, con aviso accesible de pestaña nueva`, () => {
+      const out = render(ProjectsPage, lang)
+      const links = [...out.matchAll(/<a\b[^>]*class="bot-shot-full"[^>]*>.*?<\/a>/g)].map((m) => m[0])
+      expect(links).toHaveLength(1)
+      expect(links[0]).toContain('href="/images/bot-caja-cercana-demo.webp"')
+      expect(links[0]).toContain(`aria-label="${esc(CAPS[lang].aria)}"`)
+      expect(links[0]).toMatch(/rel="noopener noreferrer"/)
+      expect(links[0]).toContain(`>${CAPS[lang].link}<`)
+      expect(out.indexOf('class="bot-shot-full"')).toBeGreaterThan(out.indexOf('</figcaption>'))
+    })
     it(`(${lang}) la portada no lleva la imagen (vista previa de Proyectos ni Explorar)`, () => {
-      expect(renderToString(React.createElement(Site, { lang }))).not.toContain('bot-caja-cercana-demo')
+      expect(renderToString(React.createElement(Site, { lang }))).not.toMatch(/bot-caja-cercana-(demo|respuesta)/)
     })
   }
-  it('el archivo existe', () => {
+  it('los dos archivos existen (recorte y captura completa)', () => {
+    expect(existsSync(new URL('../../public/images/bot-caja-cercana-respuesta.webp', import.meta.url))).toBe(true)
     expect(existsSync(new URL('../../public/images/bot-caja-cercana-demo.webp', import.meta.url))).toBe(true)
   })
 })

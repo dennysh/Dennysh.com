@@ -109,10 +109,17 @@ test('Proyectos: la captura del Bot de caja más cercana se ve legible, con pie,
     await expect(img).toBeVisible()
     await expect(img).toHaveAttribute('alt', /327, 457/)
     await expect(fig.locator('figcaption')).toContainText(/ficticios|fictitious/)
-    await expect.poll(() => img.evaluate((i) => i.complete && i.naturalWidth)).toBe(746)
+    await expect.poll(() => img.evaluate((i) => i.complete && i.naturalWidth)).toBe(280)
     const b = await img.boundingBox()
     const vw = page.viewportSize().width
-    expect(b.width).toBeLessThanOrEqual(480)
+    // Legible sin ampliar: entre 260 y 350 px (≤ 1,25 × 280 = 350), nunca estirado al ancho de la tarjeta
+    expect(b.width).toBeGreaterThanOrEqual(260)
+    expect(b.width).toBeLessThanOrEqual(340)
+    const full = fig.locator('a.bot-shot-full')
+    await expect(full).toBeVisible()
+    await expect(full).toHaveAttribute('href', '/images/bot-caja-cercana-demo.webp')
+    await expect(full).toHaveAttribute('aria-label', /otra pestaña|another tab/)
+    expect((await full.boundingBox()).height).toBeGreaterThanOrEqual(44)
     expect(b.x + b.width).toBeLessThanOrEqual(vw)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   }
