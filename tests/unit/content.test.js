@@ -29,12 +29,12 @@ describe('contenido bilingüe (spec §3, §9)', () => {
     expect(all).not.toMatch(/\b\d+\s?%/)
     expect(all).not.toMatch(/clientes? (satisfech|reales)|years of experience in AI/i)
   })
-  it('los únicos números son los más de 8 años de fibra óptica y el año 2025 del bot (verificados por Dennys)', () => {
+  it('los únicos números son los más de 8 años de fibra óptica, el año 2025 del bot y los más de 10 técnicos que lo usan (verificados por Dennys)', () => {
     // El formulario de contacto lleva rangos de presupuesto neutros (USD) y plazos, que el spec pide: se prueban aparte.
     // La línea de tiempo de Trayectoria lleva las fechas del CV público: sus números se prueban aparte (más abajo).
     const noForm = (c) => { const { contactForm, journeyPage, ...rest } = c; return { ...rest, journeyPage: { ...journeyPage, timeline: undefined } } }
     const digits = walk([noForm(site.en), noForm(site.es)]).join(' ').match(/\b\d{1,4}\b/g) ?? []
-    expect(digits.filter((d) => !['2026', '2025', '5', '8', '27'].includes(d))).toEqual([])
+    expect(digits.filter((d) => !['2026', '2025', '5', '8', '10', '27'].includes(d))).toEqual([])
   })
   it('cada estado de trabajo que existe está en la tabla de estados (Criden no declara estado: no consta)', () => {
     for (const lang of ['en', 'es']) for (const it of site[lang].work.items) if (it.status) expect(Object.keys(site[lang].work.status)).toContain(it.status)
@@ -50,16 +50,17 @@ describe('contenido bilingüe (spec §3, §9)', () => {
     expect(prod).toEqual(['super-gol-kids', 'criden']) // Criden está en producción (Dennys, 2026-11-01)
     expect(site.en.work.items.find((i) => i.id === 'naunturia').status).toBe('development')
   })
-  it('D2: un solo elemento "Bots para Telegram" con los cuatro bots en este orden; solo Caja Cercana declara estado', () => {
+  it('D2: un solo elemento "Bots para Telegram" con los cuatro bots en este orden; los cuatro declaran estado (4.ª ronda de críticos: Caja Cercana en producción, los otros tres en desarrollo)', () => {
     expect(site.es.work.items.filter((i) => i.bots)).toHaveLength(1)
     expect(site.es.work.items.find((i) => i.bots).title).toBe('Bots para Telegram')
     expect(botsOf('es').map((b) => b.title)).toEqual(['Bot de registro de cajas', 'Bot de caja más cercana', 'Bot de reportes', 'Bot de planificación'])
     expect(botsOf('en').map((b) => b.title)).toEqual(['Box registry bot', 'Nearest box bot', 'Reports bot', 'Planning bot'])
     for (const lang of ['en', 'es']) {
       expect(botsOf(lang).map((b) => b.id)).toEqual(['registro-cajas', 'caja-cercana', 'reportes-telecom', 'planificacion'])
-      expect(botsOf(lang).filter((b) => b.status).map((b) => [b.id, b.status])).toEqual([['caja-cercana', 'production']])
+      expect(botsOf(lang).filter((b) => b.status).map((b) => [b.id, b.status])).toEqual([['registro-cajas', 'development'], ['caja-cercana', 'production'], ['reportes-telecom', 'development'], ['planificacion', 'development']])
       const plan = botsOf(lang).find((b) => b.id === 'planificacion')
-      expect(Object.keys(plan).sort()).toEqual(['id', 'title']) // nada que no conste: ni texto, ni estado, ni enlace
+      expect(Object.keys(plan).sort()).toEqual(['id', 'status', 'text', 'title']) // 4.ª ronda: estado y texto dados por Dennys; sin enlace ni repositorio
+      expect(plan.status).toBe('development')
       // los bots sueltos ya no son elementos aparte (ni "Bot Registry" como uno más)
       expect(site[lang].work.items.map((i) => i.id)).toEqual(['telegram-bots', 'super-gol-kids', 'criden', 'naunturia'])
       expect(walk(site[lang]).join(' ')).not.toMatch(/bot registry/i)
@@ -84,7 +85,7 @@ describe('contenido bilingüe (spec §3, §9)', () => {
     const es = botsOf('es').find((i) => i.id === 'caja-cercana').text
     expect(en).toMatch(/2025/); expect(es).toMatch(/2025/)
     expect(en).toMatch(/nearest network box/i); expect(es).toMatch(/caja de red más cercana/i)
-    expect(en).toMatch(/used internally at the company/i); expect(es).toMatch(/se usa internamente en la empresa/i)
+    expect(en).toMatch(/more than 10 technicians at the company use it/i); expect(es).toMatch(/lo usan más de 10 técnicos de la empresa/i)
   })
   it('contacto verificado en archivo', () => {
     expect(links.emailAddress).toBe('dennys@dennysh.com')
@@ -109,9 +110,13 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
     expect(site.es.hero.thesis).toBe('Construyo sistemas con IA que se explican y se auditan.')
     expect(site.en.hero.thesis).toBe('I build AI systems that explain themselves and can be audited.')
   })
-  it('la portada no tiene titular: su único texto principal es la frase de Dennys (correcciones 1, C6)', () => {
-    expect(site.es.home.phrase).toBe('Un poco sobre mí.')
-    expect(site.en.home.phrase).toBe('A little of what I do, in a few minutes.')
+  it('la portada: el h1 es la propuesta y «Un poco sobre mí» es la etiqueta pequeña de encima (4.ª ronda de críticos); la propuesta ya no se repite en otra línea', () => {
+    expect(site.es.home.phrase).toBe('Software, automatizaciones, bots y agentes de IA para empresas.')
+    expect(site.en.home.phrase).toBe('Software, automation, bots and AI agents for businesses.')
+    expect(site.es.home.kicker).toBe('Un poco sobre mí')
+    expect(site.en.home.kicker).toBe('A little about me')
+    for (const lang of ['es', 'en']) expect(site[lang].home).not.toHaveProperty('offer')
+    expect(JSON.stringify(site.en)).not.toContain('A little of what I do')
   })
   it('una sola línea de origen bajo el titular: más de 8 años de fibra óptica, en campo; la fibra no es una etiqueta', () => {
     for (const lang of ['es', 'en']) {
@@ -151,10 +156,11 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
     for (const lang of ['es', 'en']) {
       const { contact } = site[lang]
       expect(walk(nonInterest(site[lang])).join(' ')).not.toMatch(/cerebro|brain/i)
-      const th = site[lang].interestPage.longTerm.thought
-      expect(th).toMatch(/cerebro|brain/i)
-      expect(th).not.toMatch(/capacidad|capability/i) // el aviso vive solo en `notice`, una vez
-      expect(site[lang].interestPage.longTerm.notice).toMatch(lang === 'es' ? /interés, no una capacidad demostrada/i : /interest, not a demonstrated skill/i)
+      // Desde la 4.ª ronda de críticos el interés es una sola línea, sin la pregunta especulativa del cerebro.
+      const line = site[lang].interestPage.longTerm.line
+      expect(line).toBe(lang === 'es' ? 'A largo plazo me interesa cómo la IA puede potenciar las capacidades humanas. Es un interés, no una capacidad demostrada.' : 'In the long run I am interested in how AI can enhance human abilities. It is an interest, not a demonstrated skill.')
+      expect(line).not.toMatch(/cerebro|brain/i)
+      expect(Object.keys(site[lang].interestPage.longTerm)).toEqual(['line'])
       expect(contact).not.toHaveProperty('interest')
       expect(contact.role).not.toMatch(/cerebro|brain/i)
     }
@@ -164,7 +170,7 @@ describe('posicionamiento AI-first honesto (encargo 2026-10-30)', () => {
       const r = site[lang].contact.role
       expect(typeof r).toBe('string')
       expect(r).toMatch(lang === 'es' ? /inteligencia artificial/i : /artificial intelligence/i)
-      expect(r).toMatch(lang === 'es' ? /control humano/i : /human control/i)
+      expect(r).toBe(lang === 'es' ? 'Busco trabajo con inteligencia artificial y también tomo proyectos para empresas: automatizaciones, bots y páginas web.' : 'I am looking for work with artificial intelligence and I also take on projects for businesses: automation, bots and websites.')
     }
   })
   it('la visión de IA y cerebro se presenta como interés, nunca como capacidad demostrada', () => {
@@ -216,6 +222,8 @@ describe('marcadores pending (T080, K2)', () => {
     const visible = html.replace(/<script[\s\S]*?<\/script>/g, '').replace(/<[^>]+>/g, ' ') // solo el texto visible, sin atributos ni JSON-LD
     expect(visible).not.toMatch(/to be confirmed|When I can start/)
     expect(visible).not.toMatch(/\bP-\d+\b|Public evidence of the factory|Location, time zone and availability/)
+    expect(visible).not.toMatch(/being prepared|en preparación/) // 4.ª ronda: la línea de evidencia pendiente ya no se muestra (P-04 sigue registrado)
+    expect(visible).not.toMatch(/UTC-5/) // 4.ª ronda: la zona horaria sale de la página (queda en los datos de máquina)
   })
   it('Dennys autorizó publicar con P-04 y P-06 (2026-10-30; P-09, la disponibilidad, se quitó el 2026-11-14) y P-29 mientras la galería esté oculta (2026-10-31); P-22 (Criden) se resolvió el 2026-11-14', () => {
     expect([...AUTHORIZED_PENDING].sort()).toEqual(['P-04', 'P-06', 'P-29'])
@@ -248,8 +256,9 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
   })
   it('las tarjetas de Proyectos y Trayectoria llevan los textos aprobados del spec', () => {
     const es = site.es.home.panels
-    expect(es.projects.title).toBe('Trabajo en producción')
-    expect(es.projects.text).toBe('Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente. Criden, para negocios y páginas web.')
+    expect(es.projects.title).toBe('Proyectos')
+    expect(es.projects.text).toBe('Un bot de Telegram que usan más de 10 técnicos de un ISP. Un sitio de campeonatos infantiles para un cliente. Criden, para negocios y páginas web.')
+    expect(site.en.home.panels.projects.text).toBe('A Telegram bot that more than 10 technicians at an ISP use. A children\'s football championships site for a client. Criden, for businesses and websites.')
     expect(es).not.toHaveProperty('demo')
     expect(es.journey.title).toBe('De la fibra a la IA')
     expect(es.journey.text).toBe('Más de 8 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.')
@@ -268,10 +277,11 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
       expect(walk(site[lang]).join(' ')).not.toMatch(/jiu|jitsu|triat|triath|obst[aá]cul|obstacle|deporte|sport|ciclismo|cycling|nataci[oó]n|swimming/i)
     }
   })
-  it('Proyectos (C7, D1): "Trabajo en producción" con Bots para Telegram, Super Gol Kids y Criden (en producción, sin dirección inventada)', () => {
+  it('Proyectos (C7, D1; 4.ª ronda: «Proyectos», con estados) con Bots para Telegram, Super Gol Kids y Criden (en producción, sin dirección inventada)', () => {
     for (const lang of ['en', 'es']) {
       const p = site[lang].projectsPage
-      expect(p.title).toBe(lang === 'es' ? 'Trabajo en producción' : 'Work in production')
+      expect(p.title).toBe(lang === 'es' ? 'Proyectos' : 'Projects')
+      expect(p.lead).toBe(lang === 'es' ? 'Cada proyecto indica si está en producción o en desarrollo.' : 'Each project is marked as in production or in development.')
       expect(site[lang].home.panels.projects.title).toBe(p.title)
       expect(p.ids).toEqual(['telegram-bots', 'super-gol-kids', 'criden'])
       for (const id of p.ids) expect(site[lang].work.items.map((i) => i.id)).toContain(id)
@@ -299,7 +309,7 @@ describe('primera pantalla: contenido (TH07, spec 2026-10-31)', () => {
     expect(l.indexOf('Reports bot')).toBeLessThan(l.indexOf('Planning bot'))
     expect(l).toContain('- Naunturia (In development)')
     const proj = resumeJson().projects
-    expect(proj.find((x) => x.name === 'Telegram bots').highlights).toEqual(['Box registry bot', 'Nearest box bot (In production)', 'Reports bot', 'Planning bot'])
+    expect(proj.find((x) => x.name === 'Telegram bots').highlights).toEqual(['Box registry bot (In development)', 'Nearest box bot (In production)', 'Reports bot (In development)', 'Planning bot (In development)'])
     expect(proj.map((x) => x.name)).toContain('Naunturia')
   })
   it('ningún deporte en las salidas de máquina (llms.txt, dennys.json, JSON-LD)', async () => {
@@ -378,7 +388,7 @@ describe('línea de tiempo de Trayectoria (trabajo B; contenido solo del CV púb
       expect(all).not.toMatch(/\d+ ?%|\$ ?\d|\d+ clientes|\d+ clients/i) // sin cifras que no estén en el CV
       // los únicos números de la prosa son los años del CV (y "24/7"); las fechas ISO van aparte en from/to
       const prose = JSON.stringify(site[lang].journeyPage.timeline.map(({ from, to, challenges, ...e }) => e)) // los retos tienen su propia prueba (más abajo)
-      expect((prose.match(/\b\d{1,4}\b/g) ?? []).filter((d) => !['2017', '2018', '2021', '2022', '2023', '2025', '24', '7'].includes(d))).toEqual([])
+      expect((prose.match(/\b\d{1,4}\b/g) ?? []).filter((d) => !['2017', '2018', '2021', '2022', '2023', '2025', '24', '7', '10'].includes(d))).toEqual([])
     }
   })
 })

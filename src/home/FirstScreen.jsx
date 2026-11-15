@@ -200,8 +200,8 @@ export default function FirstScreen({ lang }) {
           </ul>
         </nav>
         <div className="phrase">
+          <p className="kicker">{h.kicker}</p>
           <h1 id="hero-h">{h.phrase}</h1>
-          <p className="offer">{h.offer}</p>
           <p className="tagline">{h.tagline[0]}<br />{h.tagline[1]}</p>
           <a className="btn btn-primary first-cta" href={pagePaths[lang].contact}>{h.cta}</a>
         </div>

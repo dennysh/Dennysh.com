@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test'
 
 // Una página por nodo (correcciones 1, C2): el inicio es solo la primera pantalla y el resto vive en cada página, en los dos idiomas.
 const PAGES = {
-  en: { code: ['/en/code/', 'Code'], projects: ['/en/projects/', 'Work in production'], journey: ['/en/journey/', 'Journey'], how: ['/en/how-i-work/', 'How I work'], interest: ['/en/about/', 'About me'], contact: ['/en/contact/', 'Contact'] },
-  es: { code: ['/es/codigo/', 'Código'], projects: ['/es/proyectos/', 'Trabajo en producción'], journey: ['/es/trayectoria/', 'Trayectoria'], how: ['/es/como-trabajo/', 'Cómo trabajo'], interest: ['/es/sobre-mi/', 'Sobre mí'], contact: ['/es/contacto/', 'Contacto'] },
+  en: { code: ['/en/code/', 'Code'], projects: ['/en/projects/', 'Projects'], journey: ['/en/journey/', 'Journey'], how: ['/en/how-i-work/', 'How I work'], interest: ['/en/about/', 'About me'], contact: ['/en/contact/', 'Contact'] },
+  es: { code: ['/es/codigo/', 'Código'], projects: ['/es/proyectos/', 'Proyectos'], journey: ['/es/trayectoria/', 'Trayectoria'], how: ['/es/como-trabajo/', 'Cómo trabajo'], interest: ['/es/sobre-mi/', 'Sobre mí'], contact: ['/es/contacto/', 'Contacto'] },
 }
 const ALL = Object.values(PAGES).flatMap((p) => Object.values(p).map(([path]) => path))
 
@@ -15,7 +15,7 @@ for (const lang of ['en', 'es']) {
     for (const id of ['demo', 'factory', 'governance', 'work', 'skills', 'journey', 'criden', 'contact', 'footer']) await expect(page.locator(`#${id}`), id).toHaveCount(0)
     await expect(page.locator('html')).toHaveAttribute('lang', lang)
     await expect(page.locator('h1')).toHaveCount(1)
-    await expect(page.locator('h1')).toHaveText(lang === 'es' ? 'Un poco sobre mí.' : 'A little of what I do, in a few minutes.')
+    await expect(page.locator('h1')).toHaveText(lang === 'es' ? 'Software, automatizaciones, bots y agentes de IA para empresas.' : 'Software, automation, bots and AI agents for businesses.')
     await expect(page.locator('footer')).toHaveCount(0)
     await expect(page.getByRole('link', { name: /contact|contacto|contactar/i })).toHaveCount(0)
     await expect(page.getByText('dennys@dennysh.com')).toHaveCount(0)
@@ -42,12 +42,27 @@ for (const lang of ['en', 'es']) {
   }
 }
 
-test('Cómo trabajo trae las reglas para personas, las de máquinas (llms.txt) y la fábrica con su diagrama', async ({ page }) => {
+test('Cómo trabajo: lo llano arriba; «Detalle técnico» plegado por defecto (máquinas, fábrica, diagrama) y se abre con teclado; la evidencia pendiente no se ve', async ({ page }) => {
   await page.goto('/en/how-i-work/')
   await expect(page.locator('ol.rules li')).toHaveCount(7)
+  const d = page.locator('details.tech')
+  await expect(d).not.toHaveAttribute('open', '')
+  await expect(d.locator('summary')).toHaveText('Technical detail')
+  await expect(page.locator('pre.code-page')).toBeHidden()
+  await expect(page.locator('svg.diagram')).toBeHidden()
+  await expect(page.getByText(/being prepared/)).toHaveCount(0)
+  // por teclado: foco en el resumen, Enter lo abre y Espacio lo cierra
+  await d.locator('summary').focus()
+  await page.keyboard.press('Enter')
+  await expect(d).toHaveAttribute('open', '')
   await expect(page.locator('pre.code-page')).toContainText('- Tests first, then code.')
+  await expect(page.locator('pre.code-page')).toContainText('llms.txt')
   await expect(page.locator('svg.diagram')).toBeVisible()
   await expect(page.locator('.steps li')).toHaveCount(5)
+  await page.keyboard.press('Space')
+  await expect(d).not.toHaveAttribute('open', '')
+  await expect(page.locator('pre.code-page')).toBeHidden()
+  // sin JavaScript también funciona (details nativo)
 })
 
 test('Código trae el panel real y las capacidades; Agentes de IA acotado, sin bots autónomos ni aprendizaje profundo', async ({ page }) => {
@@ -56,6 +71,14 @@ test('Código trae el panel real y las capacidades; Agentes de IA acotado, sin b
   await expect(page.locator('.tags li', { hasText: 'Chatbots con LLM' })).toHaveCount(1)
   await expect(page.locator('.tags li', { hasText: /^LLM$/ })).toHaveCount(1)
   await expect(page.locator('.skill-note')).toContainText('solo lectura')
+  // 4.ª ronda de críticos: demostradas destacadas y primero, declaradas atenuadas, una sola leyenda y sin rótulo repetido en cada chip
+  await expect(page.locator('.skill-legend')).toHaveCount(1)
+  await expect(page.locator('.tags.shown li').first()).toBeVisible()
+  const w = (sel) => page.locator(sel).first().evaluate((e) => parseInt(getComputedStyle(e).fontWeight, 10))
+  expect(await w('.tags.shown li')).toBeGreaterThan(await w('.tags.declared li'))
+  const colors = await page.evaluate(() => [document.querySelector('.tags.shown li'), document.querySelector('.tags.declared li')].map((e) => getComputedStyle(e).color))
+  expect(colors[0]).not.toBe(colors[1])
+  await expect(page.getByText(/^Declarado$/i)).toHaveCount(0)
   await expect(page.locator('main')).not.toContainText(/aut[oó]nomo|aprendizaje profundo|potencias/i)
 })
 
@@ -75,7 +98,15 @@ test('Bots para Telegram: abierto al cargar con los cuatro bots en orden, un ren
   await expect(d).toHaveAttribute('open', '')
   await expect(items).toHaveText(['Bot de registro de cajas', 'Bot de caja más cercana', 'Bot de reportes', 'Bot de planificación'])
   await expect(items.first()).toBeVisible()
-  await expect(d.locator('.badge-production')).toHaveCount(1) // solo Caja Cercana declara estado
+  await expect(d.locator('.badge-production')).toHaveCount(1) // solo Caja Cercana está en producción
+  await expect(d.locator('.badge-development')).toHaveCount(3) // los otros tres, en desarrollo
+  // cada etiqueta de estado queda dentro de la caja de su bot y en la misma línea que su nombre (no puede leerse como del vecino)
+  for (const li of await d.locator('li').all()) {
+    const [strong, badge, box] = await Promise.all([li.locator('strong').boundingBox(), li.locator('.badge').boundingBox(), li.boundingBox()])
+    expect(Math.abs((strong.y + strong.height / 2) - (badge.y + badge.height / 2))).toBeLessThan(strong.height)
+    expect(badge.y).toBeGreaterThanOrEqual(box.y); expect(badge.y + badge.height).toBeLessThanOrEqual(box.y + box.height)
+  }
+  await expect(d.locator('li').nth(3)).toContainText('Reasigna actividades en el grupo de Telegram del equipo')
   for (const t of await d.locator('.bot-text').allTextContents()) expect(t.split(/[.!?]\s/).length).toBe(1) // un renglón (una frase) por bot
   // la tarjeta ocupa la fila entera: ninguna tarjeta vecina queda más baja que su contenido
   const cards = await page.locator('.cards > .card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { x: r.x, w: r.width, h: r.height } }))
@@ -92,7 +123,7 @@ test('Bots para Telegram: abierto al cargar con los cuatro bots en orden, un ren
   await expect(items.first()).toBeHidden()
 })
 
-test('Bots para Telegram también se abre en el panel "Trabajo en producción" de la portada, y sin JavaScript', async ({ page, browser }) => {
+test('Bots para Telegram también se abre en el panel "Proyectos" de la portada, y sin JavaScript', async ({ page, browser }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' }) // los nodos flotan; Playwright espera que estén quietos
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/es/')
@@ -111,9 +142,11 @@ test('Bots para Telegram también se abre en el panel "Trabajo en producción" d
   await ctx.close()
 })
 
-test('Sobre mí: el pensamiento cerebro–IA va al final, sin deportes', async ({ page }) => {
+test('Sobre mí: el interés a largo plazo es una sola línea al final, sin título ni pregunta especulativa, sin deportes', async ({ page }) => {
   await page.goto('/en/about/')
-  await expect(page.locator('main')).toContainText('connect the brain to AI')
+  await expect(page.locator('main > section p.about-long')).toHaveText('In the long run I am interested in how AI can enhance human abilities. It is an interest, not a demonstrated skill.')
+  await expect(page.locator('main')).not.toContainText(/brain/i)
+  await expect(page.locator('h2', { hasText: /long-term|largo plazo/i })).toHaveCount(0)
   await expect(page.locator('main')).not.toContainText(/jiu|triathlon|obstacle|sport/i)
 })
 
@@ -177,7 +210,7 @@ test('con JavaScript desactivado el contenido y los cinco nodos son legibles (AC
   const ctx = await browser.newContext({ javaScriptEnabled: false })
   const page = await ctx.newPage()
   await page.goto('http://localhost:4173/en/')
-  await expect(page.locator('h1')).toHaveText('A little of what I do, in a few minutes.')
+  await expect(page.locator('h1')).toHaveText('Software, automation, bots and AI agents for businesses.')
   await expect(page.locator('a[data-node]')).toHaveCount(5)
   await page.goto('http://localhost:4173/en/demo/') // la demo ya no existe: este servidor devuelve la portada o la 404, nunca una página de demo
   await expect(page.getByTestId('run')).toHaveCount(0)

@@ -67,8 +67,8 @@ export const site = {
       ],
     },
     home: {
-      phrase: 'A little of what I do, in a few minutes.',
-      offer: 'Software, automation, bots and AI agents for businesses.',
+      kicker: 'A little about me',
+      phrase: 'Software, automation, bots and AI agents for businesses.',
       cta: 'Write to me',
       tagline: ['More than 8 years in fiber optics', 'Remote · Spanish native · English B1'],
       bar: { cv: 'CV' },
@@ -81,7 +81,7 @@ export const site = {
       ],
       panels: {
         code: { title: 'Code', note: 'What I can do, the rules I follow when working with AI, and an audit example to see it in practice.', github: 'View on GitHub ↗', opens: 'opens a new page', go: 'Open Code →' },
-        projects: { title: 'Work in production', text: 'Telegram bot for ISP technicians. A children\'s football championships site for a client. Criden, for businesses and websites.', opens: 'opens a new page', go: 'Open Projects →' },
+        projects: { title: 'Projects', text: 'A Telegram bot that more than 10 technicians at an ISP use. A children\'s football championships site for a client. Criden, for businesses and websites.', opens: 'opens a new page', go: 'Open Projects →' },
         journey: { title: 'From fiber to AI', text: 'More than 8 years in fiber-optic networks, where things have to work in the field.', opens: 'opens a new page', go: 'Open Journey →' },
         how: { title: 'How I work', tabs: { people: 'People', machines: 'Machines' }, opens: 'opens a new page', go: 'Open How I work →' },
         interest: {
@@ -92,7 +92,7 @@ export const site = {
       },
     },
     codePage: { back: 'Back to the home screen', title: 'Code', lead: 'Real data and what I can do, grouped by capability.', description: 'Code by Dennys Heras: the public ruleset and static audit example, and his capabilities, each marked as shown or declared.' },
-    howPage: { back: 'Back to the home screen', title: 'How I work', plain: 'I use AI to move faster, but nothing gets published on its own: I review and approve every change myself.', lead: 'The rules I work with, for people and for machines, and the way I build with agents.', description: 'How Dennys Heras works with AI: short, checkable working rules for people and machines, and a software factory with agents under human control.', people: 'People', machines: 'Machines', machinesLead: 'The same rules as plain text, as published in llms.txt:' },
+    howPage: { back: 'Back to the home screen', title: 'How I work', plain: 'I use AI to move faster, but nothing gets published on its own: I review and approve every change myself.', lead: 'The rules I work with, for people and for machines, and the way I build with agents.', description: 'How Dennys Heras works with AI: short, checkable working rules for people and machines, and a software factory with agents under human control.', people: 'People', machines: 'Machines', technical: 'Technical detail', machinesLead: 'The same rules as plain text, as published in llms.txt:' },
     // Vista interna `interest` (id estable en rutas, geometría y pruebas): la página es «About me»; el interés a largo plazo es su última sección.
     interestPage: {
       back: 'Back to the home screen',
@@ -118,17 +118,12 @@ export const site = {
       },
       criden: { text: 'Criden, a platform where I sell websites and automation for businesses.', link: 'Visit Criden ↗' },
       contact: { title: 'Contact', ...BUTTONS.en },
-      longTerm: {
-        title: 'Long-term interest',
-        lead: 'Where I would like to go in the long run.',
-        thought: 'What if, in a few years, we could connect the brain to AI and strengthen what is human? I do not know if it will be possible. I think so.',
-        notice: 'It is an interest, not a demonstrated skill.',
-      },
+      longTerm: { line: 'In the long run I am interested in how AI can enhance human abilities. It is an interest, not a demonstrated skill.' },
     },
     contactPage: { back: 'Back to the home screen', title: 'Contact', lead: 'You can write to me by email or on WhatsApp.', buttons: BUTTONS.en, description: 'Contact Dennys Heras: email, WhatsApp, LinkedIn, GitHub and CV.' },
     projectsPage: {
       back: 'Back to the home screen',
-      title: 'Work in production', lead: 'What is confirmed so far.', ids: ['telegram-bots', 'super-gol-kids', 'criden'],
+      title: 'Projects', lead: 'Each project is marked as in production or in development.', ids: ['telegram-bots', 'super-gol-kids', 'criden'],
       description: 'Work in production by Dennys Heras: Telegram bots, a football-championships site for a client and Criden, for businesses and websites.',
     },
     journeyPage: {
@@ -138,7 +133,7 @@ export const site = {
       photosPending: pending('P-29', 'Photos for the Journey timeline: Dennys delivers them later (the timeline shows without photos until then; they are declared in src/content/journey-photos.js)'),
       ui: { list: 'Experience, projects and education, most recent first', present: 'Present', kinds: { project: 'Project', study: 'Education' }, enlarge: 'Enlarge photo', photoOf: 'Photo {k} of {n}', prev: 'Previous photo', next: 'Next photo', close: 'Close', dialog: 'Photos: {title}', challenge: 'A challenge overcome' },
       timeline: [
-        { id: 'bot-caja-cercana', kind: 'project', when: '2025', from: '2025-01', title: 'Caja Cercana bot', status: 'In production', bullets: ['Telegram bot for ISP technicians that finds the nearest network box to their location.', 'Used internally at the company.'], tags: ['Python', 'Telegram Bot API'], photos: photosFor('en', 'bot-caja-cercana') },
+        { id: 'bot-caja-cercana', kind: 'project', when: '2025', from: '2025-01', title: 'Caja Cercana bot', status: 'In production', bullets: ['Telegram bot for ISP technicians that finds the nearest network box to their location.', 'Today more than 10 technicians at the company use it.'], tags: ['Python', 'Telegram Bot API'], photos: photosFor('en', 'bot-caja-cercana') },
         { id: 'super-gol-kids', kind: 'project', when: 'In production', title: 'Super Gol Kids', bullets: ['Platform for children\'s football championships.', 'Public website for a client; I developed the site.'], tags: ['Website', 'Client'], photos: photosFor('en', 'super-gol-kids') },
         { id: 'ismac', kind: 'study', when: 'Sep 2023 – Present', from: '2023-09', current: true, title: 'Software Development', org: 'ISMAC Institute of Technology', bullets: ['Software development studies, in progress.'], tags: [], photos: photosFor('en', 'ismac') },
         { id: 'fibratelecom', kind: 'job', when: 'Mar 2023 – Present', from: '2023-03', current: true, title: 'Field Technician / Asset Management', org: 'Fibratelecom', bullets: ['Weekly inventory of technology equipment, with traceability and asset control.', 'Document management of customer contracts after installation.', 'Deployment and maintenance of GPON network (NAP, splice closures).', 'Automations that cut repetitive tasks.'], tags: ['GPON', 'Inventory', 'Contracts', 'Automation'], photos: photosFor('en', 'fibratelecom') },
@@ -177,14 +172,14 @@ export const site = {
         {
           id: 'telegram-bots', title: 'Telegram bots',
           bots: [
-            { id: 'registro-cajas', title: 'Box registry bot', text: 'Registers network boxes from the field, with location and evidence, to build a more reliable technical inventory.', repo: 'https://github.com/dennysh/bot_registro_cajas' },
+            { id: 'registro-cajas', status: 'development', title: 'Box registry bot', text: 'Registers network boxes from the field, with location and evidence, to build a more reliable technical inventory.', repo: 'https://github.com/dennysh/bot_registro_cajas' },
             {
               id: 'caja-cercana', status: 'production', title: 'Nearest box bot',
-              text: 'Development and launch (2025) of a Telegram bot for ISP technicians that finds the nearest network box to their location. Used internally at the company. Python, SQLite, pytest.',
+              text: 'Development and launch (2025) of a Telegram bot for ISP technicians that finds the nearest network box to their location. Today more than 10 technicians at the company use it. Python, SQLite, pytest.',
               repo: pending('P-06', 'Correct repository URL of the bot'),
             },
-            { id: 'reportes-telecom', title: 'Reports bot', text: 'Technical telecom reports from Telegram: incidents, inspections and follow-up.', repo: 'https://github.com/dennysh/Bot_Reportes_Telecom' },
-            { id: 'planificacion', title: 'Planning bot' },
+            { id: 'reportes-telecom', status: 'development', title: 'Reports bot', text: 'Technical telecom reports from Telegram: incidents, inspections and follow-up.', repo: 'https://github.com/dennysh/Bot_Reportes_Telecom' },
+            { id: 'planificacion', status: 'development', title: 'Planning bot', text: 'Reassigns activities in the team\'s Telegram group: it notices when someone asks to reschedule, proposes a free crew and time slot, and waits for the technician to confirm.' },
           ],
         },
         { id: 'super-gol-kids', status: 'production', title: 'Super Gol Kids', text: 'Platform for children\'s football championships. Public website for a client; I developed the site.', url: 'https://www.supergolkids.com/' },
@@ -194,8 +189,8 @@ export const site = {
     },
     skills: {
       title: 'Skills',
-      lead: 'Grouped by what I can do. "Shown" means there is proof above; "declared" means I use it but have no public proof yet.',
-      shown: 'Shown', declared: 'Declared',
+      lead: 'Grouped by what I can do.',
+      shown: 'Shown', declared: 'Declared', legend: { shown: 'there is proof above.', declared: 'I use it, but there is no public proof yet.' },
       groups: [
         { title: 'Bots and automation', shown: ['Python', 'Telegram bots', 'SQLite', 'pytest'], declared: ['Webhooks', 'REST APIs'] },
         { title: 'AI systems', shown: [], declared: ['LLM', 'LLM APIs', 'Claude', 'OpenAI', 'Gemini', 'Whisper', 'LLM chatbots', 'AI agents'], note: 'AI agents: conversational assistant with read-only access to customer data (prototype, never in production).' },
@@ -216,7 +211,7 @@ export const site = {
       title: 'Contact',
       email: 'Email', linkedin: 'LinkedIn', github: 'GitHub', cv: 'Download CV (PDF)', otherWays: 'Other ways to reach me',
       location: 'Remote, from anywhere in the world.',
-      role: 'I look for work with artificial intelligence: designing and building systems under human control.',
+      role: 'I am looking for work with artificial intelligence and I also take on projects for businesses: automation, bots and websites.',
       languages: 'Spanish: native. English: B1.', timezone: 'UTC-5',
     },
     contactForm: {
@@ -370,8 +365,8 @@ export const site = {
       ],
     },
     home: {
-      phrase: 'Un poco sobre mí.',
-      offer: 'Software, automatizaciones, bots y agentes de IA para empresas.',
+      kicker: 'Un poco sobre mí',
+      phrase: 'Software, automatizaciones, bots y agentes de IA para empresas.',
       cta: 'Escríbeme',
       tagline: ['Más de 8 años en fibra óptica', 'Remoto · Español nativo · Inglés B1'],
       bar: { cv: 'CV' },
@@ -384,7 +379,7 @@ export const site = {
       ],
       panels: {
         code: { title: 'Código', note: 'Lo que sé hacer, las reglas que sigo al trabajar con IA y un ejemplo de auditoría para verlo en la práctica.', github: 'Ver en GitHub ↗', opens: 'abre una página nueva', go: 'Abrir Código →' },
-        projects: { title: 'Trabajo en producción', text: 'Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente. Criden, para negocios y páginas web.', opens: 'abre una página nueva', go: 'Abrir Proyectos →' },
+        projects: { title: 'Proyectos', text: 'Un bot de Telegram que usan más de 10 técnicos de un ISP. Un sitio de campeonatos infantiles para un cliente. Criden, para negocios y páginas web.', opens: 'abre una página nueva', go: 'Abrir Proyectos →' },
         journey: { title: 'De la fibra a la IA', text: 'Más de 8 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', opens: 'abre una página nueva', go: 'Abrir Trayectoria →' },
         how: { title: 'Cómo trabajo', tabs: { people: 'Personas', machines: 'Máquinas' }, opens: 'abre una página nueva', go: 'Abrir Cómo trabajo →' },
         interest: {
@@ -395,7 +390,7 @@ export const site = {
       },
     },
     codePage: { back: 'Volver a la primera pantalla', title: 'Código', lead: 'Datos reales y lo que sé hacer, agrupado por capacidad.', description: 'Código de Dennys Heras: el conjunto de reglas público y el ejemplo de auditoría estático, y sus capacidades, cada una marcada como demostrada o declarada.' },
-    howPage: { back: 'Volver a la primera pantalla', title: 'Cómo trabajo', plain: 'Uso inteligencia artificial para avanzar más rápido, pero nada se publica solo: reviso y apruebo cada cambio yo mismo.', lead: 'Las reglas con las que trabajo, para personas y para máquinas, y la forma en que construyo con agentes.', description: 'Cómo trabaja Dennys Heras con IA: reglas de trabajo cortas y comprobables para personas y máquinas, y una fábrica de software con agentes bajo control humano.', people: 'Personas', machines: 'Máquinas', machinesLead: 'Las mismas reglas en texto plano, como se publican en llms.txt:' },
+    howPage: { back: 'Volver a la primera pantalla', title: 'Cómo trabajo', plain: 'Uso inteligencia artificial para avanzar más rápido, pero nada se publica solo: reviso y apruebo cada cambio yo mismo.', lead: 'Las reglas con las que trabajo, para personas y para máquinas, y la forma en que construyo con agentes.', description: 'Cómo trabaja Dennys Heras con IA: reglas de trabajo cortas y comprobables para personas y máquinas, y una fábrica de software con agentes bajo control humano.', people: 'Personas', machines: 'Máquinas', technical: 'Detalle técnico', machinesLead: 'Las mismas reglas en texto plano, como se publican en llms.txt:' },
     // Vista interna `interest` (id estable en rutas, geometría y pruebas): la página es «Sobre mí»; el interés a largo plazo es su última sección.
     interestPage: {
       back: 'Volver a la primera pantalla',
@@ -421,17 +416,12 @@ export const site = {
       },
       criden: { text: 'Criden, plataforma donde vendo páginas web y automatizaciones para negocios.', link: 'Visitar Criden ↗' },
       contact: { title: 'Contacto', ...BUTTONS.es },
-      longTerm: {
-        title: 'Interés a largo plazo',
-        lead: 'Hacia dónde me gustaría ir a largo plazo.',
-        thought: '¿Y si dentro de unos años pudiéramos conectar el cerebro a la IA y potenciar lo humano? No sé si será posible. Creo que sí.',
-        notice: 'Es un interés, no una capacidad demostrada.',
-      },
+      longTerm: { line: 'A largo plazo me interesa cómo la IA puede potenciar las capacidades humanas. Es un interés, no una capacidad demostrada.' },
     },
     contactPage: { back: 'Volver a la primera pantalla', title: 'Contacto', lead: 'Puedes escribirme por correo o por WhatsApp.', buttons: BUTTONS.es, description: 'Contacta a Dennys Heras: correo, WhatsApp, LinkedIn, GitHub y CV.' },
     projectsPage: {
       back: 'Volver a la primera pantalla',
-      title: 'Trabajo en producción', lead: 'Lo confirmado hasta ahora.', ids: ['telegram-bots', 'super-gol-kids', 'criden'],
+      title: 'Proyectos', lead: 'Cada proyecto indica si está en producción o en desarrollo.', ids: ['telegram-bots', 'super-gol-kids', 'criden'],
       description: 'Trabajo en producción de Dennys Heras: bots para Telegram, un sitio de campeonatos de fútbol para un cliente y Criden, para negocios y páginas web.',
     },
     journeyPage: {
@@ -441,7 +431,7 @@ export const site = {
       photosPending: pending('P-29', 'Fotos de la línea de tiempo de Trayectoria: Dennys las entrega después (la línea se ve sin fotos hasta entonces; se declaran en src/content/journey-photos.js)'),
       ui: { list: 'Experiencia, proyectos y formación, de lo más reciente a lo más antiguo', present: 'Presente', kinds: { project: 'Proyecto', study: 'Formación' }, enlarge: 'Ampliar foto', photoOf: 'Foto {k} de {n}', prev: 'Foto anterior', next: 'Foto siguiente', close: 'Cerrar', dialog: 'Fotos: {title}', challenge: 'Un reto superado' },
       timeline: [
-        { id: 'bot-caja-cercana', kind: 'project', when: '2025', from: '2025-01', title: 'Bot Caja Cercana', status: 'En producción', bullets: ['Bot de Telegram para técnicos de un ISP que encuentra la caja de red más cercana a su ubicación.', 'Hoy se usa internamente en la empresa.'], tags: ['Python', 'Telegram Bot API'], photos: photosFor('es', 'bot-caja-cercana') },
+        { id: 'bot-caja-cercana', kind: 'project', when: '2025', from: '2025-01', title: 'Bot Caja Cercana', status: 'En producción', bullets: ['Bot de Telegram para técnicos de un ISP que encuentra la caja de red más cercana a su ubicación.', 'Hoy lo usan más de 10 técnicos de la empresa.'], tags: ['Python', 'Telegram Bot API'], photos: photosFor('es', 'bot-caja-cercana') },
         { id: 'super-gol-kids', kind: 'project', when: 'En producción', title: 'Super Gol Kids', bullets: ['Plataforma de campeonatos de fútbol infantil.', 'Sitio público de un cliente; yo desarrollé el sitio.'], tags: ['Sitio web', 'Cliente'], photos: photosFor('es', 'super-gol-kids') },
         { id: 'ismac', kind: 'study', when: 'Sep 2023 – Presente', from: '2023-09', current: true, title: 'Desarrollo de Software', org: 'Instituto Tecnológico ISMAC', bullets: ['Estudios de desarrollo de software, en curso.'], tags: [], photos: photosFor('es', 'ismac') },
         { id: 'fibratelecom', kind: 'job', when: 'Mar 2023 – Presente', from: '2023-03', current: true, title: 'Técnico de Campo / Gestión de Activos', org: 'Fibratelecom', bullets: ['Inventario semanal de equipos tecnológicos, con trazabilidad y control de activos.', 'Gestión documental de contratos con clientes después de la instalación.', 'Despliegue y mantenimiento de la red GPON (NAP, mangas).', 'Automatizaciones que reducen tareas repetitivas.'], tags: ['GPON', 'Inventario', 'Contratos', 'Automatización'], photos: photosFor('es', 'fibratelecom') },
@@ -480,14 +470,14 @@ export const site = {
         {
           id: 'telegram-bots', title: 'Bots para Telegram',
           bots: [
-            { id: 'registro-cajas', title: 'Bot de registro de cajas', text: 'Registra cajas de red desde el campo, con ubicación y evidencia, para construir un inventario técnico más confiable.', repo: 'https://github.com/dennysh/bot_registro_cajas' },
+            { id: 'registro-cajas', status: 'development', title: 'Bot de registro de cajas', text: 'Registra cajas de red desde el campo, con ubicación y evidencia, para construir un inventario técnico más confiable.', repo: 'https://github.com/dennysh/bot_registro_cajas' },
             {
               id: 'caja-cercana', status: 'production', title: 'Bot de caja más cercana',
-              text: 'Desarrollo y puesta en producción (2025) de un bot de Telegram para técnicos de un ISP que encuentra la caja de red más cercana a su ubicación. Hoy se usa internamente en la empresa. Python, SQLite, pytest.',
+              text: 'Desarrollo y puesta en producción (2025) de un bot de Telegram para técnicos de un ISP que encuentra la caja de red más cercana a su ubicación. Hoy lo usan más de 10 técnicos de la empresa. Python, SQLite, pytest.',
               repo: pending('P-06', 'URL correcta del repositorio del bot'),
             },
-            { id: 'reportes-telecom', title: 'Bot de reportes', text: 'Reportes técnicos de telecomunicaciones desde Telegram: incidencias, inspecciones y seguimiento.', repo: 'https://github.com/dennysh/Bot_Reportes_Telecom' },
-            { id: 'planificacion', title: 'Bot de planificación' },
+            { id: 'reportes-telecom', status: 'development', title: 'Bot de reportes', text: 'Reportes técnicos de telecomunicaciones desde Telegram: incidencias, inspecciones y seguimiento.', repo: 'https://github.com/dennysh/Bot_Reportes_Telecom' },
+            { id: 'planificacion', status: 'development', title: 'Bot de planificación', text: 'Reasigna actividades en el grupo de Telegram del equipo: detecta cuando alguien pide replanificar, propone un grupo y un horario libres y espera la confirmación del técnico.' },
           ],
         },
         { id: 'super-gol-kids', status: 'production', title: 'Super Gol Kids', text: 'Plataforma de campeonatos de fútbol infantil. Sitio público de un cliente; yo desarrollé el sitio.', url: 'https://www.supergolkids.com/' },
@@ -497,8 +487,8 @@ export const site = {
     },
     skills: {
       title: 'Capacidades',
-      lead: 'Agrupadas por lo que sé hacer. "Demostrado" significa que hay prueba arriba; "declarado" significa que lo uso pero aún no hay prueba pública.',
-      shown: 'Demostrado', declared: 'Declarado',
+      lead: 'Agrupadas por lo que sé hacer.',
+      shown: 'Demostrado', declared: 'Declarado', legend: { shown: 'hay prueba arriba.', declared: 'lo uso, pero aún no hay prueba pública.' },
       groups: [
         { title: 'Bots y automatización', shown: ['Python', 'Bots de Telegram', 'SQLite', 'pytest'], declared: ['Webhooks', 'APIs REST'] },
         { title: 'Sistemas con IA', shown: [], declared: ['LLM', 'APIs de LLM', 'Claude', 'OpenAI', 'Gemini', 'Whisper', 'Chatbots con LLM', 'Agentes de IA'], note: 'Agentes de IA: asistente conversacional con acceso de solo lectura a datos de clientes (prototipo, sin producción).' },
@@ -519,7 +509,7 @@ export const site = {
       title: 'Contacto',
       email: 'Correo', linkedin: 'LinkedIn', github: 'GitHub', cv: 'Descargar CV (PDF)', otherWays: 'Otras formas de contactarme',
       location: 'Remoto, desde cualquier parte del mundo.',
-      role: 'Busco trabajar con inteligencia artificial: diseñar y construir sistemas con control humano.',
+      role: 'Busco trabajo con inteligencia artificial y también tomo proyectos para empresas: automatizaciones, bots y páginas web.',
       languages: 'Español: nativo. Inglés: B1.', timezone: 'UTC-5',
     },
     contactForm: {

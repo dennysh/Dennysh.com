@@ -2,6 +2,7 @@ import React from 'react'
 import { site, links, isPending } from './content/site.js'
 import Txt from './components/Txt.jsx'
 import ThemeToggle from './components/ThemeToggle.jsx'
+import TopNav from './components/TopNav.jsx'
 import TelegramBots from './components/TelegramBots.jsx'
 import FirstScreen from './home/FirstScreen.jsx'
 import { pagePaths, legalPaths, alternateOf } from './routes.js'
@@ -43,13 +44,13 @@ export function Header({ lang, view = 'home' }) {
       <a className="skip" href="#main">{n.skip}</a>
       <div className="wrap">
         <a className="brand" href={base(lang)}>Dennys Heras</a>
-        <nav aria-label={n.menu}>
+        <TopNav label={n.menu}>
           <ul>
             {['code', 'projects', 'journey', 'how', 'interest', 'contact'].map((id) => (
               <li key={id}><a href={pagePaths[lang][id]} aria-current={view === id ? 'page' : undefined}>{n[id]}</a></li>
             ))}
           </ul>
-        </nav>
+        </TopNav>
         <span className="topbar-end">
           <ThemeToggle lang={lang} />
           <a className="langlink" href={alternateOf(lang, view)} hrefLang={other} lang={other}>{n.lang}</a>
@@ -67,7 +68,7 @@ export function Footer({ lang }) {
       <div className="wrap">
         <span>{c.copyright}</span>
         <span className="foot-contact">
-          <a href={links.email}>{links.emailAddress}</a> · <a href={links.linkedin} rel="noopener noreferrer">LinkedIn</a> · <a href={links.github} rel="noopener noreferrer">GitHub</a> · <a href={links.cv}>CV</a> · <a href={pagePaths[lang].contact}>{c.contactPage}</a>
+          <a href={links.email}>{links.emailAddress}</a><a href={links.linkedin} rel="noopener noreferrer">LinkedIn</a><a href={links.github} rel="noopener noreferrer">GitHub</a><a href={links.cv}>CV</a><a href={pagePaths[lang].contact}>{c.contactPage}</a>
         </span>
         <span>
           <a href={legalPaths[lang].privacy}>{c.privacy}</a> · <a href={legalPaths[lang].terms}>{c.terms}</a>
@@ -91,8 +92,7 @@ export function WorkCard({ lang, it }) {
   if (it.bots) return <article className="card card-bots"><TelegramBots lang={lang} group={it} heading open /></article>
   return (
     <article className="card">
-      {it.status && <span className={`badge badge-${it.status}`}>{c.work.status[it.status]}</span>}
-      <h2>{it.title}</h2>
+      <div className="card-head"><h2>{it.title}</h2>{it.status && <span className={`badge badge-${it.status}`}>{c.work.status[it.status]}</span>}</div>
       <p>{it.text}</p>
       {it.link && !isPending(it.link) && <p><Txt lang={lang} v={it.link} /></p>}
       {it.url && <p><a href={it.url} rel="noopener noreferrer">{c.work.visit}</a></p>}

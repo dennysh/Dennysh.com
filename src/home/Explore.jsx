@@ -12,7 +12,7 @@ export const cardText = (lang, id) => {
   const c = site[lang]
   const p = c.home.panels[id]
   if (id === 'code') return p.note
-  if (id === 'how') return c.howPage.lead // el panel de escritorio es la lista de reglas; la tarjeta usa la entradilla de su página
+  if (id === 'how') return c.howPage.plain // el panel de escritorio es la lista de reglas; la tarjeta usa la frase llana de su página
   return p.text ?? p.thought
 }
 

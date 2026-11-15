@@ -34,7 +34,7 @@ describe('objetivos táctiles (C-07)', () => {
     expect(rule(site, '.back a, .card p > a, .contact-list a')).toContain('min-height: 28px')
     const bar = site.slice(site.indexOf('@media (max-width: 760px) {'), site.indexOf('@media (max-width: 600px) {'))
     expect(bar).toMatch(/\.topbar nav a \{[^}]*min-height: 44px/)
-    expect(bar).not.toMatch(/overflow-x: auto|mask-image/) // sin desplazamiento lateral ni difuminado: nada queda cortado
+    expect(bar).toMatch(/\.topbar nav a \{[^}]*white-space: nowrap/) // 4.ª ronda de críticos: ningún rótulo se parte en dos líneas
     const mobile = site.slice(site.indexOf('@media (max-width: 600px) {'))
     expect(mobile).toMatch(/footer\.site a, \.back a, \.card p > a, \.contact-list a \{ min-height: 44px; min-width: 44px; \}/)
     expect(rule(site, '.bots > summary')).toContain('min-height: 44px')
@@ -53,19 +53,29 @@ describe('texto de 12 px como mínimo (C-08)', () => {
     expect(small).toEqual([])
   })
   it('escritorio y móvil: tagline desde 12 px; el aviso «abre una página nueva» ya no se ve y queda solo para lectores de pantalla', () => {
-    expect(home).toMatch(/\.tagline \{ margin: 1\.2cqw 0 0; font-size: max\(12px, 1cqw\); \}/)
-    expect(home).toMatch(/\.tagline \{ margin: 10px 0 0; font-size: 12px;/)
+    expect(home).toMatch(/\.tagline \{ margin: 1\.2cqw 0 0; font-size: max\(13px, 1\.1cqw\); \}/)
+    expect(home).toMatch(/\.tagline \{ margin: 10px 0 0; font-size: 13px;/)
+    expect(rule(home, '.tagline')).toContain('color: var(--text)') // 4.ª ronda de críticos: la línea de datos se lee (texto pleno, no atenuado)
     expect(home).not.toMatch(/\.opens|\.m-card a small/)
   })
 })
 
 describe('navegación móvil y movimiento (C-09, C-24)', () => {
-  it('la barra de seis enlaces va en rejilla de tres columnas en una segunda fila, sin desplazamiento ni difuminado, y marca la página actual', () => {
+  it('la barra de seis enlaces es UNA fila desplazable en la segunda fila, con difuminado en el borde que tiene más, y marca la página actual (4.ª ronda de críticos)', () => {
     const bar = site.slice(site.indexOf('@media (max-width: 760px) {'), site.indexOf('@media (max-width: 600px) {'))
     expect(bar).toMatch(/\.topbar nav \{[^}]*order: 3; width: 100%/)
-    expect(bar).toMatch(/\.topbar nav ul \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/)
+    expect(bar).toMatch(/\.topbar nav ul \{[^}]*flex-wrap: nowrap; gap: var\(--space-2\); overflow-x: auto/)
+    expect(bar).toMatch(/\.topbar nav\[data-more~="right"\] ul \{[^}]*mask-image/)
+    expect(bar).toMatch(/\.topbar nav\[data-more~="left"\] ul \{[^}]*mask-image/)
     expect(bar).toMatch(/\.topbar nav a\[aria-current="page"\]/)
-    expect(bar).not.toMatch(/overflow-x|mask-image|nowrap/)
+    expect(bar).not.toMatch(/grid-template-columns: repeat\(3/)
+  })
+  it('Código: lo demostrado destacado y lo declarado atenuado, con una sola leyenda; el pie móvil reparte los enlaces sin huérfanos', () => {
+    expect(site).toMatch(/\.tags\.shown li \{[^}]*font-weight: 600/)
+    expect(site).toMatch(/\.tags\.declared li \{[^}]*color: var\(--muted\)/)
+    const mobile = site.slice(site.indexOf('@media (max-width: 600px) {'), site.indexOf('/* Bots para Telegram'))
+    expect(mobile).toMatch(/footer\.site \.foot-contact \{[^}]*grid-template-columns: repeat\(2, max-content\)/)
+    expect(mobile).toMatch(/footer\.site \.foot-contact a:first-child \{ grid-column: 1 \/ -1; \}/)
   })
   it('los nodos dejan de flotar al apuntarlos o enfocarlos; en móvil no hay nodos flotantes (están ocultos)', () => {
     expect(home).toMatch(/\.node-link:is\(:hover, :focus-visible\) \{ animation-play-state: paused; \}/)

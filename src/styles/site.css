@@ -56,7 +56,8 @@ section.block > .wrap > h2 { margin: 0 0 var(--space-3); font-size: clamp(1.5rem
 .page::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 22rem; z-index: -1; pointer-events: none; opacity: .4; background: radial-gradient(ellipse 55% 100% at 82% 0%, var(--glow-core) 0%, var(--glow-mid) 45%, transparent 100%); }
 .page .card h2 { margin: 0; font-size: 1.1rem; }
 .card p { margin: 0; }
-.badge { display: inline-block; justify-self: start; font-size: .78rem; padding: 2px var(--space-3); border-radius: 999px; border: 1px solid var(--line); }
+.card-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3); }
+.badge { display: inline-block; justify-self: start; white-space: nowrap; font-size: .78rem; padding: 2px var(--space-3); border-radius: 999px; border: 1px solid var(--line); }
 .badge-production { border-color: var(--ok); color: var(--ok); }
 .badge-development { border-color: var(--warn); color: var(--warn); }
 
@@ -64,9 +65,16 @@ section.block > .wrap > h2 { margin: 0 0 var(--space-3); font-size: clamp(1.5rem
 .skill-groups h3 { margin: 0 0 var(--space-2); font-size: 1rem; }
 .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; margin: 0 0 var(--space-2); padding: 0; }
 .tags li { border: 1px solid var(--line); border-radius: 999px; padding: 2px var(--space-3); font-size: .9rem; }
-.tags.shown li { border-color: var(--ok); }
+/* Código: lo demostrado va primero y destacado; lo declarado, atenuado (una sola leyenda lo explica, sin repetir el rótulo en cada chip). */
+.tags.shown li { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); font-weight: 600; }
+.tags.declared li { border-style: dashed; color: var(--muted); font-size: .85rem; }
+.skill-legend { list-style: none; margin: 0 0 var(--space-4); padding: 0; display: grid; gap: var(--space-1); color: var(--muted); font-size: .92rem; max-width: 46rem; }
+.skill-legend li { display: flex; align-items: center; gap: var(--space-2); }
+.skill-legend strong { color: var(--text); }
+.swatch { flex: none; width: 28px; height: 14px; border-radius: 999px; border: 1px solid var(--line); }
+.swatch-shown { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+.swatch-declared { border-style: dashed; }
 .skill-note { margin: var(--space-2) 0 0; color: var(--muted); font-size: .9rem; max-width: 30rem; }
-.tag-label { margin: 0; font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
 
 .code-page { max-width: 46rem; margin-bottom: var(--space-4); }
 .page h2 { margin: var(--space-6) 0 var(--space-3); font-size: 1.4rem; }
@@ -85,7 +93,8 @@ section.block > .wrap > h2 { margin: 0 0 var(--space-3); font-size: clamp(1.5rem
 .pending { color: var(--muted); border-bottom: 1px dotted var(--muted); font-size: .95em; } /* un dato por confirmar no es un error (C-14) */
 
 footer.site { border-top: 1px solid var(--line); padding-block: var(--space-5); color: var(--muted); }
-footer.site .foot-contact { flex: 1 1 18rem; }
+footer.site .foot-contact { flex: 1 1 18rem; display: flex; flex-wrap: wrap; align-items: center; column-gap: var(--space-3); }
+footer.site .foot-contact a + a::before { content: '·'; margin-right: var(--space-3); color: var(--muted); }
 footer.site .wrap { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-5); justify-content: space-between; }
 footer.site a { color: var(--muted); display: inline-flex; align-items: center; justify-content: center; min-height: 28px; min-width: 28px; }
 .back a, .card p > a, .contact-list a { display: inline-flex; align-items: center; min-height: 28px; }
@@ -97,20 +106,31 @@ footer.site a { color: var(--muted); display: inline-flex; align-items: center; 
   .steps:has(> li:nth-child(5):last-child) > li { grid-column: span 2; }
   .steps:has(> li:nth-child(5):last-child) > li:nth-child(n+4) { grid-column: span 3; }
 }
-/* Barra de las páginas interiores en móvil: los enlaces pasan a una segunda fila en rejilla de tres columnas; nada se corta ni se desplaza de lado. */
+/* Barra de las páginas interiores en móvil: dos filas en total. La de marca, tema e idioma y UNA fila de navegación con las seis secciones,
+   desplazable en horizontal (la sección actual se centra al cargar; src/components/TopNav.jsx) con un difuminado en el borde que tiene más. */
 @media (max-width: 760px) {
   .topbar { position: static; }
-  .topbar .wrap { min-height: 0; gap: 0 var(--space-3); padding-block: var(--space-1) var(--space-2); }
-  .topbar nav { order: 3; width: 100%; }
-  .topbar nav ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1) var(--space-2); }
-  .topbar nav a { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 var(--space-2); text-align: center; line-height: 1.2; border: 1px solid var(--line); border-radius: var(--radius); font-size: .95rem; }
+  .topbar .wrap { min-height: 0; gap: 0 var(--space-3); padding-block: var(--space-1) var(--space-1); }
+  .topbar nav { order: 3; width: 100%; min-width: 0; }
+  .topbar nav ul { display: flex; flex-wrap: nowrap; gap: var(--space-2); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; padding: var(--space-1) 2px; }
+  .topbar nav ul::-webkit-scrollbar { display: none; }
+  .topbar nav li { flex: none; }
+  .topbar nav a { display: flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 var(--space-4); white-space: nowrap; line-height: 1.2; border: 1px solid var(--line); border-radius: var(--radius); font-size: .95rem; }
   .topbar nav a[aria-current="page"] { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+  .topbar nav[data-more~="right"] ul { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent); }
+  .topbar nav[data-more~="left"] ul { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 36px), transparent); }
+  .topbar nav[data-more~="left"][data-more~="right"] ul { -webkit-mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(to right, transparent, #000 36px, #000 calc(100% - 36px), transparent); }
 }
 @media (max-width: 600px) {
   .diagram { display: none; }
   .theme-toggle { min-width: 44px; }
   footer.site a, .back a, .card p > a, .contact-list a { min-height: 44px; min-width: 44px; }
-        }
+  /* Pie: el correo en su fila y los demás enlaces de dos en dos; ningún enlace queda solo en una línea. */
+  footer.site .foot-contact { display: grid; grid-template-columns: repeat(2, max-content); column-gap: var(--space-5); justify-content: start; }
+  footer.site .foot-contact a { justify-content: flex-start; }
+  footer.site .foot-contact a:first-child { grid-column: 1 / -1; }
+  footer.site .foot-contact a + a::before { content: none; }
+}
 
 /* Bots para Telegram (D2): <details> sin saltos bruscos de layout. */
 .bots { border: 0; }
@@ -122,8 +142,10 @@ footer.site a { color: var(--muted); display: inline-flex; align-items: center; 
 .bots-hint { flex-basis: 100%; order: 3; font-weight: 400; color: var(--muted); font-size: .9rem; }
 .bots[open] .bots-hint { display: none; }
 .bots > summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
-.bots-list { margin: var(--space-2) 0 0; padding-left: 1.2rem; display: grid; gap: var(--space-2); }
-.bots-list li { display: grid; gap: 2px; justify-items: start; align-content: start; }
+.bots-list { margin: var(--space-2) 0 0; padding: 0; list-style: none; display: grid; gap: var(--space-2); }
+/* Cada bot es una caja propia con su nombre y su estado en la misma línea: la etiqueta nunca se lee como del bot vecino. */
+.bots-list li { display: grid; gap: 4px; justify-items: start; align-content: start; padding: var(--space-2) var(--space-3); border: 1px solid var(--line); border-radius: var(--radius); }
+.bot-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-2); }
 .bots-list .badge { font-size: .75rem; }
 .bots-list .bot-text { color: var(--muted); font-size: .9rem; }
 .card-bots { align-content: start; grid-column: 1 / -1; } /* ocupa toda la fila: abierta no deja hueco en las tarjetas vecinas */
@@ -178,4 +200,12 @@ footer.site a { color: var(--muted); display: inline-flex; align-items: center; 
 .about-audio-item figcaption { margin-bottom: var(--space-1); }
 .about-audio audio { width: 100%; }
 .contact-buttons { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0 0 var(--space-5); }
-.about-long { margin-top: var(--space-7); }
+.about-long { margin: var(--space-7) 0 0; color: var(--muted); font-size: .9rem; max-width: 46rem; }
+/* «Detalle técnico» (Cómo trabajo): plegado por defecto; <details> funciona con teclado y lector de pantalla y sin JavaScript. */
+.tech { margin-top: var(--space-6); border-top: 1px solid var(--line); }
+.tech > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; gap: var(--space-2); list-style: none; }
+.tech > summary::-webkit-details-marker { display: none; }
+.tech > summary::after { content: '▾'; color: var(--muted); }
+.tech[open] > summary::after { content: '▴'; }
+.tech > summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.page .tech > summary h2 { margin: var(--space-3) 0; font-size: 1.4rem; }

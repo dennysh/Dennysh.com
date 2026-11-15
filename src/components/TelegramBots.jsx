@@ -15,8 +15,7 @@ export default function TelegramBots({ lang, group, heading = false, open = fals
       <ol className="bots-list">
         {group.bots.map((b) => (
           <li key={b.id} data-bot={b.id}>
-            <strong>{b.title}</strong>
-            {b.status && <span className={`badge badge-${b.status}`}>{w.status[b.status]}</span>}
+            <span className="bot-head"><strong>{b.title}</strong>{b.status && <span className={`badge badge-${b.status}`}>{w.status[b.status]}</span>}</span>
             {b.text && <span className="bot-text">{oneLine(b.text)}</span>}
           </li>
         ))}

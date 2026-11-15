@@ -97,7 +97,8 @@ for (const size of SIZES) {
         await expect(cards.nth(0)).toContainText(c.panels.code.note)
         await expect(cards.nth(1)).toContainText(c.panels.projects.text)
         await expect(cards.nth(2)).toContainText(c.panels.journey.text)
-        await expect(cards.nth(3)).toContainText(site[lang].howPage.lead)
+        await expect(cards.nth(3)).toContainText(site[lang].howPage.plain)
+        await expect(cards.nth(3)).not.toContainText(/máquinas|machines/i) // la tarjeta usa la frase llana
         await expect(cards.nth(4)).toContainText(c.panels.interest.text)
         // jerarquía: ningún salto de nivel dentro de la parte visible (los paneles de escritorio están ocultos)
         const levels = await page.evaluate(() => [...document.querySelectorAll('main h1, main h2, main h3, section h1, section h2, section h3')].filter((h) => h.offsetParent !== null || getComputedStyle(h).position === 'fixed').filter((h) => h.getClientRects().length).map((h) => +h.tagName[1]))
@@ -191,6 +192,21 @@ for (const size of SIZES) {
       await g.end()
       await ctx.close()
     })
+
+    for (const lang of ['es', 'en']) {
+      test(`(${lang}) «${site[lang].home.cta}» y «${site[lang].home.hint}» van en una franja bajo el retrato: no tapan la cara ni el torso; el botón se ve sin desplazar y queda en la mitad baja`, async ({ page }) => {
+        await ready(page, `/${lang}/`)
+        const [por, cta, hint] = await Promise.all(['.portrait', '.first-cta', '.hint'].map((s) => page.locator(s).boundingBox()))
+        const hit = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+        expect(hit(cta, por), 'el botón no toca la caja del retrato').toBe(false)
+        expect(hit(hint, por), '«Desliza» no toca la caja del retrato').toBe(false)
+        await expect(page.locator('.first-cta')).toBeInViewport({ ratio: 1 })
+        expect(cta.y + cta.height, 'el botón queda al alcance del pulgar (mitad baja)').toBeGreaterThan(size.height * .7)
+        expect(cta.height).toBeGreaterThanOrEqual(44 - .5)
+        // el botón recibe el toque (nada lo tapa)
+        expect(await page.locator('.first-cta').evaluate((el) => { const r = el.getBoundingClientRect(); return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2) === el })).toBe(true)
+      })
+    }
 
     test('sin parpadeo ni salto de diseño al hidratar (CLS) y el hero mide lo mismo antes y después', async ({ page }) => {
       await page.addInitScript(() => { window.__cls = 0; new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) window.__cls += e.value }).observe({ type: 'layout-shift', buffered: true }) })

@@ -1,6 +1,5 @@
 import React from 'react'
 import { site, links } from '../content/site.js'
-import Txt from '../components/Txt.jsx'
 import Timeline from '../components/Timeline.jsx'
 import AboutAudio from '../components/AboutAudio.jsx'
 import ContactButtons from '../components/ContactButtons.jsx'
@@ -43,12 +42,16 @@ export function CodePage({ lang }) {
       <p className="more">{c.home.panels.code.note} <a href={links.github} rel="noopener noreferrer">{c.home.panels.code.github}</a></p>
       <h2>{c.skills.title}</h2>
       <p className="lead">{c.skills.lead}</p>
+      <ul className="skill-legend">
+        <li><span className="swatch swatch-shown" aria-hidden="true" /><strong>{c.skills.shown}:</strong> {c.skills.legend.shown}</li>
+        <li><span className="swatch swatch-declared" aria-hidden="true" /><strong>{c.skills.declared}:</strong> {c.skills.legend.declared}</li>
+      </ul>
       <div className="skill-groups">
         {c.skills.groups.map((g) => (
           <div key={g.title}>
             <h3>{g.title}</h3>
-            {g.shown.length > 0 && <><p className="tag-label">{c.skills.shown}</p><ul className="tags shown">{g.shown.map((t) => <li key={t}>{t}</li>)}</ul></>}
-            {g.declared.length > 0 && <><p className="tag-label">{c.skills.declared}</p><ul className="tags">{g.declared.map((t) => <li key={t}>{t}</li>)}</ul></>}
+            {g.shown.length > 0 && <ul className="tags shown" aria-label={c.skills.shown}>{g.shown.map((t) => <li key={t}>{t}</li>)}</ul>}
+            {g.declared.length > 0 && <ul className="tags declared" aria-label={c.skills.declared}>{g.declared.map((t) => <li key={t}>{t}</li>)}</ul>}
             {g.note && <p className="skill-note">{g.note}</p>}
           </div>
         ))}
@@ -88,15 +91,17 @@ export function HowPage({ lang }) {
       <p className="lead">{c.governance.lead}</p>
       <h3>{p.people}</h3>
       <ol className="rules">{peopleRules(lang).map((t) => <li key={t}>{t}</li>)}</ol>
-      <h3>{p.machines}</h3>
-      <p className="more">{p.machinesLead}</p>
-      <pre className="code code-page" tabIndex={0}>{machineRules(lang)}</pre>
-      <p className="method">{c.governance.method}</p>
-      <h2>{c.factory.title}</h2>
-      <p className="lead">{c.factory.lead}</p>
-      <FactoryDiagram c={c.factory} />
-      <ol className="steps">{c.factory.steps.map((s) => <li key={s.id}><strong>{s.label}</strong>{s.text}</li>)}</ol>
-      <p className="method"><Txt lang={lang} v={c.factory.evidence} /></p>
+      <details className="tech">
+        <summary><h2>{p.technical}</h2></summary>
+        <h3>{p.machines}</h3>
+        <p className="more">{p.machinesLead}</p>
+        <pre className="code code-page" tabIndex={0}>{machineRules(lang)}</pre>
+        <p className="method">{c.governance.method}</p>
+        <h3>{c.factory.title}</h3>
+        <p className="lead">{c.factory.lead}</p>
+        <FactoryDiagram c={c.factory} />
+        <ol className="steps">{c.factory.steps.map((s) => <li key={s.id}><strong>{s.label}</strong>{s.text}</li>)}</ol>
+      </details>
     </Page>
   )
 }
@@ -124,10 +129,7 @@ export function InterestPage({ lang }) {
       <p className="about-criden">{p.criden.text} <a href={links.criden} rel="noopener noreferrer">{p.criden.link}</a></p>
       <h2>{p.contact.title}</h2>
       <ContactButtons ui={p.contact} />
-      <h2 className="about-long">{p.longTerm.title}</h2>
-      <p className="about-note">{p.longTerm.lead}</p>
-      <p className="lead">{p.longTerm.thought}</p>
-      <p className="about-note">{p.longTerm.notice}</p>
+      <p className="about-long">{p.longTerm.line}</p>
     </Page>
   )
 }
@@ -151,7 +153,7 @@ export function ContactPage({ lang }) {
       </ul>
       <ul className="contact-list">
         <li>{k.role}</li>
-        <li>{k.location} · {k.timezone}</li>
+        <li>{k.location}</li>
         <li>{k.languages}</li>
       </ul>
     </Page>

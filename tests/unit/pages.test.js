@@ -100,27 +100,32 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       expect(d).toMatch(/<summary><h2>[^<]+<\/h2><span class="bots-hint">[^<]+<\/span><\/summary>/)
       const titles = [...d.matchAll(/<strong>([^<]+)<\/strong>/g)].map((m) => m[1])
       expect(titles).toEqual(c.work.items[0].bots.map((b) => esc(b.title)))
+      // 4.ª ronda de críticos: los cuatro llevan estado, pegado a su nombre (en la misma línea, dentro de su caja)
       expect(d.match(/badge-production/g)).toHaveLength(1) // solo Caja Cercana
-      expect(d).not.toMatch(/badge-development|badge-undefined|href=|data-pending/)
-      expect(d.match(/class="badge/g)).toHaveLength(1)
-      // una línea por bot: cada bot con texto lo muestra (Caja Cercana reutiliza el suyo); el de planificación solo lleva nombre
+      expect(d.match(/badge-development/g)).toHaveLength(3)
+      expect(d).not.toMatch(/badge-undefined|href=|data-pending/)
+      expect(d.match(/class="badge/g)).toHaveLength(4)
       const bots = c.work.items[0].bots
+      for (const b of bots) expect(new RegExp(`<li data-bot="${b.id}"><span class="bot-head"><strong>${esc(b.title).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</strong><span class="badge badge-${b.status}">${esc(c.work.status[b.status])}</span></span>`).test(d), b.id).toBe(true)
+      // una línea por bot: cada bot con texto lo muestra (Caja Cercana reutiliza el suyo)
       for (const b of bots.filter((x) => x.text)) expect(d, b.id).toContain(esc(b.text.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? b.text)) // un renglón: la primera frase
       expect(d.match(/class="bot-text"/g)).toHaveLength(bots.filter((x) => x.text).length)
-      expect(/<li data-bot="planificacion">([\s\S]*?)<\/li>/.exec(d)[1]).toBe(`<strong>${esc(bots[3].title)}</strong>`)
+      expect(c.work.items[0].bots[3].text).toBe(lang === 'es' ? 'Reasigna actividades en el grupo de Telegram del equipo: detecta cuando alguien pide replanificar, propone un grupo y un horario libres y espera la confirmación del técnico.' : 'Reassigns activities in the team\'s Telegram group: it notices when someone asks to reschedule, proposes a free crew and time slot, and waits for the technician to confirm.')
     })
     it(`(${lang}) Trayectoria: las cuatro líneas de la trayectoria antes de la línea de tiempo`, () => {
       const out = render(JourneyPage, lang)
       for (const l of c.journey.lines) expect(out).toContain(esc(l))
       expect(out.indexOf(esc(c.journey.lines[0]))).toBeLessThan(out.indexOf(esc(c.journeyPage.timeline[0].title)))
     })
-    it(`(${lang}) Sobre mí: el pensamiento cerebro–IA, como idea y no como capacidad, al final y con su aviso`, () => {
+    it(`(${lang}) Sobre mí: el interés a largo plazo es una sola línea discreta al final, sin título, como interés y no como capacidad`, () => {
       const out = render(InterestPage, lang)
       const lt = c.interestPage.longTerm
-      expect(out).toContain(esc(lt.thought))
-      expect(out).toContain(esc(lt.notice))
-      expect(out.indexOf(`>${esc(lt.title)}</h2>`)).toBeGreaterThan(out.indexOf(`>${esc(c.interestPage.contact.title)}</h2>`)) // última sección
-      expect(out.indexOf(esc(lt.thought))).toBe(out.lastIndexOf(esc(lt.thought)))
+      expect(out).toContain(`<p class="about-long">${esc(lt.line)}</p>`)
+      expect(out.indexOf(esc(lt.line))).toBeGreaterThan(out.indexOf(`>${esc(c.interestPage.contact.title)}</h2>`)) // al final de la página
+      expect(out.indexOf(esc(lt.line))).toBe(out.lastIndexOf(esc(lt.line)))
+      expect(out.slice(out.indexOf(esc(lt.line)) + lt.line.length)).not.toMatch(/<h2|<p class="(lead|about-note)"/) // nada después de la línea
+      expect(out).not.toMatch(/<h2[^>]*>[^<]*(largo plazo|long-term)/i) // sin título grande para el interés
+      expect(out).not.toMatch(/cerebro|brain/i)
       expect(out.match(/no una capacidad|not a capability|not a demonstrated skill/gi) ?? []).toHaveLength(1) // el aviso va una sola vez
       expect(out).not.toMatch(/jiu|triat|triath|obst[aá]cul|obstacle|deporte|sport/i)
     })
@@ -128,7 +133,8 @@ describe('el contenido de cada sección pasó a la página de su nodo sin perder
       const out = render(ContactPage, lang).replace(/<!-- -->/g, '')
       const k = c.contact
       for (const t of [k.role, k.languages, k.cv, k.linkedin, k.github, c.contactPage.lead]) expect(out).toContain(esc(t))
-      expect(out).toContain(`${esc(k.location)} · ${k.timezone}`)
+      expect(out).toContain(`<li>${esc(k.location)}</li>`)
+      expect(out).not.toContain('UTC-5') // 4.ª ronda de críticos: la zona horaria ya no se muestra
       expect(out).toContain(`href="${links.email}"`)
       expect(out).not.toMatch(/data-pending|por confirmar|to be confirmed|Cuándo puedo empezar|When I can start/)
       expect(out).not.toMatch(/cerebro|brain|largo plazo|long-term/i) // «Interés a largo plazo» vive una sola vez, al final de Sobre mí
@@ -169,7 +175,7 @@ describe('Sobre mí (encargo 2026-11-14): presentación, audio opcional, qué ha
     const at = (t) => out.indexOf(esc(t))
     it(`(${lang}) el orden: presentación, qué hago, ejemplos del bot, Criden, contacto, interés a largo plazo`, () => {
       const h2 = (t) => out.indexOf(`>${esc(t)}</h2>`)
-      const order = [at(p.intro), h2(p.whatTitle), h2(p.botExample.title), at(p.criden.text), h2(p.contact.title), h2(p.longTerm.title)]
+      const order = [at(p.intro), h2(p.whatTitle), h2(p.botExample.title), at(p.criden.text), h2(p.contact.title), at(p.longTerm.line)]
       expect(order.every((i) => i >= 0)).toBe(true)
       expect([...order].sort((a, b) => a - b)).toEqual(order)
     })
@@ -221,6 +227,48 @@ describe('Sobre mí (encargo 2026-11-14): presentación, audio opcional, qué ha
       expect(out).toContain(`<a class="btn btn-primary" href="mailto:dennys@dennysh.com">${esc(p.contact.email)}</a>`)
       expect(out).toMatch(new RegExp(`<a class="btn btn-secondary" href="https://wa\\.me/593960664347" target="_blank" rel="noopener noreferrer" aria-label="${esc(p.contact.whatsappLabel).replace(/[()]/g, '\\$&')}">WhatsApp`))
       expect(visible(out)).not.toMatch(/593960664347|960664347|\+?593 ?9/)
+    })
+  }
+})
+
+describe('4.ª ronda de críticos (2026-11-15): Cómo trabajo, Código, pie y barra', () => {
+  for (const lang of ['es', 'en']) {
+    const c = site[lang]
+    it(`(${lang}) Cómo trabajo: lo llano arriba; lo técnico (máquinas, fábrica, túnel, diagrama) plegado bajo «${c.howPage.technical}»; la evidencia pendiente no se muestra`, () => {
+      expect(c.howPage.technical).toBe(lang === 'es' ? 'Detalle técnico' : 'Technical detail')
+      const out = renderToString(React.createElement(HowPage, { lang }))
+      const d = out.indexOf('<details class="tech">')
+      expect(d).toBeGreaterThan(-1)
+      expect(out).not.toMatch(/<details class="tech"[^>]*\sopen/) // plegado por defecto
+      expect(out).toContain(`<summary><h2>${esc(c.howPage.technical)}</h2></summary>`)
+      const rules = out.indexOf('<ol class="rules">')
+      expect(rules).toBeGreaterThan(-1); expect(rules).toBeLessThan(d) // las reglas para personas quedan arriba, fuera del detalle
+      const inside = out.slice(d, out.indexOf('</details>', d))
+      for (const t of [c.howPage.machines, c.howPage.machinesLead, c.factory.title, c.factory.lead, c.governance.method, c.factory.diagramTitle, ...c.factory.steps.map((s) => s.text)]) expect(inside, t).toContain(esc(t))
+      expect(inside).toContain('class="diagram"') // el diagrama sigue, dentro del detalle
+      expect(inside).toContain('llms.txt')
+      expect(out.slice(out.indexOf('<main'), d)).not.toMatch(/llms\.txt|Cloudflare|class="diagram"/)
+      expect(out).not.toMatch(/en preparación|being prepared/)
+    })
+    it(`(${lang}) Código: lo demostrado primero y destacado, lo declarado atenuado, una sola leyenda y ningún rótulo repetido`, () => {
+      const out = renderToString(React.createElement(CodePage, { lang }))
+      expect(out.match(/class="skill-legend"/g)).toHaveLength(1)
+      expect(out).toContain(esc(c.skills.legend.shown)); expect(out).toContain(esc(c.skills.legend.declared))
+      expect(out).not.toContain('tag-label')
+      // cada grupo: primero la lista de demostradas, después la de declaradas; las listas llevan su nombre accesible, no un rótulo visible
+      const g = out.slice(out.indexOf('class="skill-groups"'))
+      expect(g.indexOf('class="tags shown"')).toBeLessThan(g.indexOf('class="tags declared"'))
+      expect(g).toContain(`class="tags declared" aria-label="${esc(c.skills.declared)}"`)
+      expect((g.match(new RegExp(`>${esc(c.skills.declared)}<`, 'g')) ?? [])).toHaveLength(0)
+      for (const grp of c.skills.groups) for (const t of [...grp.shown, ...grp.declared]) expect(g, t).toContain(`<li>${esc(t)}</li>`) // no se quita ninguna capacidad
+    })
+    it(`(${lang}) pie: el correo y los demás enlaces como elementos hermanos (el CSS los reparte en rejilla en móvil, sin «CV» huérfano); barra: seis enlaces dentro de la navegación con la actual marcada`, () => {
+      const out = render(ContactPage, lang)
+      const f = /<span class="foot-contact">([\s\S]*?)<\/span>/.exec(out)[1]
+      expect([...f.matchAll(/<a /g)]).toHaveLength(5)
+      expect(f).not.toContain('·') // los separadores los pone el CSS en escritorio y desaparecen en móvil
+      expect(out).toMatch(/<nav aria-label="[^"]+" data-more="right"><ul>/)
+      expect(out.match(/aria-current="page"/g)).toHaveLength(1)
     })
   }
 })

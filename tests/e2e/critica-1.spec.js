@@ -105,20 +105,50 @@ test('el enlace de salto del inicio tiene contraste suficiente con foco, en clar
 })
 
 for (const [width, height] of [[390, 844], [360, 640]]) {
-  test(`móvil ${width}×${height}: la barra de las páginas interiores pasa los enlaces a una segunda fila, sin cortes, sin desplazamiento lateral y con 44 px (C-09)`, async ({ page }) => {
+  test(`móvil ${width}×${height}: la barra de las páginas interiores son dos filas (marca/tema/idioma y UNA fila de navegación desplazable), con la sección actual visible, señal de que hay más, rótulos de una línea y 44 px (4.ª ronda de críticos)`, async ({ page }) => {
     await page.setViewportSize({ width, height })
-    for (const path of ['/es/sobre-mi/', '/en/about/', '/es/contacto/', '/es/como-trabajo/']) {
+    for (const path of ['/es/sobre-mi/', '/en/about/', '/es/contacto/', '/es/como-trabajo/', '/es/codigo/']) {
       await page.goto(path)
-      const m = await page.locator('.topbar nav').evaluate((nav) => {
-        const r = nav.getBoundingClientRect()
-        const links = [...nav.querySelectorAll('a')].map((a) => { const b = a.getBoundingClientRect(); return { l: b.left, r: b.right, h: b.height, clipped: a.scrollWidth > a.clientWidth + 1 } })
-        return { navScroll: nav.scrollWidth > nav.clientWidth, links, navLeft: r.left, navRight: r.right, sw: document.documentElement.scrollWidth, iw: innerWidth }
+      await page.waitForFunction(() => document.querySelector('.topbar nav').hasAttribute('data-more'))
+      const m = await page.evaluate(() => {
+        const nav = document.querySelector('.topbar nav'), ul = nav.querySelector('ul'), top = document.querySelector('.topbar')
+        const links = [...nav.querySelectorAll('a')].map((a) => { const b = a.getBoundingClientRect(); return { l: b.left, r: b.right, t: b.top, h: b.height, lines: Math.round(b.height / parseFloat(getComputedStyle(a).lineHeight)) <= 2 && a.getClientRects().length === 1 && a.scrollWidth <= a.clientWidth + 1 } })
+        const brand = document.querySelector('.topbar .brand').getBoundingClientRect(), end = document.querySelector('.topbar-end').getBoundingClientRect()
+        const cur = document.querySelector('.topbar nav a[aria-current="page"]').getBoundingClientRect(), u = ul.getBoundingClientRect()
+        return { scrolls: ul.scrollWidth > ul.clientWidth, more: nav.getAttribute('data-more'), links, rowsTop: [...new Set(links.map((l) => Math.round(l.t)))], topH: top.getBoundingClientRect().height, brandBottom: brand.bottom, endBottom: end.bottom, navTop: nav.getBoundingClientRect().top, cur: { l: cur.left, r: cur.right }, u: { l: u.left, r: u.right }, sw: document.documentElement.scrollWidth, iw: innerWidth, mask: getComputedStyle(ul).maskImage || getComputedStyle(ul).webkitMaskImage }
       })
-      expect(m.navScroll, path).toBe(false)
-      expect(m.sw, path).toBeLessThanOrEqual(m.iw)
       expect(m.links, path).toHaveLength(6)
-      for (const l of m.links) { expect(l.l, path).toBeGreaterThanOrEqual(0); expect(l.r, path).toBeLessThanOrEqual(width); expect(l.h, path).toBeGreaterThanOrEqual(44); expect(l.clipped, path).toBe(false) }
+      expect(m.rowsTop, `${path}: una sola fila de navegación`).toHaveLength(1)
+      expect(m.navTop, `${path}: la navegación va debajo de la fila de marca/tema/idioma`).toBeGreaterThanOrEqual(Math.max(m.brandBottom, m.endBottom) - 1)
+      expect(m.topH, `${path}: la barra entera es bastante menor que los ~150 px de antes`).toBeLessThan(125)
+      expect(m.sw, path).toBeLessThanOrEqual(m.iw)
+      for (const l of m.links) expect(l.h, path).toBeGreaterThanOrEqual(44 - .5)
+      expect(m.links.every((l) => l.lines), `${path}: ningún rótulo en dos líneas ni cortado`).toBe(true)
+      expect(m.cur.l, `${path}: la sección actual se ve al cargar`).toBeGreaterThanOrEqual(m.u.l - 1); expect(m.cur.r, path).toBeLessThanOrEqual(m.u.r + 1)
+      expect(m.scrolls, path).toBe(true) // seis secciones no caben en 390/360 px: se desplazan
+      expect(m.more, `${path}: señal de que hay más a los lados`).toMatch(/left|right/)
+      expect(m.mask, `${path}: el borde con más enlaces se difumina`).toContain('gradient')
+      // desplazar hasta el final cambia la señal: ya no hay más a la derecha y sí a la izquierda
+      await page.locator('.topbar nav ul').evaluate((ul) => { ul.scrollLeft = ul.scrollWidth })
+      await expect(page.locator('.topbar nav')).toHaveAttribute('data-more', 'left')
+      await page.locator('.topbar nav ul').evaluate((ul) => { ul.scrollLeft = 0 })
+      await expect(page.locator('.topbar nav')).toHaveAttribute('data-more', 'right')
       await expect(page.locator('.topbar nav a[aria-current="page"]')).toHaveCount(1)
+    }
+  })
+  test(`móvil ${width}×${height}: pie sin enlaces huérfanos (CV acompañado) y sin desbordes`, async ({ page }) => {
+    await page.setViewportSize({ width, height })
+    for (const path of ['/es/contacto/', '/en/about/']) {
+      await page.goto(path)
+      const m = await page.locator('footer.site .foot-contact').evaluate((el) => {
+        const links = [...el.querySelectorAll('a')].map((a) => { const b = a.getBoundingClientRect(); return { t: Math.round(b.top), l: Math.round(b.left), r: b.right, h: b.height, w: b.width, text: a.textContent } })
+        const rows = {}; for (const l of links) (rows[l.t] ??= []).push(l.text)
+        return { links, rows: Object.values(rows), sw: document.documentElement.scrollWidth, iw: innerWidth }
+      })
+      expect(m.sw, path).toBeLessThanOrEqual(m.iw)
+      expect(m.rows.find((r) => r.includes('CV')), `${path}: «CV» no va solo en su línea`).toHaveLength(2)
+      expect(m.rows.every((r, i) => r.length >= 2 || i === 0), `${path}: ninguna línea con un solo enlace salvo la del correo`).toBe(true)
+      for (const l of m.links) { expect(l.r, path).toBeLessThanOrEqual(width); expect(l.h, path).toBeGreaterThanOrEqual(44 - .5) }
     }
   })
 }
@@ -149,6 +179,7 @@ test('el brillo de fondo de las páginas interiores no baja el contraste del tex
 test('Cómo trabajo: los cinco pasos se reparten 3 + 2 en pantalla ancha, el diagrama se ve en escritorio y se oculta en móvil (C-11, C-26)', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto('/es/como-trabajo/')
+  await page.locator('details.tech > summary').click() // el diagrama vive en «Detalle técnico», plegado por defecto
   await expect(page.locator('.diagram')).toBeVisible()
   const ys = await page.locator('.steps > li').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().y)))
   expect(ys).toHaveLength(5)

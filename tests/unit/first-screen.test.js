@@ -24,12 +24,16 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       expect(out).not.toContain(esc(c.hero.thesis))
       for (const t of c.home.tagline) expect(out).toContain(esc(t))
     })
-    it(`(${lang}) propuesta bajo el h1 y antes de la línea de datos, y botón «${c.home.cta}» hacia Contacto (encargo 2026-11-14)`, () => {
-      expect(c.home.offer).toBe(lang === 'es' ? 'Software, automatizaciones, bots y agentes de IA para empresas.' : 'Software, automation, bots and AI agents for businesses.')
+    it(`(${lang}) etiqueta pequeña sobre el h1 (que es la propuesta, sin repetirla debajo), línea de datos después, y botón «${c.home.cta}» hacia Contacto (4.ª ronda de críticos)`, () => {
+      expect(c.home.phrase).toBe(lang === 'es' ? 'Software, automatizaciones, bots y agentes de IA para empresas.' : 'Software, automation, bots and AI agents for businesses.')
+      expect(c.home.kicker).toBe(lang === 'es' ? 'Un poco sobre mí' : 'A little about me')
       expect(c.home.cta).toBe(lang === 'es' ? 'Escríbeme' : 'Write to me')
       const at = (t) => out.indexOf(esc(t))
-      expect(at(c.home.phrase)).toBeLessThan(at(c.home.offer))
-      expect(at(c.home.offer)).toBeLessThan(at(c.home.tagline[0]))
+      expect(out).toContain(`<p class="kicker">${esc(c.home.kicker)}</p><h1 id="hero-h">`)
+      expect(at(c.home.kicker)).toBeLessThan(at(c.home.phrase))
+      expect(at(c.home.phrase)).toBeLessThan(at(c.home.tagline[0]))
+      expect(out.split(esc(c.home.phrase)).length - 1).toBe(1) // la propuesta se lee una sola vez
+      expect(out).not.toContain('class="offer"')
       expect(out).toContain(`<a class="btn btn-primary first-cta" href="${pagePaths[lang].contact}">${esc(c.home.cta)}</a>`)
       expect(out).not.toContain('mailto:') // el inicio sigue sin mostrar el correo (checkPrerender)
       expect(out.match(/<h1\b/g)).toHaveLength(1)

@@ -203,9 +203,9 @@ test.describe('vista previa al pasar el mouse (C3)', () => {
       await expect(page.locator('.panel:visible'), `${id}: al salir`).toHaveCount(0)
     }
   })
-  test('Proyectos muestra "Work in production" con Criden, y su botón lleva a la página', async ({ page }) => {
+  test('Proyectos muestra "Projects" con Criden, y su botón lleva a la página', async ({ page }) => {
     await node(page, 'Projects').hover()
-    await expect(page.locator('#p-projects h2')).toHaveText('Work in production')
+    await expect(page.locator('#p-projects h2')).toHaveText('Projects')
     await expect(page.locator('#p-projects')).toContainText('Criden')
     await expect(page.locator('#p-projects summary')).toHaveText('Telegram botsSee the 4 bots')
     await expect(page.locator('#p-code pre')).toBeHidden()
@@ -387,7 +387,7 @@ test.describe('revisión adversarial: 404, enlace antiguo, barra', () => {
   test('el enlace antiguo /es/?evento=… (y /en/demo/?evento=…) va a la portada del idioma, no a una 404', async ({ page }) => {
     await page.goto('/es/?evento=ab.cd')
     await page.waitForURL((u) => u.pathname === '/es/' && u.search === '')
-    await expect(page.locator('h1')).toHaveText('Un poco sobre mí.')
+    await expect(page.locator('h1')).toHaveText('Software, automatizaciones, bots y agentes de IA para empresas.')
     await page.goto('/en/demo/?evento=ab.cd')
     await page.waitForURL((u) => u.pathname === '/en/' && u.search === '')
     await expect(page.locator('.first')).toHaveCount(1)
@@ -417,25 +417,30 @@ test.describe('sin JavaScript (AC-H2)', () => {
     await expect(page.locator('#p-code')).toBeVisible()
     await page.locator('a[data-node="interest"]').focus()
     await expect(page.locator('#p-interest')).toBeVisible()
-    await expect(page.locator('h1')).toHaveText('Un poco sobre mí.')
+    await expect(page.locator('h1')).toHaveText('Software, automatizaciones, bots y agentes de IA para empresas.')
   })
 })
 
 // Propuesta y botón «Escríbeme» (encargo 2026-11-14): visibles en la primera pantalla de móvil y escritorio, táctiles y sin pisar el retrato.
 for (const [w, h] of [[390, 844], [360, 640], [1440, 900], [1180, 800]]) {
   for (const lang of ['es', 'en']) {
-    test(`${lang} ${w}×${h}: la propuesta y el botón de contacto se ven enteros, miden ≥ 44 px, no se pisan con el h1 ni la línea de datos`, async ({ page }) => {
+    test(`${lang} ${w}×${h}: etiqueta, titular, línea de datos y botón de contacto se ven enteros, el botón mide ≥ 44 px, nada se pisa y el titular no deja palabras sueltas`, async ({ page }) => {
       await page.setViewportSize({ width: w, height: h })
       await page.goto(`/${lang}/`)
       const cta = page.locator('.first-cta')
       await expect(cta).toHaveText(lang === 'es' ? 'Escríbeme' : 'Write to me')
-      await expect(page.locator('.offer')).toBeInViewport({ ratio: 1 })
+      await expect(page.locator('.kicker')).toBeInViewport({ ratio: 1 })
+      await expect(page.locator('h1')).toBeInViewport({ ratio: 1 })
       await expect(cta).toBeInViewport({ ratio: 1 })
-      const [c, o, t, h1] = await Promise.all(['.first-cta', '.offer', '.tagline', 'h1'].map((s) => page.locator(s).boundingBox()))
+      const [c, o, t, h1] = await Promise.all(['.first-cta', '.kicker', '.tagline', 'h1'].map((s) => page.locator(s).boundingBox()))
       expect(c.height).toBeGreaterThanOrEqual(44); expect(c.width).toBeGreaterThanOrEqual(44)
       const hit = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
       for (const other of [o, t, h1]) expect(hit(c, other)).toBe(false)
-      expect(h1.y + h1.height).toBeLessThanOrEqual(o.y + 1); expect(o.y + o.height).toBeLessThanOrEqual(t.y + 1)
+      expect(o.y + o.height).toBeLessThanOrEqual(h1.y + 1); expect(h1.y + h1.height).toBeLessThanOrEqual(t.y + 1) // etiqueta → titular → línea de datos
+      // el titular no se corta ni deja una palabra sola en la última línea: la última línea ocupa al menos un tercio de la más ancha
+      const lines = await page.locator('h1').evaluate((el) => { const r = document.createRange(); r.selectNodeContents(el); const rows = new Map(); for (const q of r.getClientRects()) { const k = Math.round(q.top); rows.set(k, [Math.min(rows.get(k)?.[0] ?? 1e9, q.left), Math.max(rows.get(k)?.[1] ?? -1e9, q.right)]) } return [...rows.entries()].sort((a, b) => a[0] - b[0]).map(([, [l, rr]]) => rr - l) })
+      expect(lines.at(-1), `última línea ${lines}`).toBeGreaterThanOrEqual(Math.max(...lines) / 3)
+      expect(await page.locator('h1').evaluate((el) => el.scrollWidth <= el.clientWidth + 1 && el.getBoundingClientRect().right <= innerWidth)).toBe(true)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       // El botón recibe el puntero (nada lo tapa) y lleva a Contacto.
       expect(await cta.evaluate((el) => { const r = el.getBoundingClientRect(); return document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2) === el })).toBe(true)
