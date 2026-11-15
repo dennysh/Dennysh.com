@@ -100,6 +100,24 @@ test('Proyectos: el Bot de caja más cercana muestra su texto completo, con el d
   }
 })
 
+test('Proyectos: la captura del Bot de caja más cercana se ve legible, con pie, sin desbordes (es y en)', async ({ page }) => {
+  for (const [url, bot] of [['/es/proyectos/', 'Bot de caja más cercana'], ['/en/projects/', 'Nearest box bot']]) {
+    await page.goto(url)
+    const fig = page.locator('details.bots li', { hasText: bot }).locator('figure.bot-shot')
+    const img = fig.locator('img')
+    await img.scrollIntoViewIfNeeded()
+    await expect(img).toBeVisible()
+    await expect(img).toHaveAttribute('alt', /327, 457/)
+    await expect(fig.locator('figcaption')).toContainText(/ficticios|fictitious/)
+    await expect.poll(() => img.evaluate((i) => i.complete && i.naturalWidth)).toBe(746)
+    const b = await img.boundingBox()
+    const vw = page.viewportSize().width
+    expect(b.width).toBeLessThanOrEqual(480)
+    expect(b.x + b.width).toBeLessThanOrEqual(vw)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  }
+})
+
 test('Bots para Telegram: abierto al cargar con los cuatro bots en orden, con su texto completo, sin hueco; se cierra y abre con Enter, Espacio y clic sin mover lo de arriba', async ({ page }) => {
   await page.goto('/es/proyectos/')
   const d = page.locator('details.bots')

@@ -18,6 +18,12 @@ export default function TelegramBots({ lang, group, heading = false, open = fals
           <li key={b.id} data-bot={b.id}>
             <span className="bot-head"><strong>{b.title}</strong>{b.status && <span className={`badge badge-${b.status}`}>{w.status[b.status]}</span>}</span>
             {b.text && <span className="bot-text">{open ? b.text : oneLine(b.text)}</span>}
+            {open && b.shot && (
+              <figure className="bot-shot">
+                <img src={b.shot.src} width={b.shot.width} height={b.shot.height} alt={b.shot.alt} loading="lazy" decoding="async" />
+                <figcaption>{b.shot.caption}</figcaption>
+              </figure>
+            )}
           </li>
         ))}
       </ol>

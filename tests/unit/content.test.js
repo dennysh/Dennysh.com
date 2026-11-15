@@ -34,7 +34,8 @@ describe('contenido bilingüe (spec §3, §9)', () => {
     // La línea de tiempo de Trayectoria lleva las fechas del CV público: sus números se prueban aparte (más abajo).
     const noForm = (c) => { const { contactForm, journeyPage, ...rest } = c; return { ...rest, journeyPage: { ...journeyPage, timeline: undefined } } }
     const digits = walk([noForm(site.en), noForm(site.es)]).join(' ').match(/\b\d{1,4}\b/g) ?? []
-    expect(digits.filter((d) => !['2026', '2025', '5', '8', '10', '27'].includes(d))).toEqual([])
+    // 327, 457 y 636: distancias ficticias que se ven en la captura de demostración del bot (solo en su texto alternativo)
+    expect(digits.filter((d) => !['2026', '2025', '5', '8', '10', '27', '327', '457', '636'].includes(d))).toEqual([])
   })
   it('cada estado de trabajo que existe está en la tabla de estados (Criden no declara estado: no consta)', () => {
     for (const lang of ['en', 'es']) for (const it of site[lang].work.items) if (it.status) expect(Object.keys(site[lang].work.status)).toContain(it.status)
