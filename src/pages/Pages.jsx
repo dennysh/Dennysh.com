@@ -20,12 +20,13 @@ const Shell = ({ lang, view, children }) => (
 )
 
 // Estructura común de una página de nodo: un solo h1, su introducción, el contenido y "Volver".
-const Page = ({ lang, view, id, title, lead, back, children }) => (
+const Page = ({ lang, view, id, title, plain, lead, back, children }) => (
   <Shell lang={lang} view={view}>
     <section id={id} className="block page" aria-labelledby="page-h">
       <div className="wrap">
         <h1 id="page-h">{title}</h1>
-        {lead && <p className="lead">{lead}</p>}
+        {plain && <p className="lead lead-plain">{plain}</p>}
+        {lead && <p className={plain ? 'lead lead-sub' : 'lead'}>{lead}</p>}
         {children}
         <p className="back"><a href={`/${lang}/`}>{back}</a></p>
       </div>
@@ -82,7 +83,7 @@ export function HowPage({ lang }) {
   const c = site[lang]
   const p = c.howPage
   return (
-    <Page lang={lang} view="how" title={p.title} lead={p.lead} back={p.back}>
+    <Page lang={lang} view="how" title={p.title} plain={p.plain} lead={p.lead} back={p.back}>
       <h2>{c.governance.title}</h2>
       <p className="lead">{c.governance.lead}</p>
       <h3>{p.people}</h3>

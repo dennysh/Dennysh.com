@@ -343,7 +343,7 @@ test.describe('táctil (C3): primer toque abre la vista previa, segundo toque na
     await expect(page.locator('.panel:visible')).toHaveCount(0)
     await node(page, 'Journey').tap()
     await expect(page.locator('#p-journey')).toBeVisible()
-    await expect(page.locator('#p-journey a.btn')).toHaveText('Open Journey →')
+    await expect(page.locator('#p-journey a.btn')).toContainText('Open Journey →')
     expect(new URL(page.url()).pathname).toBe('/en/')
     await node(page, 'Journey').tap()
     await page.waitForURL('**/en/journey/')

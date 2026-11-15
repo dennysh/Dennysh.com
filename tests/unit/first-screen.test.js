@@ -60,7 +60,7 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
     it(`(${lang}) cada panel trae su botón hacia la página del nodo (táctil: "Abrir página")`, () => {
       for (const id of ['code', 'projects', 'journey', 'how', 'interest']) {
         const panel = new RegExp(`<section id="p-${id}"[\\s\\S]*?</section>`).exec(out)[0]
-        expect(panel, id).toContain(`<a class="btn btn-primary" href="${pagePaths[lang][id]}">${esc(c.home.panels[id].go)}</a>`)
+        expect(panel, id).toContain(`<a class="btn btn-primary" href="${pagePaths[lang][id]}">${esc(c.home.panels[id].go)}<span class="sr-only"> (${esc(c.home.panels[id].opens)})</span></a>`)
       }
     })
     it(`(${lang}) en reposo no hay ninguna tarjeta activa (ni la de Demo, que ya no existe) y no hay rotación`, () => {
@@ -112,7 +112,8 @@ describe('panel de vista previa: la acción "Abrir" siempre se ve (critica-impec
   it('cada panel termina en un pie "etiqueta + Abrir" que queda pegado abajo al hacer scroll', () => {
     for (const lang of ['en', 'es']) {
       const out = html(lang)
-      const footers = out.match(/<div class="panel-open"><p class="opens">[^<]+<\/p><a class="btn btn-primary" href="[^"]+">[^<]+<\/a><\/div>/g) ?? []
+      const footers = out.match(/<div class="panel-open"><a class="btn btn-primary" href="[^"]+">[^<]+<span class="sr-only"> \([^<]+\)<\/span><\/a><\/div>/g) ?? []
+      expect(out).not.toContain('class="opens"')
       expect(footers).toHaveLength(5)
     }
     expect(css).toMatch(/\.panel-open \{[^}]*position: sticky;[^}]*bottom: calc\(-1 \* var\(--panel-pad-y\)\)/)

@@ -72,6 +72,8 @@ section.block > .wrap > h2 { margin: 0 0 var(--space-3); font-size: clamp(1.5rem
 .page h2 { margin: var(--space-6) 0 var(--space-3); font-size: 1.4rem; }
 .page h3 { margin: var(--space-4) 0 var(--space-2); }
 .page :is(p, li) { text-wrap: pretty; } /* sin palabra suelta en la última línea (C-19) */
+.page .lead-plain { color: var(--text); font-size: 1.2rem; line-height: 1.5; margin-bottom: var(--space-3); }
+.page .lead-sub { font-size: .95rem; }
 .page .lead, .page .method { max-width: 68ch; } /* medida de lectura (C-20) */
 .journey { margin: 0 0 var(--space-5); padding-left: 1.2rem; max-width: 46rem; }
 .contact-list { list-style: none; margin: 0 0 var(--space-4); padding: 0; display: grid; gap: var(--space-2); color: var(--muted); }

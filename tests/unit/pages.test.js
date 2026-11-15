@@ -224,3 +224,22 @@ describe('Sobre mí (encargo 2026-11-14): presentación, audio opcional, qué ha
     })
   }
 })
+
+describe('textos llanos (2026-11-15)', () => {
+  it('Cómo trabajo: frase llana primero, entradilla después; Código sin frase nueva', () => {
+    const plain = { es: 'Uso inteligencia artificial para avanzar más rápido, pero nada se publica solo: reviso y apruebo cada cambio yo mismo.', en: 'I use AI to move faster, but nothing gets published on its own: I review and approve every change myself.' }
+    for (const lang of ['es', 'en']) {
+      const out = renderToString(React.createElement(HowPage, { lang }))
+      expect(site[lang].howPage.plain).toBe(plain[lang])
+      const a = out.indexOf(`<p class="lead lead-plain">${esc(plain[lang])}</p>`)
+      const b = out.indexOf(`<p class="lead lead-sub">${esc(site[lang].howPage.lead)}</p>`)
+      expect(a).toBeGreaterThan(out.indexOf('</h1>'))
+      expect(b).toBeGreaterThan(a)
+      expect(renderToString(React.createElement(CodePage, { lang }))).not.toContain('lead-plain')
+    }
+  })
+  it('tarjeta Código de Explorar: texto exacto', () => {
+    expect(site.es.home.panels.code.note).toBe('Lo que sé hacer, las reglas que sigo al trabajar con IA y un ejemplo de auditoría para verlo en la práctica.')
+    expect(site.en.home.panels.code.note).toBe('What I can do, the rules I follow when working with AI, and an audit example to see it in practice.')
+  })
+})

@@ -55,7 +55,7 @@ export default function Explore({ lang }) {
               <div className="body">
                 <h3>{p.title}</h3>
                 <p>{cardText(lang, id)}</p>
-                <a href={pagePaths[lang][id]}>{p.go}<small>{p.opens}</small></a>
+                <a href={pagePaths[lang][id]}>{p.go}<span className="sr-only">{` (${p.opens})`}</span></a>
               </div>
             </li>
           )

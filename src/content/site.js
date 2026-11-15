@@ -80,7 +80,7 @@ export const site = {
         { id: 'journey', label: 'Journey' }, { id: 'how', label: 'How I work' }, { id: 'interest', label: 'About me' },
       ],
       panels: {
-        code: { title: 'Code', note: 'Real data: the public ruleset and the static audit example.', github: 'View on GitHub ↗', opens: 'opens a new page', go: 'Open Code →' },
+        code: { title: 'Code', note: 'What I can do, the rules I follow when working with AI, and an audit example to see it in practice.', github: 'View on GitHub ↗', opens: 'opens a new page', go: 'Open Code →' },
         projects: { title: 'Work in production', text: 'Telegram bot for ISP technicians. A children\'s football championships site for a client. Criden, for businesses and websites.', opens: 'opens a new page', go: 'Open Projects →' },
         journey: { title: 'From fiber to AI', text: 'More than 8 years in fiber-optic networks, where things have to work in the field.', opens: 'opens a new page', go: 'Open Journey →' },
         how: { title: 'How I work', tabs: { people: 'People', machines: 'Machines' }, opens: 'opens a new page', go: 'Open How I work →' },
@@ -92,7 +92,7 @@ export const site = {
       },
     },
     codePage: { back: 'Back to the home screen', title: 'Code', lead: 'Real data and what I can do, grouped by capability.', description: 'Code by Dennys Heras: the public ruleset and static audit example, and his capabilities, each marked as shown or declared.' },
-    howPage: { back: 'Back to the home screen', title: 'How I work', lead: 'The rules I work with, for people and for machines, and the way I build with agents.', description: 'How Dennys Heras works with AI: short, checkable working rules for people and machines, and a software factory with agents under human control.', people: 'People', machines: 'Machines', machinesLead: 'The same rules as plain text, as published in llms.txt:' },
+    howPage: { back: 'Back to the home screen', title: 'How I work', plain: 'I use AI to move faster, but nothing gets published on its own: I review and approve every change myself.', lead: 'The rules I work with, for people and for machines, and the way I build with agents.', description: 'How Dennys Heras works with AI: short, checkable working rules for people and machines, and a software factory with agents under human control.', people: 'People', machines: 'Machines', machinesLead: 'The same rules as plain text, as published in llms.txt:' },
     // Vista interna `interest` (id estable en rutas, geometría y pruebas): la página es «About me»; el interés a largo plazo es su última sección.
     interestPage: {
       back: 'Back to the home screen',
@@ -383,7 +383,7 @@ export const site = {
         { id: 'journey', label: 'Trayectoria' }, { id: 'how', label: 'Cómo trabajo' }, { id: 'interest', label: 'Sobre mí' },
       ],
       panels: {
-        code: { title: 'Código', note: 'Datos reales: el conjunto de reglas público y el ejemplo de auditoría estático.', github: 'Ver en GitHub ↗', opens: 'abre una página nueva', go: 'Abrir Código →' },
+        code: { title: 'Código', note: 'Lo que sé hacer, las reglas que sigo al trabajar con IA y un ejemplo de auditoría para verlo en la práctica.', github: 'Ver en GitHub ↗', opens: 'abre una página nueva', go: 'Abrir Código →' },
         projects: { title: 'Trabajo en producción', text: 'Bot de Telegram para técnicos de un ISP. Sitio de campeonatos infantiles para un cliente. Criden, para negocios y páginas web.', opens: 'abre una página nueva', go: 'Abrir Proyectos →' },
         journey: { title: 'De la fibra a la IA', text: 'Más de 8 años en redes de fibra óptica, donde las cosas tienen que funcionar en campo.', opens: 'abre una página nueva', go: 'Abrir Trayectoria →' },
         how: { title: 'Cómo trabajo', tabs: { people: 'Personas', machines: 'Máquinas' }, opens: 'abre una página nueva', go: 'Abrir Cómo trabajo →' },
@@ -395,7 +395,7 @@ export const site = {
       },
     },
     codePage: { back: 'Volver a la primera pantalla', title: 'Código', lead: 'Datos reales y lo que sé hacer, agrupado por capacidad.', description: 'Código de Dennys Heras: el conjunto de reglas público y el ejemplo de auditoría estático, y sus capacidades, cada una marcada como demostrada o declarada.' },
-    howPage: { back: 'Volver a la primera pantalla', title: 'Cómo trabajo', lead: 'Las reglas con las que trabajo, para personas y para máquinas, y la forma en que construyo con agentes.', description: 'Cómo trabaja Dennys Heras con IA: reglas de trabajo cortas y comprobables para personas y máquinas, y una fábrica de software con agentes bajo control humano.', people: 'Personas', machines: 'Máquinas', machinesLead: 'Las mismas reglas en texto plano, como se publican en llms.txt:' },
+    howPage: { back: 'Volver a la primera pantalla', title: 'Cómo trabajo', plain: 'Uso inteligencia artificial para avanzar más rápido, pero nada se publica solo: reviso y apruebo cada cambio yo mismo.', lead: 'Las reglas con las que trabajo, para personas y para máquinas, y la forma en que construyo con agentes.', description: 'Cómo trabaja Dennys Heras con IA: reglas de trabajo cortas y comprobables para personas y máquinas, y una fábrica de software con agentes bajo control humano.', people: 'Personas', machines: 'Máquinas', machinesLead: 'Las mismas reglas en texto plano, como se publican en llms.txt:' },
     // Vista interna `interest` (id estable en rutas, geometría y pruebas): la página es «Sobre mí»; el interés a largo plazo es su última sección.
     interestPage: {
       back: 'Volver a la primera pantalla',

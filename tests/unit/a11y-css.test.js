@@ -52,10 +52,10 @@ describe('texto de 12 px como mínimo (C-08)', () => {
     }
     expect(small).toEqual([])
   })
-  it('escritorio y móvil: tagline y "Abre una página nueva" desde 12 px', () => {
+  it('escritorio y móvil: tagline desde 12 px; el aviso «abre una página nueva» ya no se ve y queda solo para lectores de pantalla', () => {
     expect(home).toMatch(/\.tagline \{ margin: 1\.2cqw 0 0; font-size: max\(12px, 1cqw\); \}/)
     expect(home).toMatch(/\.tagline \{ margin: 10px 0 0; font-size: 12px;/)
-    expect(rule(home, '.panel .opens')).toContain('font: 12px/')
+    expect(home).not.toMatch(/\.opens|\.m-card a small/)
   })
 })
 
