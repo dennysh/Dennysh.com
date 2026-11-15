@@ -383,7 +383,7 @@ describe('línea de tiempo de Trayectoria (trabajo B; contenido solo del CV púb
   })
 })
 
-describe('retos superados de Trayectoria (declarados por Dennys; sin fechas, sin clientes, sin cargos nuevos)', () => {
+describe('retos superados de Trayectoria (declarados por Dennys; sin fechas, sin policía, sin clientes, sin cargos nuevos)', () => {
   const IDS = { telydata: 1, afiatic: 1, msnet: 2 }
   const byId = (lang, id) => site[lang].journeyPage.timeline.find((e) => e.id === id)
   const NUMS = { es: { telydata: ['3'], afiatic: ['800', '4', '5'], msnet: ['4', '2', '3', '3'] }, en: { telydata: ['3'], afiatic: ['800', '4', '5'], msnet: ['4', '2', '3', '3'] } }
@@ -419,10 +419,18 @@ describe('retos superados de Trayectoria (declarados por Dennys; sin fechas, sin
       const cs = byId(lang, id).challenges
       const all = JSON.stringify(cs)
       expect(all).not.toMatch(/\b(19|20)\d{2}\b|\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|january|february|march|april|june|july|august|september|october|november|december)\b/i)
-      expect(all).not.toMatch(/inteligencia|polic[ií]a|intelligence|police/i)
+      expect(all).not.toMatch(/polic[ií]a|police|instituciones de seguridad|security institutions/i)
       expect(all).not.toMatch(/[\w.-]+@[\w.-]+\.\w+|https?:|www\./i)
       expect(cs.flatMap((c) => c.text.match(/\b\d+\b/g) ?? []).sort()).toEqual([...NUMS[lang][id]].sort())
     }
+  })
+  it('el reto «Enlaces que no pueden esperar» nombra «escuelas, hospitales y centros de inteligencia» (Dennys, 2026-11-15) y «inteligencia» no aparece en ningún otro reto', () => {
+    expect(byId('es', 'msnet').challenges[0].text).toContain('de escuelas, hospitales y centros de inteligencia.')
+    expect(byId('en', 'msnet').challenges[0].text).toContain('for schools, hospitals and intelligence centers.')
+    for (const lang of ['es', 'en']) for (const id of Object.keys(IDS)) byId(lang, id).challenges.forEach((c, i) => {
+      if (id === 'msnet' && i === 0) return
+      expect(JSON.stringify(c), `${lang} ${id} ${i}`).not.toMatch(/inteligencia|intelligence/i)
+    })
   })
   it('las fechas y los cargos de MS@Net, Afiatic y Telydata no cambian', () => {
     for (const lang of ['es', 'en']) {

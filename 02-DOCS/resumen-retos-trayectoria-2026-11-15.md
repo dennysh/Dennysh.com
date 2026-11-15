@@ -5,7 +5,7 @@
 - `src/components/Timeline.jsx` pinta el bloque dentro de la entrada, **después de las viñetas y antes de las etiquetas**: rótulo (texto real), título (`h3`) y texto. Las entradas sin retos salen igual que antes.
 - Estilo en `src/styles/home.css`: filete a la izquierda, rótulo pequeño en mayúsculas, texto de .95rem. Solo tokens existentes (`--line`, `--muted`, `--text`); sin colores nuevos ni iconos.
 - Retos cargados (texto exacto del encargo, es y en): Telydata (1), Afiatic (1), MS@Net (2). Fibratelecom, ISMAC y los proyectos no llevan.
-- Fechas y cargos sin tocar. Sin fechas, «centros de inteligencia», «policía», clientes ni personas en los retos.
+- Fechas y cargos sin tocar. Sin fechas, «policía», clientes ni personas en los retos. (Corrección de Dennys, ver abajo: el reto 3a nombra «centros de inteligencia».)
 
 ## Pruebas
 - `npm run build` en verde; `vitest`: 61 archivos, 1081 pruebas en verde.
@@ -17,6 +17,12 @@
 
 ## Capturas (`02-DOCS/capturas-retos-trayectoria-2026-11-15/`)
 `trayectoria-{es,en}-{movil,escritorio}-{oscuro,claro}.png` (móvil 390×844, escritorio 1440×900; página completa; compilación normal, sin fotos de relleno). Revisadas: móvil oscuro (es) y escritorio claro (en).
+
+## Corrección de Dennys (2026-11-15, commit aparte)
+- Reto 3a de MS@Net: ahora dice «escuelas, hospitales y centros de inteligencia» (en: «schools, hospitals and intelligence centers»). Sin «policía» ni nombres de entidades. Sustituye a «instituciones de seguridad».
+- Prueba: ya no prohíbe «inteligencia»; exige esta redacción en el reto 3a, prohíbe «policía», «police» y las frases anteriores «instituciones de seguridad» / «security institutions», y comprueba que «inteligencia» no aparece en ningún otro reto.
+- build y vitest en verde (1082 pruebas); e2e de Trayectoria en verde (22). Las 8 capturas se regeneraron porque todas son de página completa y contienen la entrada de MS@Net; servidores cerrados.
+- **Duda resuelta:** la redacción «instituciones de seguridad» ya no se usa; la decisión final es la de Dennys.
 
 ## Dudas y notas de contenido
 - «La primera empresa» (MS@Net, Taisha) queda tal cual, con «Fotos de respaldo disponibles a pedido». Es una afirmación declarada por Dennys, respaldada por fotos a pedido; **no demostrada en la página**. No encontré en el repositorio una lista de afirmaciones verificables de la Factory donde registrarla.
