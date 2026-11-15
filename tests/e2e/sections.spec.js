@@ -91,7 +91,16 @@ test('Proyectos: Bots para Telegram (desplegable), Super Gol Kids y Criden en pr
   await expect(page.locator('main')).not.toContainText(/contable|football manager|f[uú]tbol manager|hardlock|pr[óo]ximamente/i)
 })
 
-test('Bots para Telegram: abierto al cargar con los cuatro bots en orden, un renglón por bot, sin hueco; se cierra y abre con Enter, Espacio y clic sin mover lo de arriba', async ({ page }) => {
+test('Proyectos: el Bot de caja más cercana muestra su texto completo, con el dato de los técnicos (es y en)', async ({ page }) => {
+  for (const [url, frase, bot] of [['/es/proyectos/', 'Hoy lo usan más de 10 técnicos de la empresa.', 'Bot de caja más cercana'], ['/en/projects/', 'Today more than 10 technicians at the company use it.', 'Nearest box bot']]) {
+    await page.goto(url)
+    const li = page.locator('details.bots li', { hasText: bot })
+    await expect(li).toContainText(frase)
+    await expect(li.locator('.bot-text')).toBeVisible()
+  }
+})
+
+test('Bots para Telegram: abierto al cargar con los cuatro bots en orden, con su texto completo, sin hueco; se cierra y abre con Enter, Espacio y clic sin mover lo de arriba', async ({ page }) => {
   await page.goto('/es/proyectos/')
   const d = page.locator('details.bots')
   const items = d.locator('li strong')
@@ -107,7 +116,7 @@ test('Bots para Telegram: abierto al cargar con los cuatro bots en orden, un ren
     expect(badge.y).toBeGreaterThanOrEqual(box.y); expect(badge.y + badge.height).toBeLessThanOrEqual(box.y + box.height)
   }
   await expect(d.locator('li').nth(3)).toContainText('Reasigna actividades en el grupo de Telegram del equipo')
-  for (const t of await d.locator('.bot-text').allTextContents()) expect(t.split(/[.!?]\s/).length).toBe(1) // un renglón (una frase) por bot
+  await expect(d.locator('li').nth(1).locator('.bot-text')).toContainText('Hoy lo usan más de 10 técnicos de la empresa.') // en Proyectos cada bot muestra su texto completo (la vista previa de la portada sigue en una línea)
   // la tarjeta ocupa la fila entera: ninguna tarjeta vecina queda más baja que su contenido
   const cards = await page.locator('.cards > .card').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { x: r.x, w: r.width, h: r.height } }))
   expect(cards[0].w).toBeGreaterThan(cards[1].w)

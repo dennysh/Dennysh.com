@@ -160,7 +160,7 @@ describe('el inicio es solo la primera pantalla (C4/C5)', () => {
     for (const lang of ['en', 'es']) {
       const out = renderToString(React.createElement(Site, { lang }))
       expect(out).not.toMatch(/<footer|<section id="(demo|factory|governance|work|skills|journey|criden|contact)"/)
-      expect(out).toContain(`<h1 id="hero-h">${esc(site[lang].home.phrase)}</h1>`)
+      expect(out).toContain(`<h1 id="hero-h">${esc(site[lang].home.phrase).replace(' de IA', ' de\u00a0IA').replace('AI agents', 'AI\u00a0agents')}</h1>`)
       expect(out.length).toBeLessThan(40_000) // el inicio mide una pantalla, no las ≈5800 px de antes
     }
   })
@@ -290,4 +290,13 @@ describe('textos llanos (2026-11-15)', () => {
     expect(site.es.home.panels.code.note).toBe('Lo que sé hacer, las reglas que sigo al trabajar con IA y un ejemplo de auditoría para verlo en la práctica.')
     expect(site.en.home.panels.code.note).toBe('What I can do, the rules I follow when working with AI, and an audit example to see it in practice.')
   })
+})
+
+describe('Proyectos muestra el texto completo de cada bot (no solo la primera frase)', () => {
+  for (const [lang, frase] of [['es', 'Hoy lo usan más de 10 técnicos de la empresa.'], ['en', 'Today more than 10 technicians at the company use it.']]) {
+    it(`(${lang}) el Bot de caja más cercana incluye «${frase}»`, () => {
+      const out = render(ProjectsPage, lang)
+      expect(out).toContain(esc(frase))
+    })
+  }
 })

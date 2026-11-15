@@ -23,3 +23,11 @@ Vitest completo: 1091 pasan. E2E (proyecto mocked, conjunto completo): 213 pasan
 ## Qué no se pudo / dudas
 - No corrí el proyecto «real» de Playwright (necesita wrangler/D1) ni Lighthouse; el cambio no toca el formulario.
 - **Dudas para Dennys:** (a) ¿actualizar title/meta/og de la portada a la nueva propuesta? (b) El retrato móvil en 360x640 queda más pequeño para dejar la franja del botón. (c) «agentes de IA» puede partirse entre líneas en 390 px (sin palabras sueltas, pero «IA» abre línea); arreglarlo exigiría un espacio duro dentro del texto aprobado.
+
+## Seguimiento (commit nuevo, sin push)
+
+1. **Proyectos: el texto completo de cada bot.** En la página Proyectos (modo abierto) cada bot muestra ahora su texto entero (`TelegramBots.jsx`, prop `open`); ya se lee «Hoy lo usan más de 10 técnicos de la empresa.» (en: «Today more than 10 technicians at the company use it.»). La vista previa de la portada sigue en una línea. Comprobado en `dist/es/proyectos/` y `dist/en/projects/`: ambos contienen la frase. Pruebas: unitaria en `tests/unit/pages.test.js` y e2e en `tests/e2e/sections.spec.js` (es y en). Se cambió la e2e que exigía «un renglón por bot».
+2. **Titular sin cortar «de IA».** Al pintar el h1 (`FirstScreen.jsx`) se usa un espacio de no separación: «agentes de IA» (es) y «AI agents» (en). El texto de `site.js` y el visible no cambian. Medido por líneas a 390x844, 360x640 y 1440x900: es «Software, / automatizaciones, / bots y agentes de IA / para empresas.»; en «Software, automation, / bots and AI agents / for businesses.»; sin palabras sueltas. Pruebas unitarias ajustadas y una nueva que exige el espacio duro.
+3. **Capturas regeneradas** (misma carpeta): `proyectos-{es,en}-{m390,d1440}.png` y `portada-es-{oscuro,claro}-{m390,m360,d1440}.png`.
+
+Pruebas: vitest 1093 pasan; build OK; e2e (mocked) de secciones, páginas, portada, móvil y critica-1 pasan. La duda (c) de arriba queda resuelta.

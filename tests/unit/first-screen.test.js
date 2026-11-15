@@ -20,7 +20,7 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
 
     it(`(${lang}) un solo h1: la frase única, sin titular; y las dos líneas del perfil`, () => {
       expect(out.match(/<h1\b/g)).toHaveLength(1)
-      expect(out).toContain(`<h1 id="hero-h">${esc(c.home.phrase)}</h1>`)
+      expect(out).toContain(`<h1 id="hero-h">${esc(c.home.phrase).replace(' de IA', ' de\u00a0IA').replace('AI agents', 'AI\u00a0agents')}</h1>`)
       expect(out).not.toContain(esc(c.hero.thesis))
       for (const t of c.home.tagline) expect(out).toContain(esc(t))
     })
@@ -28,11 +28,13 @@ describe('primera pantalla: marcado sin JavaScript (TH11, AC-H2, AC-H6)', () => 
       expect(c.home.phrase).toBe(lang === 'es' ? 'Software, automatizaciones, bots y agentes de IA para empresas.' : 'Software, automation, bots and AI agents for businesses.')
       expect(c.home.kicker).toBe(lang === 'es' ? 'Un poco sobre mí' : 'A little about me')
       expect(c.home.cta).toBe(lang === 'es' ? 'Escríbeme' : 'Write to me')
-      const at = (t) => out.indexOf(esc(t))
+      const nb = (t) => t.replace(' de IA', ' de\u00a0IA').replace('AI agents', 'AI\u00a0agents') // «de IA» / «AI agents» no se separan entre líneas
+      const at = (t) => out.indexOf(esc(nb(t)))
       expect(out).toContain(`<p class="kicker">${esc(c.home.kicker)}</p><h1 id="hero-h">`)
+      expect(out).toMatch(lang === 'es' ? /agentes de\u00a0IA/ : /AI\u00a0agents/)
       expect(at(c.home.kicker)).toBeLessThan(at(c.home.phrase))
       expect(at(c.home.phrase)).toBeLessThan(at(c.home.tagline[0]))
-      expect(out.split(esc(c.home.phrase)).length - 1).toBe(1) // la propuesta se lee una sola vez
+      expect(out.split(esc(nb(c.home.phrase))).length - 1).toBe(1) // la propuesta se lee una sola vez
       expect(out).not.toContain('class="offer"')
       expect(out).toContain(`<a class="btn btn-primary first-cta" href="${pagePaths[lang].contact}">${esc(c.home.cta)}</a>`)
       expect(out).not.toContain('mailto:') // el inicio sigue sin mostrar el correo (checkPrerender)
